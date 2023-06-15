@@ -1,0 +1,19 @@
+[basic]
+good-names = ct, i, mx, k, a, b, u, v, bx, xs, j, m, s, t, n, w
+max-locals = 50
+max-args = 10
+max-attributes = 10
+max-line-length = 120
+max-branches = 20 
+max-public-methods=50
+max-statements = 70 
+max-module-lines = 1500
+max-bool-expr = 7
+ 
+[MISCELLANEOUS]
+
+# List of note tags to take in consideration, separated by a comma.
+notes=FIXME,XXX
+
+# Ignore unexpected keyword arg for pybedtools
+disable = unexpected-keyword-arg

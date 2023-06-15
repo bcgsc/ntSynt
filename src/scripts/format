@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -z "${MESON_SOURCE_ROOT}" ]; then
+  echo "[ERROR] This script can only be ran with meson!"
+  exit 1
+fi
+
+set -e
+
+cd "${MESON_SOURCE_ROOT}"
+
+files=$(find workpackage2 -type f | grep "\(.*\.h$\)\|\(.*\.hpp$\)\|\(.*\.cpp$\)\|\(.*\.cxx$\)")
+for file in $files; do
+  clang-format -i -style=mozilla $file
+done
