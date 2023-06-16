@@ -19,6 +19,8 @@ def main():
                         default=0.025, type=float)
     parser.add_argument("--no-solid", help="Do not use the solid BF for minimizer graph creation",
                         action="store_true")
+    parser.add_argument("--no-simplify-graph", help="Do not run graph simplification on minimizer graph",
+                        action="store_true")
     parser.add_argument("-p", "--prefix", help="Prefix for ntSynt output files [ntSynt.k<k>.w<w>]",
                         required=False)
     parser.add_argument("--merge", help="Multiple of window size used for collinear synteny block merging [3]",
@@ -40,7 +42,8 @@ def main():
                 f"--config references='{args.fastas}' k={args.k} w={args.w} t={args.t} fpr={args.fpr} " \
                 f"prefix={args.prefix} w_rounds='{args.w_rounds}' indel_merge={args.indel} " \
                 f"collinear_merge={args.merge}w "
-    command += "solid=False" if args.no_solid else "solid=True"
+    command += "solid=False " if args.no_solid else "solid=True "
+    command += "simplify_graph=False" if args.no_simplify_graph else "simplify_graph=True"
 
     if args.dry_run:
         command += " -n"

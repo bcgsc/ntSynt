@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Copy required python files from ntJoin submodule
+
 if [ -z "${MESON_SOURCE_ROOT}" ]; then
   echo "[ERROR] This script can only be ran with meson!"
   exit 1

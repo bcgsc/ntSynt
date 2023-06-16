@@ -6,6 +6,7 @@ import os
 onsuccess:
     shutil.rmtree(".snakemake", ignore_errors=True)
 
+# Read in parameters
 references = config["references"] if "references" in config else "Must specify 'references'"
 k = config["k"] if "k" in config else 24
 w = config["w"] if "w" in config else 1000
@@ -17,6 +18,7 @@ repeat = config["repeat"] if "repeat" in config else False
 w_rounds = config["w_rounds"] if "w_rounds" in config else [100, 10, 5]
 indel_merge = config["indel_merge"] if "indel_merge" in config else 500
 collinear_merge = config["collinear_merge"] if "collinear_merge" in config else "3w"
+simplify_graph = config["simplify_graph"] if "simplify_graph" in config else True
 
 
 # Get path to the base directory (where snakemake file is located)
@@ -63,9 +65,10 @@ rule ntsynt_synteny:
             fais=expand("{fasta}.fai", fasta=references)
     output: expand("{prefix}.merge_collinear.synteny_blocks.tsv", prefix=prefix)
     params: path_to_script=expand("{base_path}/ntsynt_run.py", base_path=script_path),
-            options=expand("-k {k} -w {w} --w-rounds {w_rounds} -p {prefix} --bp {indel_merge} --collinear-merge {collinear_merge} --simplify-graph",
+            options=expand("-k {k} -w {w} --w-rounds {w_rounds} -p {prefix} --bp {indel_merge} --collinear-merge {collinear_merge}",
                             k=k, w=w, w_rounds=[w_rounds], prefix=prefix, indel_merge=indel_merge, collinear_merge=collinear_merge),
             solid_bf="--solid" if solid is True else [],
-            repeat_bf="--repeat" if repeat is True else []        
+            repeat_bf="--repeat" if repeat is True else [],
+            simplify_graph="--simplify-graph" if simplify_graph is True else []      
     shell: "python3 {params.path_to_script} {input.mx} {params.options} {params.solid_bf} {input.solid} \
              {params.repeat_bf} {input.repeat}"

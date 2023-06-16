@@ -456,7 +456,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             paths_sorted_for_printing = sorted(paths)
             if new_w == self.args.w_rounds[-1]: # Do final check for last w round
                 self.check_non_overlapping(paths)
-            with open(f"{self.args.p}.{new_w}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
+            with open(f"{self.args.p}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                 block_num = 0
                 for block in paths_sorted_for_printing:
                     if not all(asm_block.get_block_length() >= self.args.z
@@ -562,7 +562,6 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             self.load_minimizers()
 
         self.make_minimizer_graph()
-        self.print_graph(self.graph, out_prefix="initial_graph")
         if self.args.simplify_graph:
             self.graph = self.run_graph_simplification(self.graph)
         self.graph = self.filter_graph_global(self.graph)

@@ -14,12 +14,10 @@ include_dirs = [
 
 rootpath = meson.source_root()
 
-src_files = [ 'ntsynt_make_solid_bf.cpp']
-deps = [ btllib_dep, openmp_dep]
+src_files = [ 'ntsynt_make_solid_bf.cpp' ]
+deps = [ btllib_dep, openmp_dep ]
 
 link_args = [ '-lbtllib' ]
-
-rootpath = meson.source_root()
 
 clang_format = find_program('clang-format', required : false)
 if clang_format.found()
@@ -30,4 +28,5 @@ endif
 subdir('src')
 subdir('bin')
 
+# Install required files from ntJoin submodule
 meson.add_install_script('scripts/install-ntjoin')
