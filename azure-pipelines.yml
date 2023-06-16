@@ -15,7 +15,8 @@ jobs:
 
   - script: |
       source activate ntsynt_ci
-      conda install --yes --name ntsynt_ci -c bioconda -c conda-forge python intervaltree pybedtools ncls python-igraph compilers btllib meson ninja snakemake samtools
+      conda install --yes --name ntsynt_ci -c bioconda -c conda-forge python mamba
+      mamba install --yes --name ntsynt_ci -c bioconda -c conda-forge python intervaltree pybedtools ncls python-igraph compilers btllib meson ninja snakemake samtools
     displayName: Install dependencies
 
   - script: |
