@@ -54,6 +54,7 @@ optional arguments:
                         List of window sizes for iterative rounds [100 10 5]
   --indel INDEL         Threshold for indel detection [500]
   --dry-run             Print out the commands that will be executed
+  --benchmark           Store benchmarks for each step of the ntSynt pipeline
   -v, --version         show program's version number and exit
 ```
 

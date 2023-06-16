@@ -19,6 +19,18 @@ w_rounds = config["w_rounds"] if "w_rounds" in config else [100, 10, 5]
 indel_merge = config["indel_merge"] if "indel_merge" in config else 500
 collinear_merge = config["collinear_merge"] if "collinear_merge" in config else "3w"
 simplify_graph = config["simplify_graph"] if "simplify_graph" in config else True
+benchmark = config["benchmark"] if "benchmark" in config else False
+
+# If want to benchmark, use memusg or /usr/bin/time
+# The snakemake benchmarking is quite inaccurate for shorter runtimes
+benchmark_path = "" 
+if benchmark:
+    if benchmark_memusg := shutil.which("memusg"):
+        benchmark_path = f"{benchmark_memusg} -t"
+    elif benchmark_time := shutil.which("time"):
+        benchmark_path = f"{benchmark_time} -v"
+    else:
+        print("WARNING: memusg and time not found in PATH. Benchmarks will not be tallied.")
 
 
 # Get path to the base directory (where snakemake file is located)
@@ -31,22 +43,25 @@ rule all:
 rule faidx:
     input: fa="{file}"
     output: "{file}.fai"
-    shell: "samtools faidx {input.fa}"
+    params: benchmarking=expand("{benchmark_path} -o {{file}}.faidx.time", benchmark_path=benchmark_path) if benchmark else []
+    shell: "{params.benchmarking} samtools faidx {input.fa}"
 
 rule make_solid_bf:
     input: refs=references
     output: expand("{prefix}.solid.bf", prefix=prefix)
     params: options=expand("-p {prefix}.solid --fpr {fpr} -k {k} -t {threads}", prefix=prefix, fpr=fpr, k=k, threads=threads),
-            path_to_script=expand("{base_path}/ntsynt_make_solid_bf", base_path=script_path)
-    shell: "{params.path_to_script} --genome {input.refs} {params.options}"
+            path_to_script=expand("{base_path}/ntsynt_make_solid_bf", base_path=script_path),
+            benchmarking=expand("{benchmark_path} -o {prefix}.make_solid_bf.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else []
+    shell: "{params.benchmarking} {params.path_to_script} --genome {input.refs} {params.options}"
 
 # For posterity, included but this is experimental
 rule make_repeat_bf:
     input: refs=references
     output: expand("{prefix}.repeat.bf", prefix=prefix)
     params: options=expand("-p {prefix}.repeat --fpr {fpr} -k {k} -t {threads}", prefix=prefix, fpr=fpr, k=k, threads=threads),
-            path_to_script=expand("{base_path}/ntsynt_make_repeat_bfs.py", base_path=script_path)
-    shell: "{params.path_to_script} --genome {input.refs} {params.options}"
+            path_to_script=expand("{base_path}/ntsynt_make_repeat_bfs.py", base_path=script_path),
+            benchmarking=expand("{benchmark_path} -o {prefix}.make_repeat_bf.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else []
+    shell: "{params.benchmarking} {params.path_to_script} --genome {input.refs} {params.options}"
 
 rule indexlr:
     input: fa="{fasta}",
@@ -55,8 +70,9 @@ rule indexlr:
     output: expand("{{fasta}}.k{k}.w{w}.tsv", k=k, w=w)
     params: options=expand("-k {k} -w {w} -t {t} --long --seq --pos", k=k, w=w, t=threads),
             bf="-s" if solid is True else [],
-            repeat="-r" if repeat is True else []
-    shell: "indexlr {params.options} {params.bf} {input.solid} {params.repeat} {input.repeat} {input.fa} > {output}"
+            repeat="-r" if repeat is True else [],
+            benchmarking=expand("{benchmark_path} -o {{fasta}}.indexlr.time", benchmark_path=benchmark_path) if benchmark else []
+    shell: "{params.benchmarking} indexlr {params.options} {params.bf} {input.solid} {params.repeat} {input.repeat} {input.fa} > {output}"
 
 rule ntsynt_synteny:
     input: mx=expand("{fasta}.k{k}.w{w}.tsv", fasta=references, k=k, w=w),
@@ -69,6 +85,7 @@ rule ntsynt_synteny:
                             k=k, w=w, w_rounds=[w_rounds], prefix=prefix, indel_merge=indel_merge, collinear_merge=collinear_merge),
             solid_bf="--solid" if solid is True else [],
             repeat_bf="--repeat" if repeat is True else [],
-            simplify_graph="--simplify-graph" if simplify_graph is True else []      
-    shell: "python3 {params.path_to_script} {input.mx} {params.options} {params.solid_bf} {input.solid} \
+            simplify_graph="--simplify-graph" if simplify_graph is True else []  ,
+            benchmarking=expand("{benchmark_path} -o {prefix}.make_solid_bf.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else [] 
+    shell: "{params.benchmarking} python3 {params.path_to_script} {input.mx} {params.options} {params.solid_bf} {input.solid} \
              {params.repeat_bf} {input.repeat}"

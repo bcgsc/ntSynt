@@ -29,6 +29,8 @@ def main():
                         nargs="+", default=[100, 10, 5])
     parser.add_argument("--indel", help="Threshold for indel detection [500]", default=500, type=int)
     parser.add_argument("--dry-run", help="Print out the commands that will be executed", action="store_true")
+    parser.add_argument("--benchmark", help="Store benchmarks for each step of the ntSynt pipeline",
+                        action="store_true")
     parser.add_argument("-v", "--version", action="version", version="ntSynt v0.0.1")
 
     args = parser.parse_args()
@@ -43,7 +45,8 @@ def main():
                 f"prefix={args.prefix} w_rounds='{args.w_rounds}' indel_merge={args.indel} " \
                 f"collinear_merge={args.merge}w "
     command += "solid=False " if args.no_solid else "solid=True "
-    command += "simplify_graph=False" if args.no_simplify_graph else "simplify_graph=True"
+    command += "simplify_graph=False " if args.no_simplify_graph else "simplify_graph=True "
+    command += "benchmark=True " if args.benchmark else "benchmark=False "
 
     if args.dry_run:
         command += " -n"
