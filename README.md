@@ -74,6 +74,13 @@ optional arguments:
 conda install -c bioconda -c conda-forge python3 intervaltree pybedtools ncls python-igraph compilers btllib meson snakemake samtools
 ```
 
+### Installing ntSynt from the source code
+```
+meson build --prefix=/path/to/desired/install/location
+cd build
+ninja install
+```
+
 ## License
 ntSynt Copyright (c) 2023 British Columbia Cancer Agency Branch. All rights reserved.
 
