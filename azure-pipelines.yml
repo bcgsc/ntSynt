@@ -1,19 +1,32 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# ntSynt CI
 
-trigger:
-- main
+jobs:
+- job:
+  displayName: ubuntu-latest
+  pool:
+    vmImage: 'ubuntu-latest'
 
-pool:
-  vmImage: ubuntu-latest
+  steps:
+  - script: echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: Add conda to PATH
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+  - script: conda create --yes --quiet --name ntsynt_ci
+    displayName: Create Anaconda environment
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  - script: |
+      source activate ntsynt_ci
+      conda install --yes --name ntsynt_ci -c bioconda -c conda-forge python intervaltree pybedtools ncls python-igraph compilers btllib meson ninja snakemake samtools
+    displayName: Install dependencies
+
+  - script: |
+      source activate ntsynt_ci
+      meson build --prefix=$(pwd)/ntSynt_build
+      cd build
+      ninja install
+    displayName: Install ntSynt
+
+  - script: |
+      source activate ntsynt_ci
+      ./ntSynt_build/bin/ntSynt.py --help
+    displayName: Test ntSynt (help message)
+
