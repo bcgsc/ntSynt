@@ -59,19 +59,20 @@ optional arguments:
 
 ### Dependencies:
 - python 3.9+ with modules:
-  - intervaltree
-  - pybedtools
-  - ncls
-  - python-igraph
+  - [intervaltree](https://github.com/chaimleib/intervaltree)
+  - [pybedtools](https://daler.github.io/pybedtools/)
+  - [ncls](https://github.com/pyranges/ncls)
+  - [python-igraph](https://python.igraph.org/en/stable/)
 - GCC 6+ or Clang 5+ (with OpenMP and C++17 support)
-- btllib
-- meson
-- snakemake
-- samtools
+- [btllib](https://github.com/bcgsc/btllib)
+- [meson](https://mesonbuild.com/)
+- [ninja](https://ninja-build.org/)
+- [snakemake](https://snakemake.readthedocs.io/en/stable/)
+- [samtools](http://www.htslib.org/)
 
 **All ntSynt dependencies can be installed using conda:**
 ```
-conda install -c bioconda -c conda-forge python3 intervaltree pybedtools ncls python-igraph compilers btllib meson snakemake samtools
+conda install -c bioconda -c conda-forge python intervaltree pybedtools ncls python-igraph compilers btllib meson ninja snakemake samtools
 ```
 
 ### Installing ntSynt from the source code
