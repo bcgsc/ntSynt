@@ -22,6 +22,7 @@ ntSynt can take multiple genome assemblies as input, and will compute synteny bl
 ## Credits
 
 Concept: Lauren Coombe and Rene Warren
+
 Design and implementation: Lauren Coombe
 
 ## Usage
