@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -z "${MESON_SOURCE_ROOT}" ]; then
+  echo "[ERROR] This script can only be ran with meson!"
+  exit 1
+fi
+
+mkdir -p "${DESTDIR}/${MESON_INSTALL_PREFIX}/bin"
+
+cp  "${MESON_SOURCE_ROOT}/subprojects/ntJoin/bin/ntjoin_utils.py" "${DESTDIR}/${MESON_INSTALL_PREFIX}/bin"
+cp  "${MESON_SOURCE_ROOT}/subprojects/ntJoin/bin/ntjoin.py" "${DESTDIR}/${MESON_INSTALL_PREFIX}/bin"

@@ -23,7 +23,7 @@ def main():
                         required=False)
     parser.add_argument("--merge", help="Multiple of window size used for collinear synteny block merging [3]",
                         default=3, type=int)
-    parser.add_argument("--w_rounds", help="List of window sizes for iterative rounds [100 15 5]",
+    parser.add_argument("--w_rounds", help="List of window sizes for iterative rounds [100 10 5]",
                         nargs="+", default=[100, 10, 5])
     parser.add_argument("--indel", help="Threshold for indel detection [500]", default=500, type=int)
     parser.add_argument("--dry-run", help="Print out the commands that will be executed", action="store_true")
@@ -45,7 +45,7 @@ def main():
     if args.dry_run:
         command += " -n"
 
-    print(f"Running {command}")
+    print(f"Running {command}", flush=True)
 
     command = shlex.split(command)
 

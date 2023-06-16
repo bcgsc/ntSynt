@@ -67,5 +67,5 @@ rule ntsynt_synteny:
                             k=k, w=w, w_rounds=[w_rounds], prefix=prefix, indel_merge=indel_merge, collinear_merge=collinear_merge),
             solid_bf="--solid" if solid is True else [],
             repeat_bf="--repeat" if repeat is True else []        
-    shell: "python3 {params.path_to_script} celegansN2_referencegenome.fna.k24.w1000.tsv survivor_F.fa.k24.w1000.tsv {params.options} {params.solid_bf} {input.solid} \
-             {params.repeat_bf} {input.repeat}" 
+    shell: "python3 {params.path_to_script} {input.mx} {params.options} {params.solid_bf} {input.solid} \
+             {params.repeat_bf} {input.repeat}"

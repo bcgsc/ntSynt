@@ -29,4 +29,5 @@ endif
 # Source files and scripts
 subdir('src')
 subdir('bin')
-subdir('ntjoin_src')
+
+meson.add_install_script('scripts/install-ntjoin')
