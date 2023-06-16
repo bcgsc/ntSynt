@@ -1,3 +1,5 @@
+![Logo](https://github.com/bcgsc/ntSynt/blob/main/logo/ntsynt-logo.png)
+
 # ntSynt
 
 Detecting synteny blocks between multiple genome assemblies using a dynamic minimizer graph approach.
