@@ -38,7 +38,8 @@ jobs:
   - script: |
       source activate ntsynt_ci
       export PATH=$(pwd)/ntSynt_build/bin:$PATH
-      pytest ntsynt_tests.py
+      cd tests
+      pytest -vs ntsynt_tests.py
     displayName: Run pytests
 
 - job:
@@ -78,5 +79,6 @@ jobs:
   - script: |
       source activate ntsynt_ci
       export PATH=$(pwd)/ntSynt_build/bin:$PATH
-      pytest ntsynt_tests.py
+      cd tests
+      pytest -vs ntsynt_tests.py
     displayName: Run pytests
