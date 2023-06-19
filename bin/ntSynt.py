@@ -28,7 +28,7 @@ def main():
     parser.add_argument("--w_rounds", help="List of window sizes for iterative rounds [100 10 5]",
                         nargs="+", default=[100, 10, 5])
     parser.add_argument("--indel", help="Threshold for indel detection [500]", default=500, type=int)
-    parser.add_argument("--dry-run", help="Print out the commands that will be executed", action="store_true")
+    parser.add_argument("-n", "--dry-run", help="Print out the commands that will be executed", action="store_true")
     parser.add_argument("--benchmark", help="Store benchmarks for each step of the ntSynt pipeline",
                         action="store_true")
     parser.add_argument("-v", "--version", action="version", version="ntSynt v0.0.1")

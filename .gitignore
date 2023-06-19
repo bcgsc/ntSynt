@@ -1,1 +1,9 @@
 build
+tests/expected_result/tmp/
+tests/celegans-A*
+tests/*tsv
+analysis_scripts
+ntSynt_build
+tests/*fai
+**/__pycache__
+**/*bf
