@@ -31,7 +31,7 @@ Design and implementation: Lauren Coombe
 
 ```
 usage: ntSynt.py [-h] [-k K] [-w W] [-t T] [--fpr FPR] [--no-solid] [--no-simplify-graph] [-p PREFIX] [--merge MERGE] [--w_rounds W_ROUNDS [W_ROUNDS ...]]
-                 [--indel INDEL] [--dry-run] [-v]
+                 [--indel INDEL] [-n] [--benchmark] [-f] [-v]
                  fastas [fastas ...]
 
 ntSynt: Genome synteny detection using dynamic minimizer graphs
@@ -53,8 +53,9 @@ optional arguments:
   --w_rounds W_ROUNDS [W_ROUNDS ...]
                         List of window sizes for iterative rounds [100 10 5]
   --indel INDEL         Threshold for indel detection [500]
-  --dry-run             Print out the commands that will be executed
+  -n, --dry-run         Print out the commands that will be executed
   --benchmark           Store benchmarks for each step of the ntSynt pipeline
+  -f, --force           Run all steps in the ntSynt pipeline, regardless of existing output files
   -v, --version         show program's version number and exit
 ```
 

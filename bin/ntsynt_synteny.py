@@ -456,7 +456,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             paths_sorted_for_printing = sorted(paths)
             if new_w == self.args.w_rounds[-1]: # Do final check for last w round
                 self.check_non_overlapping(paths)
-            with open(f"{self.args.p}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
+            with open(f"{self.args.p}.pre-collinear-merge.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                 block_num = 0
                 for block in paths_sorted_for_printing:
                     if not all(asm_block.get_block_length() >= self.args.z
@@ -466,7 +466,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                     block_num += 1
             if new_w == self.args.w_rounds[-1]:
                 paths_sorted_for_printing_collinear = self.merge_collinear_blocks(paths_sorted_for_printing)
-                with open(f"{self.args.p}.merge_collinear.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
+                with open(f"{self.args.p}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                     block_num = 0
                     for block in paths_sorted_for_printing_collinear:
                         if not all(asm_block.get_block_length() >= self.args.z

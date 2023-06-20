@@ -38,7 +38,7 @@ script_path = workflow.basedir
 
 rule all:
     input: expand("{ref}.k{k}.w{w}.tsv", ref=references, k=k, w=w),
-            expand("{prefix}.merge_collinear.synteny_blocks.tsv", prefix=prefix)
+            expand("{prefix}.synteny_blocks.tsv", prefix=prefix)
 
 rule faidx:
     input: fa="{file}"
@@ -79,7 +79,7 @@ rule ntsynt_synteny:
             solid=expand("{prefix}.solid.bf", prefix=prefix) if solid is True else [],
             repeat=expand("{prefix}.repeat.bf", prefix=prefix) if repeat is True else [],
             fais=expand("{fasta}.fai", fasta=references)
-    output: expand("{prefix}.merge_collinear.synteny_blocks.tsv", prefix=prefix)
+    output: expand("{prefix}.synteny_blocks.tsv", prefix=prefix)
     params: path_to_script=expand("{base_path}/ntsynt_run.py", base_path=script_path),
             options=expand("-k {k} -w {w} --w-rounds {w_rounds} -p {prefix} --bp {indel_merge} --collinear-merge {collinear_merge}",
                             k=k, w=w, w_rounds=[w_rounds], prefix=prefix, indel_merge=indel_merge, collinear_merge=collinear_merge),
