@@ -85,6 +85,14 @@ cd build
 ninja install
 ```
 
+### Testing ntSynt installation
+Test your ntSynt installation using our provided demo:
+```
+cd tests
+./run_ntSynt_demo.sh 
+```
+Once the script has executed successfully, you can compare the output files with those in tests/expected_results
+
 ## License
 ntSynt Copyright (c) 2023 British Columbia Cancer Agency Branch. All rights reserved.
 
