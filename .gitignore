@@ -1,5 +1,6 @@
 build
 tests/expected_result/tmp/
+tests/expected_result/*fa
 tests/celegans-A*
 tests/*tsv
 analysis_scripts

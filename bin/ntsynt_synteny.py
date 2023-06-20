@@ -417,10 +417,8 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             if not orientations or not contig_id or \
                 (max(differences) - min(differences) > self.args.bp - self.args.k) or \
                     max(differences) >= self.args.collinear_merge:
-                if all(asm_block.get_block_length() >= self.args.z
-                               for _, asm_block in block.assembly_blocks.items()):
-                    out_blocks.append(curr_block)
-                    curr_block = block
+                out_blocks.append(curr_block)
+                curr_block = block
             else:
                 # Extend this block
                 for assembly, assembly_block in block.assembly_blocks.items():
