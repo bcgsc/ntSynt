@@ -94,6 +94,18 @@ cd tests
 ```
 Once the script has executed successfully, you can compare the output files with those in tests/expected_results
 
+### Output files
+The main output file has the naming scheme `<prefix>.synteny_blocks.tsv`. This contains the synteny blocks computed in a TSV format.
+
+The columns of this output synteny blocks TSV:
+1. Synteny block ID - Lines with the same ID are part of the same synteny block
+2. Genome file name
+3. Genome chromosome/contig
+4. Genome start coordinate
+5. Genome end coordinate
+6. Chromosome/contig strand
+7. Number of mapped minimizers in this synteny block
+
 ## License
 ntSynt Copyright (c) 2023 British Columbia Cancer Agency Branch. All rights reserved.
 
