@@ -417,10 +417,8 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             if not orientations or not contig_id or \
                 (max(differences) - min(differences) > self.args.bp - self.args.k) or \
                     max(differences) >= self.args.collinear_merge:
-                if all(asm_block.get_block_length() >= self.args.z
-                               for _, asm_block in block.assembly_blocks.items()):
-                    out_blocks.append(curr_block)
-                    curr_block = block
+                out_blocks.append(curr_block)
+                curr_block = block
             else:
                 # Extend this block
                 for assembly, assembly_block in block.assembly_blocks.items():
@@ -456,7 +454,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             paths_sorted_for_printing = sorted(paths)
             if new_w == self.args.w_rounds[-1]: # Do final check for last w round
                 self.check_non_overlapping(paths)
-            with open(f"{self.args.p}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
+            with open(f"{self.args.p}.pre-collinear-merge.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                 block_num = 0
                 for block in paths_sorted_for_printing:
                     if not all(asm_block.get_block_length() >= self.args.z
@@ -466,7 +464,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                     block_num += 1
             if new_w == self.args.w_rounds[-1]:
                 paths_sorted_for_printing_collinear = self.merge_collinear_blocks(paths_sorted_for_printing)
-                with open(f"{self.args.p}.merge_collinear.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
+                with open(f"{self.args.p}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                     block_num = 0
                     for block in paths_sorted_for_printing_collinear:
                         if not all(asm_block.get_block_length() >= self.args.z

@@ -31,7 +31,7 @@ Design and implementation: Lauren Coombe
 
 ```
 usage: ntSynt.py [-h] [-k K] [-w W] [-t T] [--fpr FPR] [--no-solid] [--no-simplify-graph] [-p PREFIX] [--merge MERGE] [--w_rounds W_ROUNDS [W_ROUNDS ...]]
-                 [--indel INDEL] [--dry-run] [-v]
+                 [--indel INDEL] [-n] [--benchmark] [-f] [-v]
                  fastas [fastas ...]
 
 ntSynt: Genome synteny detection using dynamic minimizer graphs
@@ -53,8 +53,9 @@ optional arguments:
   --w_rounds W_ROUNDS [W_ROUNDS ...]
                         List of window sizes for iterative rounds [100 10 5]
   --indel INDEL         Threshold for indel detection [500]
-  --dry-run             Print out the commands that will be executed
+  -n, --dry-run         Print out the commands that will be executed
   --benchmark           Store benchmarks for each step of the ntSynt pipeline
+  -f, --force           Run all steps in the ntSynt pipeline, regardless of existing output files
   -v, --version         show program's version number and exit
 ```
 
@@ -92,6 +93,18 @@ cd tests
 ./run_ntSynt_demo.sh 
 ```
 Once the script has executed successfully, you can compare the output files with those in tests/expected_results
+
+### Output files
+The main output file has the naming scheme `<prefix>.synteny_blocks.tsv`. This contains the synteny blocks computed in a TSV format.
+
+The columns of this output synteny blocks TSV:
+1. Synteny block ID - Lines with the same ID are part of the same synteny block
+2. Genome file name
+3. Genome chromosome/contig
+4. Genome start coordinate
+5. Genome end coordinate
+6. Chromosome/contig strand
+7. Number of mapped minimizers in this synteny block
 
 ## License
 ntSynt Copyright (c) 2023 British Columbia Cancer Agency Branch. All rights reserved.
