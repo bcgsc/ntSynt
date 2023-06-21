@@ -31,7 +31,7 @@ def main():
     parser.add_argument("-n", "--dry-run", help="Print out the commands that will be executed", action="store_true")
     parser.add_argument("--benchmark", help="Store benchmarks for each step of the ntSynt pipeline",
                         action="store_true")
-    parser.add_argument("-f", "--force", help="Run all steps in the ntSynt pipeline, regardless of existing output files",
+    parser.add_argument("-f", "--force", help="Run all ntSynt steps, regardless of existing output files",
                         action="store_true")
     parser.add_argument("-v", "--version", action="version", version="ntSynt v0.0.1")
 
