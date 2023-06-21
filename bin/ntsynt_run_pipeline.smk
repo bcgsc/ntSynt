@@ -85,7 +85,7 @@ rule ntsynt_synteny:
                             k=k, w=w, w_rounds=[w_rounds], prefix=prefix, indel_merge=indel_merge, collinear_merge=collinear_merge),
             solid_bf="--solid" if solid is True else [],
             repeat_bf="--repeat" if repeat is True else [],
-            simplify_graph="--simplify-graph" if simplify_graph is True else []  ,
+            simplify_graph="--simplify-graph" if simplify_graph is True else [],
             benchmarking=expand("{benchmark_path} -o {prefix}.make_solid_bf.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else [] 
-    shell: "{params.benchmarking} python3 {params.path_to_script} {input.mx} {params.options} {params.solid_bf} {input.solid} \
+    shell: "{params.benchmarking} python3 {params.path_to_script} {input.mx} {params.options} {params.solid_bf} {input.solid}  {params.simplify_graph} \
              {params.repeat_bf} {input.repeat}"
