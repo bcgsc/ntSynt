@@ -21,17 +21,17 @@ Approximate the required BF size based on the input genome size.
 Using the formula found in Broder & Mitzenmacher, 2004, simplified for
 one hash function.
 */
-double
+long long
 approximate_bf_size(std::string genome_file, double fpr, int threads)
 {
-  int genome_size = 0;
+  long long genome_size = 0;
   btllib::SeqReader reader(
     genome_file, btllib::SeqReader::Flag::LONG_MODE, threads);
   for (const auto record : reader) {
     genome_size += record.seq.length();
   }
   std::cout << "Genome size (bp): " << genome_size << std::endl;
-  double size_bits = ceil(((-1 * genome_size) / log(1 - fpr)));
+  long long size_bits = ceil(((-1 * genome_size) / log(1 - fpr)));
   return size_bits / NUM_BITS_PER_BYTE;
 }
 
@@ -60,7 +60,7 @@ main(int argc, const char** argv)
 
   parser.add_argument("--bf")
     .help("Bloom filter size in bytes (optional)")
-    .scan<'g', double>();
+    .scan<'d', long long>();
 
   parser.add_argument("-t")
     .help("Number of threads")
@@ -99,9 +99,9 @@ main(int argc, const char** argv)
   std::sort(genome_files.begin(), genome_files.end());
 
   /* Calculate BF size based on genome size of first specified genome */
-  unsigned bf_size;
+  long long bf_size;
   if (parser.is_used("--bf")) {
-    bf_size = parser.get<double>("bf");
+    bf_size = parser.get<long long>("bf");
     std::cout << "\t\t--bf " << bf_size << std::endl;
   } else {
     std::cout << "Calculating BF size based on input genome size" << std::endl;
