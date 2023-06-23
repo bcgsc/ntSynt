@@ -42,13 +42,14 @@ def main():
         args.prefix = f"ntSynt.k{args.k}.w{args.w}"
 
     args.w_rounds = " ".join(map(str, args.w_rounds))
-    command = f"snakemake -s {base_dir}/ntsynt_run_pipeline.smk -p --cores 1 " \
+    command = f"snakemake -s {base_dir}/ntsynt_run_pipeline.smk -p --cores {args.t} " \
                 f"--config references='{args.fastas}' k={args.k} w={args.w} t={args.t} fpr={args.fpr} " \
                 f"prefix={args.prefix} w_rounds='{args.w_rounds}' indel_merge={args.indel} " \
                 f"collinear_merge={args.merge}w "
     command += "solid=False " if args.no_solid else "solid=True "
     command += "simplify_graph=False " if args.no_simplify_graph else "simplify_graph=True "
     command += "benchmark=True " if args.benchmark else "benchmark=False "
+    command += "--resources load=2 " # For indexlr, don't want more than 2 indexlr at a time due to memory
 
     if args.dry_run:
         command += " -n"
