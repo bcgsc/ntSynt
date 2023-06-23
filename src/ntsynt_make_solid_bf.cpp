@@ -6,6 +6,10 @@
 #include <iostream>
 #include <vector>
 
+#if _OPENMP
+#include <omp.h>
+#endif
+
 /*
 Creating a solid Bloom filter (with k-mers found in all input assemblies) using
 a cascading Bloom filter approach
@@ -94,6 +98,10 @@ main(int argc, const char** argv)
   std::cout << "\t\t--fpr " << fpr << std::endl;
   std::cout << "\t\t-p " << prefix << std::endl;
 
+  #if _OPENMP
+  omp_set_num_threads(num_threads);
+  #endif
+
   /* Sort the vector of genomes, so that the output BF will be the same 
   even if files are specified in a different order */
   std::sort(genome_files.begin(), genome_files.end());
@@ -116,6 +124,8 @@ main(int argc, const char** argv)
   btllib::log_info("Reading " + genome_files[0]);
   btllib::SeqReader reader(
     genome_files[0], btllib::SeqReader::Flag::LONG_MODE, num_threads);
+
+  #pragma omp parallel
   for (const auto record : reader) {
     bf->insert(record.seq);
   }
@@ -132,6 +142,7 @@ main(int argc, const char** argv)
     btllib::log_info("Reading " + genome);
     btllib::SeqReader reader(
       genome, btllib::SeqReader::Flag::LONG_MODE, num_threads);
+    #pragma omp parallel
     for (const auto record : reader) {
       btllib::NtHash nthash(record.seq, HASH_FNS, k);
       while (nthash.roll()) {
