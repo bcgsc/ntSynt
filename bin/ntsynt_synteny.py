@@ -209,6 +209,12 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                 intervals[assembly][ctg] = ncls.NCLS(list(start), list(end), list(data))
         return terminal_mxs, internal_mxs, intervals
 
+    def get_overlapping_region(self, start: int, end: int, interval: intervaltree.Interval) -> intervaltree.Interval:
+        "Given a start/end and list of intervals, return a list of intervals describing the overlapping region"
+        new_start = max(start, interval.begin)
+        new_end = min(end, interval.end)
+        return intervaltree.Interval(new_start, new_end)
+
     def check_non_overlapping(self, paths):
         "Given the paths, do final check to ensure intervals are not overlapping, will print warnings if so"
         intervaltrees = defaultdict(dict) # assembly -> contig -> IntervalTree of synteny block extents
@@ -220,9 +226,14 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                 if not (all(asm_block.get_block_length() >= self.args.z # Don't worry about short ones
                                for _, asm_block in block.assembly_blocks.items())):
                     continue
-                if intervaltrees[assembly][contig][start:end]: # Checking that this doesn't overlap with anything
-                    print("WARNING: detected overlapping segments for this block:", assembly, contig, start, end,
-                            "\n", file=sys.stderr, flush=True)
+                if hit_intervals := intervaltrees[assembly][contig][start:end]: # Check doesn't overlap with anything
+                    for hit_interval in hit_intervals:
+                        overlapping_region = self.get_overlapping_region(start, end, hit_interval)
+                        if overlapping_region.end - overlapping_region.begin >= self.args.z:
+                            print("WARNING: detected overlapping segments for this block:", assembly,
+                                  contig, start, end,
+                                    "\n", file=sys.stderr, flush=True)
+                            break
                 intervaltrees[assembly][contig][start:end] = (start, end)
 
 
