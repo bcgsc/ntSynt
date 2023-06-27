@@ -463,8 +463,6 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             paths = self.check_for_indels(paths)
             paths = self.filter_synteny_blocks(paths, 4) # TODO: magic number
             paths_sorted_for_printing = sorted(paths)
-            if new_w == self.args.w_rounds[-1]: # Do final check for last w round
-                self.check_non_overlapping(paths)
             with open(f"{self.args.p}.pre-collinear-merge.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                 block_num = 0
                 for block in paths_sorted_for_printing:
@@ -475,6 +473,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                     block_num += 1
             if new_w == self.args.w_rounds[-1]:
                 paths_sorted_for_printing_collinear = self.merge_collinear_blocks(paths_sorted_for_printing)
+                self.check_non_overlapping(paths_sorted_for_printing_collinear) # Check for non-overlapping in this last round
                 with open(f"{self.args.p}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                     block_num = 0
                     for block in paths_sorted_for_printing_collinear:
