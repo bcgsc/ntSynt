@@ -209,6 +209,12 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                 intervals[assembly][ctg] = ncls.NCLS(list(start), list(end), list(data))
         return terminal_mxs, internal_mxs, intervals
 
+    def get_overlapping_region(self, start: int, end: int, interval: intervaltree.Interval) -> intervaltree.Interval:
+        "Given a start/end and list of intervals, return a list of intervals describing the overlapping region"
+        new_start = max(start, interval.begin)
+        new_end = min(end, interval.end)
+        return intervaltree.Interval(new_start, new_end)
+
     def check_non_overlapping(self, paths):
         "Given the paths, do final check to ensure intervals are not overlapping, will print warnings if so"
         intervaltrees = defaultdict(dict) # assembly -> contig -> IntervalTree of synteny block extents
@@ -220,9 +226,14 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                 if not (all(asm_block.get_block_length() >= self.args.z # Don't worry about short ones
                                for _, asm_block in block.assembly_blocks.items())):
                     continue
-                if intervaltrees[assembly][contig][start:end]: # Checking that this doesn't overlap with anything
-                    print("WARNING: detected overlapping segments for this block:", assembly, contig, start, end,
-                            "\n", file=sys.stderr, flush=True)
+                if hit_intervals := intervaltrees[assembly][contig][start:end]: # Check doesn't overlap with anything
+                    for hit_interval in hit_intervals:
+                        overlapping_region = self.get_overlapping_region(start, end, hit_interval)
+                        if overlapping_region.end - overlapping_region.begin >= self.args.z:
+                            print("WARNING: detected overlapping segments for this block:", assembly,
+                                  contig, start, end,
+                                    "\n", file=sys.stderr, flush=True)
+                            break
                 intervaltrees[assembly][contig][start:end] = (start, end)
 
 
@@ -452,8 +463,6 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             paths = self.check_for_indels(paths)
             paths = self.filter_synteny_blocks(paths, 4) # TODO: magic number
             paths_sorted_for_printing = sorted(paths)
-            if new_w == self.args.w_rounds[-1]: # Do final check for last w round
-                self.check_non_overlapping(paths)
             with open(f"{self.args.p}.pre-collinear-merge.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                 block_num = 0
                 for block in paths_sorted_for_printing:
@@ -464,6 +473,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                     block_num += 1
             if new_w == self.args.w_rounds[-1]:
                 paths_sorted_for_printing_collinear = self.merge_collinear_blocks(paths_sorted_for_printing)
+                self.check_non_overlapping(paths_sorted_for_printing_collinear) # Check for non-overlapping in this last round
                 with open(f"{self.args.p}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                     block_num = 0
                     for block in paths_sorted_for_printing_collinear:
