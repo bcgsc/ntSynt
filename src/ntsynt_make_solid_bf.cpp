@@ -68,7 +68,7 @@ main(int argc, const char** argv)
 
   parser.add_argument("-t")
     .help("Number of threads")
-    .default_value(4U)
+    .default_value(12U)
     .scan<'u', unsigned>();
 
   /* Parse the command-line arguments */

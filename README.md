@@ -43,7 +43,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -k K                  Minimizer kmer size [24]
   -w W                  Minimizer window size [1000]
-  -t T                  Number of threads [4]
+  -t T                  Number of threads [12]
   --fpr FPR             False positive rate for Bloom filter creation [0.025]
   --no-solid            Do not use the solid BF for minimizer graph creation
   --no-simplify-graph   Do not run graph simplification on minimizer graph
