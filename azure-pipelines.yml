@@ -20,12 +20,12 @@ jobs:
   - script: |
       source activate ntsynt_ci
       conda install --yes -c bioconda -c conda-forge python=3.10 mamba
-      mamba install --yes -c bioconda -c conda-forge intervaltree pybedtools ncls python-igraph compilers btllib meson ninja snakemake samtools pytest
+      mamba install --yes -c bioconda -c conda-forge intervaltree pybedtools ncls python-igraph compilers btllib meson ninja snakemake samtools pytest gcovr
     displayName: Install dependencies
 
   - script: |
       source activate ntsynt_ci
-      meson build --prefix=$(pwd)/ntSynt_build
+      meson setup build --prefix=$(pwd)/ntSynt_build
       cd build
       ninja install
     displayName: Install ntSynt
@@ -61,12 +61,12 @@ jobs:
   - script: |
       source activate ntsynt_ci
       conda install --yes -c bioconda -c conda-forge python=3.10 mamba
-      mamba install --yes -c bioconda -c conda-forge intervaltree pybedtools ncls python-igraph compilers btllib meson ninja snakemake samtools pytest
+      mamba install --yes -c bioconda -c conda-forge intervaltree pybedtools ncls python-igraph compilers btllib meson ninja snakemake samtools pytest gcovr
     displayName: Install dependencies
 
   - script: |
       source activate ntsynt_ci
-      meson build --prefix=$(pwd)/ntSynt_build
+      meson setup build --prefix=$(pwd)/ntSynt_build
       cd build
       ninja install
     displayName: Install ntSynt

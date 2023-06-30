@@ -81,7 +81,7 @@ conda install -c bioconda -c conda-forge python intervaltree pybedtools ncls pyt
 
 ### Installing ntSynt from the source code
 ```
-meson build --prefix=/path/to/desired/install/location
+meson setup build --prefix=/path/to/desired/install/location
 cd build
 ninja install
 ```
