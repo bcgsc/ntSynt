@@ -43,7 +43,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -k K                  Minimizer kmer size [24]
   -w W                  Minimizer window size [1000]
-  -t T                  Number of threads [4]
+  -t T                  Number of threads [12]
   --fpr FPR             False positive rate for Bloom filter creation [0.025]
   --no-solid            Do not use the solid BF for minimizer graph creation
   --no-simplify-graph   Do not run graph simplification on minimizer graph
@@ -81,7 +81,7 @@ conda install -c bioconda -c conda-forge python intervaltree pybedtools ncls pyt
 
 ### Installing ntSynt from the source code
 ```
-meson build --prefix=/path/to/desired/install/location
+meson setup build --prefix=/path/to/desired/install/location
 cd build
 ninja install
 ```

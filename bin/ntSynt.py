@@ -14,7 +14,7 @@ def main():
     parser.add_argument("fastas", help="Input genome fasta files", nargs="+")
     parser.add_argument("-k", help="Minimizer kmer size [24]", type=int, required=False, default=24)
     parser.add_argument("-w", help="Minimizer window size [1000]", type=int, required=False, default=1000)
-    parser.add_argument("-t", help="Number of threads [4]", type=int, default=4)
+    parser.add_argument("-t", help="Number of threads [12]", type=int, default=12)
     parser.add_argument("--fpr", help="False positive rate for Bloom filter creation [0.025]",
                         default=0.025, type=float)
     parser.add_argument("--no-solid", help="Do not use the solid BF for minimizer graph creation",

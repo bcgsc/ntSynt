@@ -17,7 +17,7 @@ rootpath = meson.source_root()
 src_files = [ 'ntsynt_make_solid_bf.cpp' ]
 deps = [ btllib_dep, openmp_dep ]
 
-link_args = [ '-lbtllib' ]
+link_args = [ '-lbtllib', '--coverage' ]
 
 clang_format = find_program('clang-format', required : false)
 if clang_format.found()
