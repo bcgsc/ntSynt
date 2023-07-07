@@ -131,7 +131,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         mx_to_fa_dict = {}
         for assembly, contig_dict in synteny_beds.items():
             bed_str = [f"{ctg}\t{bed.start}\t{bed.end}\tSYNTENY" for ctg in contig_dict \
-                        for bed in contig_dict[ctg] if bed.end - bed.start > 2*w]
+                        for bed in contig_dict[ctg] if bed.end - bed.start > max(2*w, w+self.args.k+1)]
             bed_str = "\n".join(bed_str)
             fa_filename = self.find_fa_name(assembly)
             synteny_bed = pybedtools.BedTool(bed_str, from_string=True).slop(g=f"{fa_filename}.fai",
