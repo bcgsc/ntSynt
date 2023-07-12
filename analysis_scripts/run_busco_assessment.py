@@ -15,6 +15,7 @@ def main():
                         required=True, nargs="+")
     parser.add_argument("--blocks", help="ntSynt-formatted synteny blocks", required=True, type=str)
     parser.add_argument("--lineage", help="BUSCO lineage to use (full path to pre-downloaded files)", required=True)
+    parser.add_argument("--db", help="BUSCOs faa file to use", required=True)
     parser.add_argument("-t", "--threads", help="Number of threads to use per process [8]", default=8, type=int)
     parser.add_argument("--processes", help="Number of parallel processes to allow at a time [5]", default=5, type=int)
     parser.add_argument("-p", "--prefix", help="Prefix for output files [ntsynt_busco_assessment]",
@@ -29,19 +30,19 @@ def main():
     assembly_fullpaths = [os.path.abspath(assembly) for assembly in args.assemblies]
     blocks_fullpath = os.path.abspath(args.blocks)
 
-    try:
-        os.makedirs(args.outdir, exist_ok=True)
-        os.chdir(args.outdir)
-        for assembly in assembly_fullpaths:
-            cmd = shlex.split(f"ln -sf {assembly}")
-            ret_code = subprocess.call(cmd)
-            assert ret_code == 0
-    except:
-        raise OSError("Unable to prepare the output directory and files..")
+    # try:
+    #     os.makedirs(args.outdir, exist_ok=True)
+    #     # os.chdir(args.outdir)
+    #     # for assembly in assembly_fullpaths:
+    #     #     cmd = shlex.split(f"ln -sf {assembly}")
+    #     #     ret_code = subprocess.call(cmd)
+    #     #     assert ret_code == 0
+    # except:
+    #     raise OSError("Unable to prepare the output directory and files..")
 
     smk_command = f"snakemake -s /projects/btl/lcoombe/git/ntSynt/analysis_scripts/busco_assessment.smk "\
                     f"--config blocks={blocks_fullpath} assemblies='{assembly_basenames}' threads={args.threads} "\
-                    f"prefix={args.prefix} lineage={args.lineage} -p --cores={args.processes}"
+                    f"prefix={args.prefix} lineage={args.lineage} db={args.db} -p --cores={args.processes}"
     if args.n:
         smk_command += " -n"
 
