@@ -19,17 +19,15 @@ def read_mappings(assembly: str, busco_fin: str, busco_index: dict) -> set:
     stored_buscos = set()
     with open(busco_fin, 'r', encoding="utf-8") as fin:
         for line in fin:
-            line = line.strip()
             if line.startswith("#"):
                 continue
-            line = line.split("\t")
-            busco_id = line[0]
-            chrom, start, end, strand, ms_score = line[2:7]
+            line = line.strip().split("\t")
+            busco_id, chrom, start, end, strand, ms_score = line[:6]
             start, end = int(start), int(end)
             if assembly not in busco_index or chrom not in busco_index[assembly]:
                 busco_index[assembly][chrom] = intervaltree.IntervalTree()
             busco_base = re.search(busco_re, busco_id).group(1) if re.search(busco_re, busco_id) else busco_id
-            busco_index[assembly][chrom][start: end] = Busco(busco_id, strand, int(ms_score), busco_base)
+            busco_index[assembly][chrom][start:end] = Busco(busco_id, strand, int(ms_score), busco_base)
             stored_buscos.add(busco_id)
     return stored_buscos
 
@@ -37,20 +35,20 @@ def read_mappings(assembly: str, busco_fin: str, busco_index: dict) -> set:
 def get_list_of_buscos(busco_index: dict, assembly: str, chrom: str, start: int,
                        end: int, strand: str, common_buscos: set) -> BuscoList:
     "Given a synteny block, find all BUSCOs that map to that region, return as Busco_list namedtuple"
-    busco_list = []
+    buscos = []
     start_reserve = [] # Extend the coordinates if needed - accounting for mappings near block edges
     end_reserve = []
     for busco in sorted(busco_index[assembly][chrom].envelop(start, end), key=lambda x: (x.begin, x.end)):
         if busco.data.id in common_buscos:
-            busco_list.append(busco.data)
-    busco_set = set(busco_list)
+            buscos.append(busco.data)
+    busco_set = set(buscos)
     for busco in sorted(busco_index[assembly][chrom][start: end], key=lambda x: (x.begin, x.end)):
         if busco.data.id in common_buscos and busco.data.id not in busco_set:
             if busco.begin <= start: # Overlaps the start
                 start_reserve.append(busco.data)
-            elif busco.begin > start and busco.end > end:
+            elif busco.end > end:
                 end_reserve.append(busco.data)
-    return BuscoList(busco_list, strand, start_reserve, end_reserve)
+    return BuscoList(buscos, strand, start_reserve, end_reserve)
 
 
 def extend_busco_list(buscos: list) -> None:
@@ -170,7 +168,7 @@ def main():
     "Run miniprot mapping of BUSCO proteins-based synteny block assessment"
     parser = argparse.ArgumentParser(description="Synteny block assessment using miniprot mappings of BUSCO proteins")
     parser.add_argument("--blocks", help="Synteny blocks TSV", required=True)
-    parser.add_argument("--busco",
+    parser.add_argument("--mappings",
                         help="TSV file with two columns: assembly filename, path to filtered miniprot mappings",
                         required=True)
     parser.add_argument("-p", "--prefix", help="Prefix of output files", default="ntsynt_busco_assessment",
@@ -178,17 +176,17 @@ def main():
     args = parser.parse_args()
 
     busco_index = defaultdict(dict) # assembly -> chromosome -> IntervalTree (data: Busco)
-    common_buscos = None
-    with open(args.busco, 'r', encoding="utf-8") as fin:
+    common_proteins = None
+    with open(args.mappings, 'r', encoding="utf-8") as fin:
         for line in fin:
-            assembly, busco_fin = line.strip().split("\t")
-            present_buscos = read_mappings(assembly, busco_fin, busco_index)
-            if common_buscos is None:
-                common_buscos = present_buscos
+            assembly, mappings_fin = line.strip().split("\t")
+            present_buscos = read_mappings(assembly, mappings_fin, busco_index)
+            if common_proteins is None:
+                common_proteins = present_buscos
             else:
-                common_buscos = common_buscos.intersection(present_buscos)
+                common_proteins = common_proteins.intersection(present_buscos)
 
-    error_counter, total_blocks = assess_synteny_blocks(args.blocks, common_buscos, busco_index)
+    error_counter, total_blocks = assess_synteny_blocks(args.blocks, common_proteins, busco_index)
 
     with open(args.prefix + ".summary.tsv", 'w', encoding="utf-8") as fout:
         fout.write('Total_assessed_buscos\tTotal_blocks\tCorrect_blocks\twrong_orientation\t'\

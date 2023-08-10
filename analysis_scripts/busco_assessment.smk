@@ -8,8 +8,7 @@ onsuccess:
     shutil.rmtree(".snakemake", ignore_errors=True)
 
 # Read in parameters
-assemblies = config["assemblies"] if "assemblies" in config else None # Full paths to assemblies
-assemblies_base = [os.path.basename(assembly) for assembly in assemblies]
+assemblies = config["assemblies"] if "assemblies" in config else None
 synteny_blocks = config["blocks"] if "blocks" in config else None
 threads = config["t"] if "t" in config else 8
 lineage = config["lineage"] if "lineage" in config else None
@@ -45,4 +44,4 @@ rule run_assessment:
     output: expand("{prefix}.summary.tsv", prefix=prefix)
     params: options=expand("--prefix {prefix}", prefix=prefix)
     shell:
-        "python3 /projects/btl/lcoombe/git/ntSynt/analysis_scripts/busco_assessment.py  --blocks {input.blocks} --busco {input.config} {params.options}"
+        "python3 /projects/btl/lcoombe/git/ntSynt/analysis_scripts/busco_assessment.py  --blocks {input.blocks} --mappings {input.config} {params.options}"

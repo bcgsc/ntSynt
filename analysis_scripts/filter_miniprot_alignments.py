@@ -25,7 +25,7 @@ def filter_paf(paf_file: str, cov_threshold: float) -> None:
                 # Print the current alignment if over coverage threshold
                 query_cov = (current_query.query_end - current_query.query_start)/current_query.query_len
                 if query_cov >= cov_threshold:
-                    print(current_query.busco, "Complete", current_query.ref, current_query.ref_start,
+                    print(current_query.busco, current_query.ref, current_query.ref_start,
                         current_query.ref_end, current_query.strand, current_query.ms_score, sep="\t")
             elif current_query is not None and busco != current_query.busco:
                 print_alignment = True # Refresh the print status - print_alignment must have been false before
@@ -36,16 +36,16 @@ def filter_paf(paf_file: str, cov_threshold: float) -> None:
 
     if current_query is not None and print_alignment: # Catch last line
         # Print the current alignment
-        query_cov = (query_end - query_start)/query_len
+        query_cov = (current_query.query_end - current_query.query_start)/current_query.query_len
         if query_cov >= cov_threshold:
-            print(current_query.busco, "Complete", current_query.ref, current_query.ref_start,
+            print(current_query.busco, current_query.ref, current_query.ref_start,
                     current_query.ref_end, current_query.strand, current_query.ms_score, sep="\t")
 
 def main():
     "Filter the input PAF"
     parser = argparse.ArgumentParser(description="Filter miniprot PAF mappings, and output in BUSCO-like TSV format")
     parser.add_argument("PAF", help="miniprot mappings in PAF format")
-    parser.add_argument("--cov", help="Required query coverage [95%]", default=0.95, type=float,
+    parser.add_argument("--cov", help="Required query coverage [0.95]", default=0.95, type=float,
                         required=False)
 
     args = parser.parse_args()
