@@ -23,8 +23,10 @@ def main():
     parser.add_argument("--processes", help="Number of parallel processes to allow at a time [5]", default=5, type=int)
     parser.add_argument("-p", "--prefix", help="Prefix for output files [ntsynt_busco_assessment]",
                         type=str, default="ntsynt_busco_assessment")
+    parser.add_argument("--outs", help="Value for --outs parameter of miniprot [0.9]", default=0.9, type=float)
     parser.add_argument("-n", help="Run dry-run of snakemake file", action="store_true")
     parser.add_argument("-F", help="Force all steps to run", action="store_true")
+    parser.add_argument("--verbose", help="Verbose assesment output to stderr", action="store_true")
 
     args = parser.parse_args()
 
@@ -48,11 +50,16 @@ def main():
 
     smk_command = f"snakemake -s /projects/btl/lcoombe/git/ntSynt/analysis_scripts/busco_assessment.smk "\
                     f"--config blocks={args.blocks} assemblies='{assembly_basenames}' threads={args.threads} "\
-                    f"prefix={args.prefix} lineage={args.lineage} db={args.db} -p --cores={args.processes}"
+                    f"prefix={args.prefix} lineage={args.lineage} db={args.db} outs={args.outs}"
+
+    if args.verbose:
+        smk_command += " verbose=True"
     if args.n:
         smk_command += " -n"
     if args.F:
         smk_command += " -F"
+
+    smk_command += f" -p --cores={args.processes}"
 
     print("Running command: ", smk_command)
 

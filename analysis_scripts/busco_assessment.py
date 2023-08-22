@@ -123,12 +123,12 @@ def print_different_buscos(buscos_list: BuscoList, block_id: int) -> None:
 
 def print_wrong_order(id_list1: list, id_list2: list, block_id: int) -> None:
     "Verbose printing of block lists found in different orders"
-    print(f"{block_id}\twrong_order\t{id_list1}\t{id_list2}")
+    print(f"{block_id}\twrong_order\t{id_list1}\t{id_list2}", file=sys.stderr)
 
 def print_wrong_ori(busco1: Busco, busco2: Busco, block_id: int) -> None:
     "Verbose printing of BUSCOs from blocks with wrong orientation"
     print(f"{block_id}\twrong_ori\t{busco1[0].id}{busco1[0].strand}\t{busco1[1]}\t"
-          f"{busco2[0].id}{busco2[0].strand}\t{busco2[1]}")
+          f"{busco2[0].id}{busco2[0].strand}\t{busco2[1]}", file=sys.stderr)
 
 def assess_buscos(buscos_list: list, block_id: str, error_counter: dict, verbose: bool) -> None:
     "Assess the BUSCO lists after filtering, etc"
@@ -245,8 +245,8 @@ def main():
     with open(args.prefix + ".summary.tsv", 'w', encoding="utf-8") as fout:
         fout.write('Total_assessed_buscos\tTotal_blocks\tCorrect_blocks\twrong_orientation\t'\
             'wrong_order\tdifferent_buscos\n')
-        correct_blocks = total_blocks - sum({len(blocks) \
-            for stat, blocks in error_counter.items() if stat != "total_buscos_assessed"})
+        correct_blocks = total_blocks - sum([len(blocks) \
+            for stat, blocks in error_counter.items() if stat != "total_buscos_assessed"])
         outstr = f"{error_counter['total_buscos_assessed']}\t{total_blocks}\t"\
             f"{correct_blocks}\t{len(error_counter['wrong_ori'])}\t"\
             f"{len(error_counter['wrong_order'])}\t{len(error_counter['different_buscos'])}\n"

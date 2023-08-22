@@ -10,10 +10,12 @@ onsuccess:
 # Read in parameters
 assemblies = config["assemblies"] if "assemblies" in config else None
 synteny_blocks = config["blocks"] if "blocks" in config else None
-threads = config["t"] if "t" in config else 8
+threads = config["threads"] if "threads" in config else 8
 lineage = config["lineage"] if "lineage" in config else None
 prefix = config["prefix"] if "prefix" in config else "ntsynt_busco_assessment"
 ref_db = config["db"] if "db" in config else None
+verbose = config["verbose"] if "verbose" in config else False
+outs = config["outs"] if "outs" in config else 0.9
 
 rule all:
     input: expand("{prefix}.summary.tsv", prefix=prefix)
@@ -21,7 +23,7 @@ rule all:
 rule miniprot:
     input: fa="{assembly}", query=expand("{ref_db}", ref_db=ref_db)
     output: expand("{{assembly}}.{lineage}.paf", lineage=lineage)
-    params: options=expand("-t {t}", t=threads)
+    params: options=expand("-t {t} --outs={outs}", t=threads, outs=outs)
     log: stderr="logs/{assembly}.miniprot.log"
     shell: "miniprot {params.options} {input.fa} {input.query} > {output} 2> {log.stderr}"
 
@@ -42,6 +44,6 @@ rule make_config_miniprot:
 rule run_assessment:
     input: config=rules.make_config_miniprot.output, blocks=synteny_blocks
     output: expand("{prefix}.summary.tsv", prefix=prefix)
-    params: options=expand("--prefix {prefix}", prefix=prefix)
+    params: options=expand("--prefix {prefix}", prefix=prefix), verbose="--verbose" if verbose else ""
     shell:
-        "python3 /projects/btl/lcoombe/git/ntSynt/analysis_scripts/busco_assessment.py  --blocks {input.blocks} --mappings {input.config} {params.options}"
+        "python3 /projects/btl/lcoombe/git/ntSynt/analysis_scripts/busco_assessment.py  --blocks {input.blocks} --mappings {input.config} {params.options} {params.verbose}"
