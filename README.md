@@ -51,7 +51,7 @@ optional arguments:
                         Prefix for ntSynt output files [ntSynt.k<k>.w<w>]
   --merge MERGE         Multiple of window size used for collinear synteny block merging [3]
   --w_rounds W_ROUNDS [W_ROUNDS ...]
-                        List of window sizes for iterative rounds [100 10 5]
+                        List of window sizes for iterative rounds [100 10]
   --indel INDEL         Threshold for indel detection [500]
   -n, --dry-run         Print out the commands that will be executed
   --benchmark           Store benchmarks for each step of the ntSynt pipeline

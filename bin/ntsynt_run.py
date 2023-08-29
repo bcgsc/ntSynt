@@ -21,7 +21,7 @@ def parse_arguments():
     parser.add_argument("--btllib_t", help="Number of threads for btllib wrapper functions "\
                                 "(computing minimizers, reading fasta file) [4]", type=int, default=4)
     parser.add_argument("--w-rounds", help="decreasing list of 'w' values to use for refining ends",
-                                default=[100, 10, 5], nargs="+", type=int)
+                                default=[100, 10], nargs="+", type=int)
     parser.add_argument("--bp", help="Maximum tolerated indel size [500]",
                                 default=500, type=int)
     parser.add_argument("--collinear-merge", help="Maximum distance between collinear blocks for merging"\
