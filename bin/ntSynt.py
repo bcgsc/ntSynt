@@ -51,7 +51,7 @@ def main():
     command += "solid=False " if args.no_solid else "solid=True "
     command += "simplify_graph=False " if args.no_simplify_graph else "simplify_graph=True "
     command += "benchmark=True " if args.benchmark else "benchmark=False "
-    command += "dev=True" if args.dev else "dev=False "
+    command += "dev=True " if args.dev else "dev=False "
     command += "--resources load=2 " # For indexlr, don't want more than 2 indexlr at a time due to memory
 
     if args.dry_run:
