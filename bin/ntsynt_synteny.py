@@ -35,7 +35,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         if collinear_match := re.search(r"^(\d+)w$", self.args.collinear_merge):
             self.args.collinear_merge = int(collinear_match.group(1)) * self.args.w
         elif collinear_match := re.search(r"^(\d+)$", self.args.collinear_merge):
-            self.args.collinear_merge = int(collinear_match.group(1)) * self.args.w
+            self.args.collinear_merge = int(collinear_match.group(1))
         else:
             raise ValueError("--collinear-merge must be provided with an integer value or string in the form '<num>w'")
 
@@ -428,6 +428,16 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             if not orientations or not contig_id or \
                 (max(differences) - min(differences) > self.args.bp - self.args.k) or \
                     max(differences) >= self.args.collinear_merge:
+                if self.args.dev:
+                    if not contig_id:
+                        block.broken_reason = "id_change"
+                    elif not orientations:
+                        block.broken_reason = "ori_change"
+                    elif max(differences) - min(differences) > self.args.bp - self.args.k:
+                        block.broken_reason = "indel"
+                    elif max(differences) >= self.args.collinear_merge:
+                        block.broken_reason = "merge"
+
                 out_blocks.append(curr_block)
                 curr_block = block
             else:
@@ -480,7 +490,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                         if not all(asm_block.get_block_length() >= self.args.z
                                 for _, asm_block in block.assembly_blocks.items()):
                             continue
-                        outfile.write(block.get_block_string(block_num))
+                        outfile.write(block.get_block_string(block_num, self.args.dev))
                         block_num += 1
 
             prev_w = new_w
