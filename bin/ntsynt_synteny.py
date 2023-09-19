@@ -38,6 +38,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             self.args.collinear_merge = int(collinear_match.group(1))
         else:
             raise ValueError("--collinear-merge must be provided with an integer value or string in the form '<num>w'")
+        self.args.FILES = sorted(self.args.FILES, reverse=True)
 
     def print_parameters_synteny(self):
         "Pring the set parameters for the ntJoin synteny run"
