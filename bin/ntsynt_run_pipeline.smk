@@ -20,6 +20,7 @@ indel_merge = config["indel_merge"] if "indel_merge" in config else 500
 collinear_merge = config["collinear_merge"] if "collinear_merge" in config else "3w"
 simplify_graph = config["simplify_graph"] if "simplify_graph" in config else True
 benchmark = config["benchmark"] if "benchmark" in config else False
+dev = config["dev"] if "dev" in config else False
 
 # If want to benchmark, use memusg or /usr/bin/time
 # The snakemake benchmarking is quite inaccurate for shorter runtimes
@@ -92,6 +93,7 @@ rule ntsynt_synteny:
             solid_bf="--solid" if solid is True else [],
             repeat_bf="--repeat" if repeat is True else [],
             simplify_graph="--simplify-graph" if simplify_graph is True else [],
+            dev="--dev" if dev is True else [],
             benchmarking=expand("{benchmark_path} -o {prefix}.synteny_blocks.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else [] 
     shell: "{params.benchmarking} python3 {params.path_to_script} {input.mx} {params.options} {params.solid_bf} {input.solid}  {params.simplify_graph} \
-             --btllib_t {threads} {params.repeat_bf} {input.repeat}"
+             --btllib_t {threads} {params.repeat_bf} {input.repeat} {params.dev}"

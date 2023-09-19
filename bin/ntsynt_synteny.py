@@ -35,7 +35,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         if collinear_match := re.search(r"^(\d+)w$", self.args.collinear_merge):
             self.args.collinear_merge = int(collinear_match.group(1)) * self.args.w
         elif collinear_match := re.search(r"^(\d+)$", self.args.collinear_merge):
-            self.args.collinear_merge = int(collinear_match.group(1)) * self.args.w
+            self.args.collinear_merge = int(collinear_match.group(1))
         else:
             raise ValueError("--collinear-merge must be provided with an integer value or string in the form '<num>w'")
 
@@ -409,6 +409,12 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         self.graph = new_graph
         return return_blocks
 
+    def get_difference_between_blocks(self, block1, block2):
+        "Returns the gap between the blocks on the assembly"
+        if block1.ori == "-" and block2.ori == "-":
+            return  block1.get_block_start() - block2.get_block_end()
+        return block2.get_block_start() - block1.get_block_end()
+
     def merge_collinear_blocks(self, blocks):
         "Merge collinear blocks that are less than threshold apart, and are not indels"
         out_blocks = []
@@ -423,11 +429,22 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                     else orientations
                 contig_id = False if assembly_block.contig_id != block.assembly_blocks[assembly].contig_id \
                     else contig_id
-                differences.append(block.assembly_blocks[assembly].get_block_start() -
-                                   assembly_block.get_block_end())
+                differences.append(self.get_difference_between_blocks(assembly_block,
+                                                                      block.assembly_blocks[assembly]))
             if not orientations or not contig_id or \
                 (max(differences) - min(differences) > self.args.bp - self.args.k) or \
                     max(differences) >= self.args.collinear_merge:
+                if not contig_id:
+                    block.broken_reason = "id_change"
+                elif not orientations:
+                    block.broken_reason = "ori_change"
+                elif any(diff < 0 for diff in differences):
+                    block.broken_reason = "inconsistent_order"
+                elif max(differences) - min(differences) > self.args.bp - self.args.k:
+                    block.broken_reason = "indel"
+                elif max(differences) >= self.args.collinear_merge:
+                    block.broken_reason = "merge"
+
                 out_blocks.append(curr_block)
                 curr_block = block
             else:
@@ -480,7 +497,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                         if not all(asm_block.get_block_length() >= self.args.z
                                 for _, asm_block in block.assembly_blocks.items()):
                             continue
-                        outfile.write(block.get_block_string(block_num))
+                        outfile.write(block.get_block_string(block_num, self.args.dev))
                         block_num += 1
 
             prev_w = new_w

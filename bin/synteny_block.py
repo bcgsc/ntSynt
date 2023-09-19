@@ -19,6 +19,7 @@ class SyntenyBlock:
         "Instantiate a dictionary to keep track of assembly blocks for this synteny block"
         self.assembly_blocks = {assembly: AssemblyBlock(k) for assembly in assemblies}
         self.m = m
+        self.broken_reason = None
 
 
     def assign_block(self, assembly, assembly_block):
@@ -68,7 +69,7 @@ class SyntenyBlock:
         "Return true if all of the assembly blocks in the synteny block are oriented"
         return all(assembly_block.ori in ["+", "-"] for _, assembly_block in self.assembly_blocks.items())
 
-    def get_block_string(self, num):
+    def get_block_string(self, num, verbose=False):
         "Given the specified synteny block ID, print the synteny blocks"
         return_str = ""
         for assembly, assembly_block in self.assembly_blocks.items():
@@ -78,6 +79,8 @@ class SyntenyBlock:
             end_pos = assembly_block.get_block_end()
             block_string = f"{num}\t{assembly}\t{assembly_block.contig_id}\t{start_pos}" \
                 f"\t{end_pos}\t{assembly_block.ori}\t{len(assembly_block.minimizers)}\n"
+            if verbose:
+                block_string = f"{block_string.strip()}\t{self.broken_reason}\n"
             return_str += block_string
         return return_str
 
