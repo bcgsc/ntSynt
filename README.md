@@ -106,6 +106,7 @@ The columns of this output synteny blocks TSV:
 5. Genome end coordinate
 6. Chromosome/contig strand
 7. Number of mapped minimizers in this synteny block
+8. Reason for discontinuity with previous synteny block (optional)
 
 ## License
 ntSynt Copyright (c) 2023 British Columbia Cancer Agency Branch. All rights reserved.

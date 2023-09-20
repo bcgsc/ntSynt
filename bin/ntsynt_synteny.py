@@ -30,6 +30,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         super().__init__(args)
         self.weights_list = [1] * len(self.args.FILES)
         self.args.t = 1
+        self.args.FILES = sorted(self.args.FILES, reverse=True)
         self.print_parameters_synteny()
         self.repeat_bf = None
         if collinear_match := re.search(r"^(\d+)w$", self.args.collinear_merge):
@@ -505,7 +506,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                         if not all(asm_block.get_block_length() >= self.args.z
                                 for _, asm_block in block.assembly_blocks.items()):
                             continue
-                        outfile.write(block.get_block_string(block_num, self.args.dev))
+                        outfile.write(block.get_block_string(block_num, verbose=True))
                         block_num += 1
 
             prev_w = new_w
