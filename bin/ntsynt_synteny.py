@@ -138,12 +138,14 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                                                                              l=-1*(w+self.args.k),
                                                                              r=-1*(w+self.args.k)).sort()
             synteny_bed.mask_fasta(fi=fa_filename, fo=f"{fa_filename}_masked.fa")
+
             # pybedtools may output multi-line fasta which breaks btllib reading, need seqtk to make single line
-            # with open(f"{fa_filename}_masked.fa.tmp", "w", encoding="utf-8") as fout:
-            #     process = subprocess.run(shlex.split(f"seqtk seq {fa_filename}_masked.fa"),
-            #                             stdout=fout,
-            #                             check=True, text=True)
-            #     assert process.returncode == 0
+            with open(f"{fa_filename}_masked.fa.tmp", "w", encoding="utf-8") as fout:
+                process = subprocess.run(shlex.split(f"seqtk seq {fa_filename}_masked.fa"),
+                                        stdout=fout,
+                                        check=True, text=True)
+                assert process.returncode == 0
+
             mx_to_fa_dict[assembly] = f"{fa_filename}_masked.fa"
         return mx_to_fa_dict
 
@@ -179,7 +181,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             new_list_mxs_info[assembly_tsv] = mx_info
             list_mxs[assembly_tsv] = mxs_filt
             if not retain_files:
-                self.delete_w_iteration_files(indexlr_filename, assembly_masked)
+                self.delete_w_iteration_files(indexlr_filename, assembly_masked, f"{assembly_masked}.tmp")
         return list_mxs, new_list_mxs_info
 
     def update_intervals(self, assembly_name, ctg, mx1, mx2, intervals):
