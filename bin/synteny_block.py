@@ -72,7 +72,7 @@ class SyntenyBlock:
     def get_block_string(self, num, verbose=False):
         "Given the specified synteny block ID, print the synteny blocks"
         return_str = ""
-        for assembly, assembly_block in self.assembly_blocks.items():
+        for assembly, assembly_block in sorted(self.assembly_blocks.items()):
             if assembly_match := re.search(fa_tsv_re, assembly):
                 assembly = assembly_match.group(1)
             start_pos = assembly_block.get_block_start()

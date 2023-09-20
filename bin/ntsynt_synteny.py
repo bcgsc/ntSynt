@@ -30,6 +30,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         super().__init__(args)
         self.weights_list = [1] * len(self.args.FILES)
         self.args.t = 1
+        self.args.FILES = sorted(self.args.FILES, reverse=True)
         self.print_parameters_synteny()
         self.repeat_bf = None
         if collinear_match := re.search(r"^(\d+)w$", self.args.collinear_merge):
@@ -38,7 +39,6 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             self.args.collinear_merge = int(collinear_match.group(1))
         else:
             raise ValueError("--collinear-merge must be provided with an integer value or string in the form '<num>w'")
-        self.args.FILES = sorted(self.args.FILES, reverse=True)
 
     def print_parameters_synteny(self):
         "Pring the set parameters for the ntJoin synteny run"
