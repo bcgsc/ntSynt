@@ -73,6 +73,7 @@ optional arguments:
 - [ninja](https://ninja-build.org/)
 - [snakemake](https://snakemake.readthedocs.io/en/stable/)
 - [samtools](http://www.htslib.org/)
+- [seqtk](https://github.com/lh3/seqtk)
 
 **All ntSynt dependencies can be installed using conda:**
 ```
