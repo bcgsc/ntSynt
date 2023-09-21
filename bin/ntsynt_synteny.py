@@ -138,11 +138,11 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             synteny_bed = pybedtools.BedTool(bed_str, from_string=True).slop(g=f"{fa_filename}.fai",
                                                                              l=-1*(w+self.args.k),
                                                                              r=-1*(w+self.args.k)).sort()
-            synteny_bed.mask_fasta(fi=fa_filename, fo=f"{fa_filename}_masked.fa")
+            synteny_bed.mask_fasta(fi=fa_filename, fo=f"{fa_filename}_masked.fa.tmp")
 
             # pybedtools may output multi-line fasta which breaks btllib reading, need seqtk to make single line
-            with open(f"{fa_filename}_masked.fa.tmp", "w", encoding="utf-8") as fout:
-                process = subprocess.run(shlex.split(f"seqtk seq {fa_filename}_masked.fa"),
+            with open(f"{fa_filename}_masked.fa", "w", encoding="utf-8") as fout:
+                process = subprocess.run(shlex.split(f"seqtk seq {fa_filename}_masked.fa.tmp"),
                                         stdout=fout,
                                         check=True, text=True)
                 assert process.returncode == 0
