@@ -496,7 +496,15 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                     block_num += 1
             if new_w == self.args.w_rounds[-1]:
                 paths_sorted_for_printing_collinear = self.merge_collinear_blocks(paths_sorted_for_printing)
-                self.check_non_overlapping(paths_sorted_for_printing_collinear) # Check for non-overlapping in this last round
+                # Filter by length, and do another round of merging
+                paths_sorted_for_printing_collinear = [block for block in paths_sorted_for_printing_collinear \
+                                                        if all(asm_block.get_block_length() >= self.args.z \
+                                                            for _, asm_block in block.assembly_block.items())]
+                paths_sorted_for_printing_collinear = self.merge_collinear_blocks(paths_sorted_for_printing_collinear)
+
+                # Check for non-overlapping in the last round
+                self.check_non_overlapping(paths_sorted_for_printing_collinear)
+
                 with open(f"{self.args.p}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                     block_num = 0
                     for block in paths_sorted_for_printing_collinear:
