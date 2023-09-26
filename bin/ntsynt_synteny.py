@@ -459,11 +459,8 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             else:
                 # Extend this block
                 for assembly, assembly_block in block.assembly_blocks.items():
-                    if assembly_block.ori == "+":
-                        curr_block.assembly_blocks[assembly].minimizers.extend(assembly_block.minimizers)
-                    else:
-                        curr_block.assembly_blocks[assembly].minimizers = assembly_block.minimizers + \
-                            curr_block.assembly_blocks[assembly].minimizers
+                    curr_block.assembly_blocks[assembly].minimizers.extend(assembly_block.minimizers)
+
         out_blocks.append(curr_block)
         return out_blocks
 
