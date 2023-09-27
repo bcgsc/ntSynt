@@ -8,6 +8,8 @@ import os
 import shlex
 import subprocess
 
+NTSYNT_VERSION = "ntSynt v0.0.1"
+
 def main():
     "Run ntSynt snakemake file"
     parser = argparse.ArgumentParser(description="ntSynt: Genome synteny detection using dynamic minimizer graphs")
@@ -26,7 +28,7 @@ def main():
     parser.add_argument("--merge", help="Multiple of window size used for collinear synteny block merging [3]",
                         default=3, type=int)
     parser.add_argument("--w_rounds", help="List of window sizes for iterative rounds [100 10]",
-                        nargs="+", default=[100, 10])
+                        nargs="+", default=[100, 10], type=int)
     parser.add_argument("--indel", help="Threshold for indel detection [500]", default=500, type=int)
     parser.add_argument("-n", "--dry-run", help="Print out the commands that will be executed", action="store_true")
     parser.add_argument("--benchmark", help="Store benchmarks for each step of the ntSynt pipeline",
@@ -35,13 +37,18 @@ def main():
                         action="store_true")
     parser.add_argument("--dev", help="Run in developer mode to retain intermediate files, log verbose output",
                         action="store_true")
-    parser.add_argument("-v", "--version", action="version", version="ntSynt v0.0.1")
+    parser.add_argument("-v", "--version", action="version", version=NTSYNT_VERSION)
 
     args = parser.parse_args()
 
     base_dir = os.path.dirname(os.path.realpath(__file__))
     if not args.prefix:
         args.prefix = f"ntSynt.k{args.k}.w{args.w}"
+
+    # Check that the specified w_rounds are smaller than the initial window size
+    for w in args.w_rounds:
+        if w > args.w:
+            parser.error("All values specified for --w_rounds must be smaller than -w")
 
     args.w_rounds = " ".join(map(str, args.w_rounds))
     command = f"snakemake -s {base_dir}/ntsynt_run_pipeline.smk -p --cores {args.t} " \
@@ -52,7 +59,7 @@ def main():
     command += "simplify_graph=False " if args.no_simplify_graph else "simplify_graph=True "
     command += "benchmark=True " if args.benchmark else "benchmark=False "
     command += "dev=True " if args.dev else "dev=False "
-    command += "--resources load=2 " # For indexlr, don't want more than 2 indexlr at a time due to memory
+    command += "--resources load=2 --rerun-trigger mtime " # For indexlr, don't want more than 2 indexlr at a time due to memory
 
     if args.dry_run:
         command += " -n"
