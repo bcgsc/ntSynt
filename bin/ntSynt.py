@@ -8,6 +8,8 @@ import os
 import shlex
 import subprocess
 
+NTSYNT_VERSION = "ntSynt v0.0.1"
+
 def main():
     "Run ntSynt snakemake file"
     parser = argparse.ArgumentParser(description="ntSynt: Genome synteny detection using dynamic minimizer graphs")
@@ -35,7 +37,7 @@ def main():
                         action="store_true")
     parser.add_argument("--dev", help="Run in developer mode to retain intermediate files, log verbose output",
                         action="store_true")
-    parser.add_argument("-v", "--version", action="version", version="ntSynt v0.0.1")
+    parser.add_argument("-v", "--version", action="version", version=NTSYNT_VERSION)
 
     args = parser.parse_args()
 
@@ -52,7 +54,7 @@ def main():
     command += "simplify_graph=False " if args.no_simplify_graph else "simplify_graph=True "
     command += "benchmark=True " if args.benchmark else "benchmark=False "
     command += "dev=True " if args.dev else "dev=False "
-    command += "--resources load=2 " # For indexlr, don't want more than 2 indexlr at a time due to memory
+    command += "--resources load=2 --rerun-trigger mtime " # For indexlr, don't want more than 2 indexlr at a time due to memory
 
     if args.dry_run:
         command += " -n"

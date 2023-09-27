@@ -77,7 +77,8 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                     if prelim_blocks.all_oriented():
                         out_blocks.append(prelim_blocks)
                     else:
-                        print("Not oriented: ", prelim_blocks, flush=True)
+                        if self.args.dev:
+                            print("Not oriented: ", prelim_blocks, flush=True)
                         to_remove_nodes.extend([ntjoin_utils.vertex_index(self.graph, mx.mx)
                                         for mx in prelim_blocks.assembly_blocks[
                                             list(prelim_blocks.assembly_blocks.keys()).pop()].minimizers])
@@ -88,7 +89,8 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         if prelim_blocks.all_oriented():
             out_blocks.append(prelim_blocks)
         else:
-            print("Not oriented: ", prelim_blocks, flush=True)
+            if self.args.dev:
+                print("Not oriented: ", prelim_blocks, flush=True)
             to_remove_nodes.extend([ntjoin_utils.vertex_index(self.graph, mx.mx)
                                     for mx in prelim_blocks.assembly_blocks[
                                         list(prelim_blocks.assembly_blocks.keys()).pop()].minimizers])
@@ -499,11 +501,12 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                 # Filter by length, and do another round of merging
                 paths_sorted_for_printing_collinear = [block for block in paths_sorted_for_printing_collinear \
                                                         if all(asm_block.get_block_length() >= self.args.z \
-                                                            for _, asm_block in block.assembly_block.items())]
+                                                            for _, asm_block in block.assembly_blocks.items())]
                 paths_sorted_for_printing_collinear = self.merge_collinear_blocks(paths_sorted_for_printing_collinear)
 
-                # Check for non-overlapping in the last round
-                self.check_non_overlapping(paths_sorted_for_printing_collinear)
+                # Check for non-overlapping in the last round if --dev
+                if self.args.dev:
+                    self.check_non_overlapping(paths_sorted_for_printing_collinear)
 
                 with open(f"{self.args.p}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
                     block_num = 0

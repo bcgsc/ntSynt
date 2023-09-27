@@ -5,6 +5,8 @@ Run the minimizer graph stage of ntSynt
 import argparse
 from ntsynt_synteny import NtSyntSynteny
 
+NTSYNT_VERSION = 'ntSynt v0.0.1'
+
 def parse_arguments():
     "Parse arguments from argparse"
     parser = argparse.ArgumentParser(description="Run the dynamic minimizer graph stage of ntSyny")
@@ -32,10 +34,11 @@ def parse_arguments():
     parser.add_argument('-m', help="Require at least m %% of minimizer positions to be "\
                                 "increasing/decreasing to assign contig orientation [90]\n ",
                                 default=90, type=int)
-    parser.add_argument("--dev", action="store_true", help="Developer mode - retain intermediate files")
+    parser.add_argument("--dev", action="store_true", help="Developer mode - retain intermediate files"\
+                                                            "and more verbose logging")
     parser.add_argument("--interarrivals", action="store_true",
                                 help="Output interarrival distances in initial graph")
-    parser.add_argument("-v", "--version", action='version', version='ntSynt v0.0.1')
+    parser.add_argument("-v", "--version", action='version', version=NTSYNT_VERSION)
 
     return parser.parse_args()
 
