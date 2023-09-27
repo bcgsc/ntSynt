@@ -30,8 +30,8 @@ Design and implementation: Lauren Coombe
 ## Usage
 
 ```
-usage: ntSynt.py [-h] [-k K] [-w W] [-t T] [--fpr FPR] [--no-solid] [--no-simplify-graph] [-p PREFIX] [--merge MERGE] [--w_rounds W_ROUNDS [W_ROUNDS ...]]
-                 [--indel INDEL] [-n] [--benchmark] [-f] [-v]
+usage: ntSynt.py [-h] -d DIVERGENCE [-p PREFIX] [-k K] [-w W] [-t T] [--fpr FPR] [-b BLOCK_SIZE] [--merge MERGE] [--w_rounds W_ROUNDS [W_ROUNDS ...]]
+                 [--indel INDEL] [-n] [--benchmark] [-f] [--dev] [-v]
                  fastas [fastas ...]
 
 ntSynt: Genome synteny detection using dynamic minimizer graphs
@@ -41,23 +41,37 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  -d DIVERGENCE, --divergence DIVERGENCE
+                        Approx. maximum percent sequence divergence between input genome assemblies(Ex. -d 1 for 1% divergence).
+                        This will be used to set --indel, --merge, --w_rounds, --block - See below for set values.
+                        You can also set any of those parameters yourself, which will override these settings.
+  -p PREFIX, --prefix PREFIX
+                        Prefix for ntSynt output files [ntSynt.k<k>.w<w>]
   -k K                  Minimizer kmer size [24]
   -w W                  Minimizer window size [1000]
   -t T                  Number of threads [12]
   --fpr FPR             False positive rate for Bloom filter creation [0.025]
-  --no-solid            Do not use the solid BF for minimizer graph creation
-  --no-simplify-graph   Do not run graph simplification on minimizer graph
-  -p PREFIX, --prefix PREFIX
-                        Prefix for ntSynt output files [ntSynt.k<k>.w<w>]
-  --merge MERGE         Multiple of window size used for collinear synteny block merging [3]
+  -b BLOCK_SIZE, --block_size BLOCK_SIZE
+                        Minimum synteny block size (bp)
+  --merge MERGE         Maximum distance between collinear synteny blocks for merging. 
+                        Can also specify a multiple of the window size (ex. 3w)
   --w_rounds W_ROUNDS [W_ROUNDS ...]
-                        List of window sizes for iterative rounds [100 10]
-  --indel INDEL         Threshold for indel detection [500]
+                        List of window sizes for iterative rounds
+  --indel INDEL         Threshold for indel detection
   -n, --dry-run         Print out the commands that will be executed
   --benchmark           Store benchmarks for each step of the ntSynt pipeline
-  -f, --force           Run all steps in the ntSynt pipeline, regardless of existing output files
+  -f, --force           Run all ntSynt steps, regardless of existing output files
+  --dev                 Run in developer mode to retain intermediate files, log verbose output
   -v, --version         show program's version number and exit
 ```
+Given the approximate maximum divergence between the supplied genomes, ntSynt will set these parameters:
+|Divergence range|Parameters|
+|----|----|
+|< 1%|--block_size 500 --indel 10000 --merge 10000 --w_rounds 100 10|
+|1% - 10%|--block_size 1000 --indel 50000 --merge 100000 --w_rounds 250 100|
+|>10%|	--block_size 10000 --indel 100000 --merge 1000000 --w_rounds 500 250|
+
+Any of these parameters can be overridden by specifying them in your command. While these settings work generally well for the specified divergence range, we highly recommend customizing these settings for your particular requirements.
 
 ## Installation
 

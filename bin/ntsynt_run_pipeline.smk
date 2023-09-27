@@ -21,6 +21,7 @@ collinear_merge = config["collinear_merge"] if "collinear_merge" in config else 
 simplify_graph = config["simplify_graph"] if "simplify_graph" in config else True
 benchmark = config["benchmark"] if "benchmark" in config else False
 dev = config["dev"] if "dev" in config else False
+min_block_size = config["block_size"] if "block_size" in config else 500
 
 # If want to benchmark, use memusg or /usr/bin/time
 # The snakemake benchmarking is quite inaccurate for shorter runtimes
@@ -88,8 +89,9 @@ rule ntsynt_synteny:
     output: expand("{prefix}.synteny_blocks.tsv", prefix=prefix)
     threads: max_threads
     params: path_to_script=expand("{base_path}/ntsynt_run.py", base_path=script_path),
-            options=expand("-k {k} -w {w} --w-rounds {w_rounds} -p {prefix} --bp {indel_merge} --collinear-merge {collinear_merge}",
-                            k=k, w=w, w_rounds=[w_rounds], prefix=prefix, indel_merge=indel_merge, collinear_merge=collinear_merge),
+            options=expand("-k {k} -w {w} --w-rounds {w_rounds} -p {prefix} --bp {indel_merge} --collinear-merge {collinear_merge} -z {min_block_size}",
+                            k=k, w=w, w_rounds=[w_rounds], prefix=prefix, indel_merge=indel_merge, collinear_merge=collinear_merge,
+                            min_block_size=min_block_size),
             solid_bf="--solid" if solid is True else [],
             repeat_bf="--repeat" if repeat is True else [],
             simplify_graph="--simplify-graph" if simplify_graph is True else [],
