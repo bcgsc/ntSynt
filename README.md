@@ -71,7 +71,7 @@ Given the approximate maximum divergence between the supplied genomes, ntSynt wi
 |1% - 10%|--block_size 1000 --indel 50000 --merge 100000 --w_rounds 250 100|
 |>10%|	--block_size 10000 --indel 100000 --merge 1000000 --w_rounds 500 250|
 
-Any of these parameters can be overridden by specifying them in your command. While these settings work generally well for the specified divergence range, we highly recommend customizing these settings for your particular requirements.
+Any of these parameters can be overridden by specifying them in your command. While these settings work generally well for the associated divergence range, we highly recommend customizing them for your particular requirements.
 
 ## Installation
 
@@ -121,6 +121,10 @@ The columns of this output synteny blocks TSV:
 6. Chromosome/contig strand
 7. Number of mapped minimizers in this synteny block
 8. Reason for discontinuity with previous synteny block (optional)
+
+### Tips
+- To lower the peak memory usage, increase the false positive rate (--fpr) for the constructed Bloom filter
+- Customize parameters such as --merge, --indel, --block_size and --w_rounds for your particular input data and research questions
 
 ## License
 ntSynt Copyright (c) 2023 British Columbia Cancer Agency Branch. All rights reserved.
