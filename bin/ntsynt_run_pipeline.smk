@@ -35,7 +35,7 @@ if benchmark:
         print("WARNING: memusg and time not found in PATH. Benchmarks will not be tallied.")
 
 
-# Get path to the base directory (where snakemake file is located)
+# Get path to the base directory (where snakemake file and other scripts are located)
 script_path = workflow.basedir
 
 rule all:
