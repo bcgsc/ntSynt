@@ -109,6 +109,12 @@ cd tests
 ```
 Once the script has executed successfully, you can compare the output files with those in tests/expected_results
 
+### Example command
+To compute the synteny blocks between 3 assemblies (assembly1.fa, assembly2.fa, assembly3.fa) with default parameters, where the maximum sequence divergence among these is ~5%, run:
+```
+ntSynt.py -d 5 assembly1.fa assembly2.fa assembly3.fa
+```
+
 ### Output files
 The main output file has the naming scheme `<prefix>.synteny_blocks.tsv`. This contains the synteny blocks computed in a TSV format.
 
