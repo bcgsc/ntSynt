@@ -53,11 +53,11 @@ optional arguments:
   --fpr FPR             False positive rate for Bloom filter creation [0.025]
   -b BLOCK_SIZE, --block_size BLOCK_SIZE
                         Minimum synteny block size (bp)
-  --merge MERGE         Maximum distance between collinear synteny blocks for merging. 
+  --merge MERGE         Maximum distance between collinear synteny blocks for merging (bp). 
                         Can also specify a multiple of the window size (ex. 3w)
   --w_rounds W_ROUNDS [W_ROUNDS ...]
                         List of window sizes for iterative rounds
-  --indel INDEL         Threshold for indel detection
+  --indel INDEL         Threshold for indel detection (bp)
   -n, --dry-run         Print out the commands that will be executed
   --benchmark           Store benchmarks for each step of the ntSynt pipeline
   -f, --force           Run all ntSynt steps, regardless of existing output files

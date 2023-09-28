@@ -42,12 +42,12 @@ def main():
                         default=0.025, type=float)
     parser.add_argument("-b", "--block_size", help="Minimum synteny block size (bp)",
                         type=int, required=False)
-    parser.add_argument("--merge", help="Maximum distance between collinear synteny blocks for merging. \n"\
+    parser.add_argument("--merge", help="Maximum distance between collinear synteny blocks for merging (bp). \n"\
                                         "Can also specify a multiple of the window size (ex. 3w)",
                         type=str)
     parser.add_argument("--w_rounds", help="List of window sizes for iterative rounds",
                         nargs="+", type=int)
-    parser.add_argument("--indel", help="Threshold for indel detection", type=int)
+    parser.add_argument("--indel", help="Threshold for indel detection (bp)", type=int)
     parser.add_argument("--no-solid", help=argparse.SUPPRESS,
                         action="store_true")
     parser.add_argument("--no-simplify-graph", help=argparse.SUPPRESS,
