@@ -92,16 +92,17 @@ def main():
                     "Parameter settings:",
                     f"\tfastas {args.fastas}",
                     f"\t--divergence {args.divergence}",
+                    f"\t--block_size {args.block_size}",
+                    f"\t--merge {args.merge}",
+                    f"\t--w_rounds {args.w_rounds}",
+                    f"\t--indel {args.indel}"
                     f"\t-p {args.prefix}",
                     f"\t-k {args.k}",
                     f"\t-w {args.w}",
                     f"\t-t {args.t}",
                     f"\t--fpr {args.fpr}",
-                    f"\t--block_size {args.block_size}",
-                    f"\t--merge {args.merge}",
-                    f"\t--w_rounds {args.w_rounds}",
-                    f"\t--indel {args.indel}"]
-    print("\n".join(intro_string))
+                    ]
+    print("\n".join(intro_string), flush=True)
 
     args.w_rounds = " ".join(map(str, args.w_rounds))
     command = f"snakemake -s {base_dir}/ntsynt_run_pipeline.smk -p --cores {args.t} " \
