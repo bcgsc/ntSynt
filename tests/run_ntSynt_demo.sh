@@ -13,10 +13,10 @@ if [ -e celegans-chrII-III.fa.gz ]; then
 fi
 
 echo "Running ntSynt with 2 input genomes"
-ntSynt.py celegans-chrII-III.fa celegans-chrII-III.A.fa --prefix celegans-A-ntSynt
+ntSynt.py celegans-chrII-III.fa celegans-chrII-III.A.fa --prefix celegans-A-ntSynt -d 0.5 --merge 3000 --indel 500
 
 echo "Running ntSynt with 3 input genomes"
-ntSynt.py celegans-chrII-III.fa celegans-chrII-III.A.fa celegans-chrII-III.B.fa -k20 --prefix celegans-A-B-ntSynt
+ntSynt.py celegans-chrII-III.fa celegans-chrII-III.A.fa celegans-chrII-III.B.fa -k20 --prefix celegans-A-B-ntSynt -d 0.5 --merge 3000 --indel 500
 
 echo "Compressing input files.."
 if [ -e celegans-chrII-III.fa ]; then
