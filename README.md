@@ -30,7 +30,7 @@ Design and implementation: Lauren Coombe
 ## Usage
 
 ```
-usage: ntSynt.py [-h] -d DIVERGENCE [-p PREFIX] [-k K] [-w W] [-t T] [--fpr FPR] [-b BLOCK_SIZE] [--merge MERGE] [--w_rounds W_ROUNDS [W_ROUNDS ...]]
+usage: ntSynt [-h] -d DIVERGENCE [-p PREFIX] [-k K] [-w W] [-t T] [--fpr FPR] [-b BLOCK_SIZE] [--merge MERGE] [--w_rounds W_ROUNDS [W_ROUNDS ...]]
                  [--indel INDEL] [-n] [--benchmark] [-f] [--dev] [-v]
                  fastas [fastas ...]
 
@@ -112,7 +112,7 @@ Once the script has executed successfully, you can compare the output files with
 ### Example command
 To compute the synteny blocks between 3 assemblies (assembly1.fa, assembly2.fa, assembly3.fa) with default parameters, where the maximum sequence divergence among these is ~5%, run:
 ```
-ntSynt.py -d 5 assembly1.fa assembly2.fa assembly3.fa
+ntSynt -d 5 assembly1.fa assembly2.fa assembly3.fa
 ```
 
 ### Output files

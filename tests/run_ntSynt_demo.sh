@@ -3,7 +3,7 @@
 #Run ntSynt demo to test installation
 
 echo "Running ntSynt Demo..."
-echo "This demo assumes that you have the 'ntSynt.py' script in your PATH"
+echo "This demo assumes that you have the 'ntSynt' script in your PATH"
 
 set -eux -o pipefail
 
@@ -13,10 +13,10 @@ if [ -e celegans-chrII-III.fa.gz ]; then
 fi
 
 echo "Running ntSynt with 2 input genomes"
-ntSynt.py celegans-chrII-III.fa celegans-chrII-III.A.fa --prefix celegans-A-ntSynt -d 0.5 --merge 3000 --indel 500
+ntSynt celegans-chrII-III.fa celegans-chrII-III.A.fa --prefix celegans-A-ntSynt -d 0.5 --merge 3000 --indel 500
 
 echo "Running ntSynt with 3 input genomes"
-ntSynt.py celegans-chrII-III.fa celegans-chrII-III.A.fa celegans-chrII-III.B.fa -k20 --prefix celegans-A-B-ntSynt -d 0.5 --merge 3000 --indel 500
+ntSynt celegans-chrII-III.fa celegans-chrII-III.A.fa celegans-chrII-III.B.fa -k20 --prefix celegans-A-B-ntSynt -d 0.5 --merge 3000 --indel 500
 
 echo "Compressing input files.."
 if [ -e celegans-chrII-III.fa ]; then
