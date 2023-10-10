@@ -16,7 +16,7 @@ NTSYNT_VERSION = "ntSynt v0.0.1"
 def main():
     "Run ntSynt snakemake file"
 
-    epilog_str = "\n".join(["Parameter settings for divergence values:",
+    epilog_str = "\n".join(["Default parameter settings for divergence values:",
                   "< 1% divergence:\t--block_size 500 --indel 10000 --merge 10000 --w_rounds 100 10",
                   "1% - 10% divergence:\t--block_size 1000 --indel 50000 --merge 100000 --w_rounds 250 100",
                   "> 10% divergence:\t--block_size 10000 --indel 100000 --merge 1000000 --w_rounds 500 250",

@@ -64,8 +64,8 @@ optional arguments:
   --dev                 Run in developer mode to retain intermediate files, log verbose output
   -v, --version         show program's version number and exit
 ```
-Given the approximate maximum divergence between the supplied genomes, ntSynt will set these parameters:
-|Divergence range|Parameters|
+Given the approximate maximum divergence between the supplied genomes, ntSynt will set these default parameters:
+|Divergence range|Defaul parameters|
 |----|----|
 |< 1%|--block_size 500 --indel 10000 --merge 10000 --w_rounds 100 10|
 |1% - 10%|--block_size 1000 --indel 50000 --merge 100000 --w_rounds 250 100|
