@@ -54,6 +54,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         print("\t--btllib_t", self.args.btllib_t)
         print("\t--w-rounds", self.args.w_rounds)
         print("\t-m", self.args.m)
+        print("\t-z", self.args.z)
         print("\t--collinear-merge", self.args.collinear_merge, flush=True)
         if self.args.solid:
             print("\t--solid", self.args.solid, flush=True)
@@ -191,10 +192,10 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         "Update the given dictionary of trees with the new extent"
         start_pos = min(mx1.position, mx2.position)
         end_pos = max(mx1.position, mx2.position)
-        if assembly_name not in intervals or ctg not in intervals[assembly_name]:
-            intervals[assembly_name][ctg] = []
         if end_pos - start_pos < 2: # If the interval is too short, will generate an error if try to add the interval
             return
+        if assembly_name not in intervals or ctg not in intervals[assembly_name]:
+            intervals[assembly_name][ctg] = []
         intervals[assembly_name][ctg].append((start_pos+1, end_pos, 1))
 
     def find_mx_in_blocks(self, paths):

@@ -32,7 +32,7 @@ jobs:
 
   - script: |
       source activate ntsynt_ci
-      ./ntSynt_build/bin/ntSynt.py --help
+      ./ntSynt_build/bin/ntSynt --help
     displayName: Print ntSynt help message
 
   - script: |
@@ -73,7 +73,7 @@ jobs:
 
   - script: |
       source activate ntsynt_ci
-      ./ntSynt_build/bin/ntSynt.py --help
+      ./ntSynt_build/bin/ntSynt --help
     displayName: Print ntSynt help message
 
   - script: |

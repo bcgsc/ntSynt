@@ -9,7 +9,7 @@ def launch_ntSynt(*genomes, prefix="ntSynt", k=24, w=1000, **kwargs):
     "Launch ntSynt"
     genome_list = " ".join(genomes)
     more_params = " ".join(f"--{name} {val}" for name, val in kwargs.items())
-    cmd = f"ntSynt.py --force {genome_list} -k{k} -w {w} -d 0.5 --prefix {prefix} {more_params}"
+    cmd = f"ntSynt --force {genome_list} -k{k} -w {w} -d 0.5 --prefix {prefix} {more_params}"
     cmd = shlex.split(cmd)
     ret_code = subprocess.call(cmd)
     assert ret_code == 0

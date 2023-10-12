@@ -30,7 +30,7 @@ Design and implementation: Lauren Coombe
 ## Usage
 
 ```
-usage: ntSynt.py [-h] -d DIVERGENCE [-p PREFIX] [-k K] [-w W] [-t T] [--fpr FPR] [-b BLOCK_SIZE] [--merge MERGE] [--w_rounds W_ROUNDS [W_ROUNDS ...]]
+usage: ntSynt [-h] -d DIVERGENCE [-p PREFIX] [-k K] [-w W] [-t T] [--fpr FPR] [-b BLOCK_SIZE] [--merge MERGE] [--w_rounds W_ROUNDS [W_ROUNDS ...]]
                  [--indel INDEL] [-n] [--benchmark] [-f] [--dev] [-v]
                  fastas [fastas ...]
 
@@ -64,8 +64,8 @@ optional arguments:
   --dev                 Run in developer mode to retain intermediate files, log verbose output
   -v, --version         show program's version number and exit
 ```
-Given the approximate maximum divergence between the supplied genomes, ntSynt will set these parameters:
-|Divergence range|Parameters|
+Given the approximate maximum divergence between the supplied genomes, ntSynt will set these default parameters:
+|Divergence range|Default parameters|
 |----|----|
 |< 1%|--block_size 500 --indel 10000 --merge 10000 --w_rounds 100 10|
 |1% - 10%|--block_size 1000 --indel 50000 --merge 100000 --w_rounds 250 100|
@@ -112,7 +112,7 @@ Once the script has executed successfully, you can compare the output files with
 ### Example command
 To compute the synteny blocks between 3 assemblies (assembly1.fa, assembly2.fa, assembly3.fa) with default parameters, where the maximum sequence divergence among these is ~5%, run:
 ```
-ntSynt.py -d 5 assembly1.fa assembly2.fa assembly3.fa
+ntSynt -d 5 assembly1.fa assembly2.fa assembly3.fa
 ```
 
 ### Output files
