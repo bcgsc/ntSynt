@@ -54,6 +54,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         print("\t--btllib_t", self.args.btllib_t)
         print("\t--w-rounds", self.args.w_rounds)
         print("\t-m", self.args.m)
+        print("\t-z", self.args.z)
         print("\t--collinear-merge", self.args.collinear_merge, flush=True)
         if self.args.solid:
             print("\t--solid", self.args.solid, flush=True)
