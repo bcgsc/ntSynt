@@ -141,6 +141,7 @@ optional arguments:
   --tsv TSV            ntSynt synteny block file
   --fai FAI [FAI ...]  FAI files for the compared genomes
 ```
+More information can be found on our [wiki page](https://github.com/bcgsc/ntSynt/wiki/de-novo-statistics-summary)
 
 ### Tips
 - To lower the peak memory usage, increase the false positive rate (--fpr) for the constructed Bloom filter
