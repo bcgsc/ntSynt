@@ -131,7 +131,7 @@ The columns of this output synteny blocks TSV:
 ### Basic assessment of synteny blocks
 For a basic summary of the statistics of the computed synteny blocks, you can run use the script `denovo_synteny_block_stats.py` found in `analysis_scripts`:
 ```
-(btl) [lcoombe@hpce706 analysis_scripts]$ python3 denovo_synteny_block_stats.py -h
+python3 denovo_synteny_block_stats.py -h
 usage: denovo_synteny_block_stats.py [-h] --tsv TSV --fai FAI [FAI ...]
 
 Compute de novo stats on synteny blocks
