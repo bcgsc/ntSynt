@@ -128,6 +128,20 @@ The columns of this output synteny blocks TSV:
 7. Number of mapped minimizers in this synteny block
 8. Reason for discontinuity with previous synteny block (optional)
 
+### Basic assessment of synteny blocks
+For a basic summary of the statistics of the computed synteny blocks, you can run use the script `denovo_synteny_block_stats.py` found in `analysis_scripts`:
+```
+(btl) [lcoombe@hpce706 analysis_scripts]$ python3 denovo_synteny_block_stats.py -h
+usage: denovo_synteny_block_stats.py [-h] --tsv TSV --fai FAI [FAI ...]
+
+Compute de novo stats on synteny blocks
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --tsv TSV            ntSynt synteny block file
+  --fai FAI [FAI ...]  FAI files for the compared genomes
+```
+
 ### Tips
 - To lower the peak memory usage, increase the false positive rate (--fpr) for the constructed Bloom filter
 - Customize parameters such as --merge, --indel, --block_size and --w_rounds for your particular input data and research questions
