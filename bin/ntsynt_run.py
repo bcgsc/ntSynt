@@ -18,7 +18,7 @@ def parse_arguments():
     parser.add_argument("-w", help="Window size used for minimizers", required=True, type=int)
     parser.add_argument("-z", help="Minimum synteny block size (bp) [500]", type=int, default=500)
     parser.add_argument("--filter", help="Type of repeat filtering", choices=["Filter", "Indexlr"], type=str)
-    parser.add_argument("--solid", help="Input solid BF for minimizer selection", type=str)
+    parser.add_argument("--common", help="Input common BF for minimizer selection", type=str)
     parser.add_argument("--repeat", help="Repeat BF (must be included if --filter is specified)", type=str)
     parser.add_argument("--btllib_t", help="Number of threads for btllib wrapper functions "\
                                 "(computing minimizers, reading fasta file) [4]", type=int, default=4)
