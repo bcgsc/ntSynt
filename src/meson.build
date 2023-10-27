@@ -1,5 +1,5 @@
 
-executable('ntsynt_make_solid_bf',
+executable('ntsynt_make_common_bf',
     src_files,
     dependencies : deps,
     include_directories: include_dirs,

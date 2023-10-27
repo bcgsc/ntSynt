@@ -56,8 +56,8 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         print("\t-m", self.args.m)
         print("\t-z", self.args.z)
         print("\t--collinear-merge", self.args.collinear_merge, flush=True)
-        if self.args.solid:
-            print("\t--solid", self.args.solid, flush=True)
+        if self.args.common:
+            print("\t--common", self.args.common, flush=True)
         if self.args.repeat:
             print("\t--repeat", self.args.repeat, flush=True)
 
@@ -166,15 +166,15 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         list_mxs = {}
         new_list_mxs_info = {}
         for assembly_tsv, assembly_masked in tsv_to_fa_dict.items():
-            if self.args.filter == "Indexlr" and not self.args.solid:
+            if self.args.filter == "Indexlr" and not self.args.common:
                 indexlr_filename = ntjoin_utils.run_indexlr(assembly_masked, self.args.k, w,
                                                              self.args.btllib_t, r=self.args.repeat)
-            elif self.args.solid and self.args.filter != "Indexlr":
+            elif self.args.common and self.args.filter != "Indexlr":
                 indexlr_filename = ntjoin_utils.run_indexlr(assembly_masked, self.args.k, w,
-                                                             self.args.btllib_t, s=self.args.solid)
-            elif self.args.solid and self.args.filter == "Indexlr":
+                                                             self.args.btllib_t, s=self.args.common)
+            elif self.args.common and self.args.filter == "Indexlr":
                 indexlr_filename = ntjoin_utils.run_indexlr(assembly_masked, self.args.k, w,
-                                                             self.args.btllib_t, s=self.args.solid, r=self.args.repeat)
+                                                             self.args.btllib_t, s=self.args.common, r=self.args.repeat)
             else:
                 indexlr_filename = ntjoin_utils.run_indexlr(assembly_masked, self.args.k, w, self.args.btllib_t)
 

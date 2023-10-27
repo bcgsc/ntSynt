@@ -11,7 +11,7 @@
 #endif
 
 /*
-Creating a solid Bloom filter (with k-mers found in all input assemblies) using
+Creating a common Bloom filter (with k-mers found in all input assemblies) using
 a cascading Bloom filter approach
 */
 
@@ -43,7 +43,7 @@ int
 main(int argc, const char** argv)
 {
 
-  argparse::ArgumentParser parser("ntjoin_make_solid_bf");
+  argparse::ArgumentParser parser("ntjoin_make_common_bf");
   parser.add_argument("--genome")
     .nargs(argparse::nargs_pattern::at_least_one)
     .help("Input genome file(s)")
@@ -60,7 +60,7 @@ main(int argc, const char** argv)
 
   parser.add_argument("-p")
     .help("Prefix for output Bloom filter")
-    .default_value("solid_bf");
+    .default_value("common_bf");
 
   parser.add_argument("--bf")
     .help("Bloom filter size in bytes (optional)")

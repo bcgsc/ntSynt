@@ -13,7 +13,7 @@ w = config["w"] if "w" in config else 1000
 fpr = config["fpr"] if "fpr" in config else 0.025
 max_threads = config["t"] if "t" in config else 4
 prefix = config["prefix"] if "prefix" in config else "ntSynt_out"
-solid = config["solid"] if "solid" in config else True
+common = config["common"] if "common" in config else True
 repeat = config["repeat"] if "repeat" in config else False
 w_rounds = config["w_rounds"] if "w_rounds" in config else [100, 10]
 indel_merge = config["indel_merge"] if "indel_merge" in config else 500
@@ -49,13 +49,13 @@ rule faidx:
     threads: 1
     shell: "{params.benchmarking} samtools faidx {input.fa}"
 
-rule make_solid_bf:
+rule make_common_bf:
     input: refs=references
-    output: expand("{prefix}.solid.bf", prefix=prefix)
+    output: expand("{prefix}.common.bf", prefix=prefix)
     threads: max_threads
-    params: options=expand("-p {prefix}.solid --fpr {fpr} -k {k}", prefix=prefix, fpr=fpr, k=k),
-            path_to_script=expand("{base_path}/ntsynt_make_solid_bf", base_path=script_path),
-            benchmarking=expand("{benchmark_path} -o {prefix}.make_solid_bf.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else []
+    params: options=expand("-p {prefix}.common --fpr {fpr} -k {k}", prefix=prefix, fpr=fpr, k=k),
+            path_to_script=expand("{base_path}/ntsynt_make_common_bf", base_path=script_path),
+            benchmarking=expand("{benchmark_path} -o {prefix}.make_common_bf.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else []
     shell: "{params.benchmarking} {params.path_to_script} --genome {input.refs} {params.options} -t {threads}"
 
 # For posterity, included but this is experimental
@@ -70,20 +70,20 @@ rule make_repeat_bf:
 
 rule indexlr:
     input: fa="{fasta}",
-            solid=expand("{prefix}.solid.bf", prefix=prefix) if solid is True else [],
+            common=expand("{prefix}.common.bf", prefix=prefix) if common is True else [],
             repeat=expand("{prefix}.repeat.bf", prefix=prefix) if repeat is True else []
     output: expand("{{fasta}}.k{k}.w{w}.tsv", k=k, w=w)
     threads: 5
     resources: load=1
     params: options=expand("-k {k} -w {w} --long --seq --pos", k=k, w=w),
-            bf="-s" if solid is True else [],
+            bf="-s" if common is True else [],
             repeat="-r" if repeat is True else [],
             benchmarking=expand("{benchmark_path} -o {{fasta}}.indexlr.time", benchmark_path=benchmark_path) if benchmark else []
-    shell: "{params.benchmarking} indexlr {params.options} -t {threads} {params.bf} {input.solid} {params.repeat} {input.repeat} {input.fa} > {output}"
+    shell: "{params.benchmarking} indexlr {params.options} -t {threads} {params.bf} {input.common} {params.repeat} {input.repeat} {input.fa} > {output}"
 
 rule ntsynt_synteny:
     input: mx=expand("{fasta}.k{k}.w{w}.tsv", fasta=references, k=k, w=w),
-            solid=expand("{prefix}.solid.bf", prefix=prefix) if solid is True else [],
+            common=expand("{prefix}.common.bf", prefix=prefix) if common is True else [],
             repeat=expand("{prefix}.repeat.bf", prefix=prefix) if repeat is True else [],
             fais=expand("{fasta}.fai", fasta=references)
     output: expand("{prefix}.synteny_blocks.tsv", prefix=prefix)
@@ -92,10 +92,10 @@ rule ntsynt_synteny:
             options=expand("-k {k} -w {w} --w-rounds {w_rounds} -p {prefix} --bp {indel_merge} --collinear-merge {collinear_merge} -z {min_block_size}",
                             k=k, w=w, w_rounds=[w_rounds], prefix=prefix, indel_merge=indel_merge, collinear_merge=collinear_merge,
                             min_block_size=min_block_size),
-            solid_bf="--solid" if solid is True else [],
+            common_bf="--common" if common is True else [],
             repeat_bf="--repeat" if repeat is True else [],
             simplify_graph="--simplify-graph" if simplify_graph is True else [],
             dev="--dev" if dev is True else [],
             benchmarking=expand("{benchmark_path} -o {prefix}.synteny_blocks.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else [] 
-    shell: "{params.benchmarking} python3 {params.path_to_script} {input.mx} {params.options} {params.solid_bf} {input.solid}  {params.simplify_graph} \
+    shell: "{params.benchmarking} python3 {params.path_to_script} {input.mx} {params.options} {params.common_bf} {input.common}  {params.simplify_graph} \
              --btllib_t {threads} {params.repeat_bf} {input.repeat} {params.dev}"

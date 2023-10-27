@@ -14,7 +14,7 @@ include_dirs = [
 
 rootpath = meson.source_root()
 
-src_files = [ 'ntsynt_make_solid_bf.cpp' ]
+src_files = [ 'ntsynt_make_common_bf.cpp' ]
 deps = [ btllib_dep, openmp_dep ]
 
 link_args = [ '-lbtllib' ]
