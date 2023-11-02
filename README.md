@@ -126,7 +126,7 @@ The columns of this output synteny blocks TSV:
 5. Genome end coordinate
 6. Chromosome/contig strand
 7. Number of mapped minimizers in this synteny block
-8. Reason for discontinuity with previous synteny block (optional)
+8. Reason for discontinuity with previous synteny block
 
 ### Basic assessment of synteny blocks
 For a basic summary of the statistics of the computed synteny blocks, you can run use the script `denovo_synteny_block_stats.py` found in `analysis_scripts`:
