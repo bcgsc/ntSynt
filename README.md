@@ -4,6 +4,17 @@
 
 Detecting synteny blocks between multiple genome assemblies using a dynamic minimizer graph approach.
 
+## Contents
+1. [Description of the algorithm](#description-of-the-algorithm)
+2. [Credits](#credits)
+3. [Usage](#usage)
+4. [Installation instructions](#installation)
+5. [Example](#example-command)
+6. [Output files](#output-files)
+7. [Asssessment](#basic-assessment-of-synteny-blocks)
+8. [Tips](#tips)
+9. [License](#license)
+
 ## Description of the algorithm
 
 ntSynt can take multiple genome assemblies as input, and will compute synteny blocks that are in common with each of these input assemblies. ntSynt builds on the ntJoin codebase.
