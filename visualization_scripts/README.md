@@ -1,6 +1,6 @@
 # Example visualization scripts for ntSynt
 
-Here, we provide basic examples scripts for generating ribbon plots and chromosome paint plots to visualize synteny blocks computed by ntSynt. Each R script script can be seen as a starting point which can be customized as needed. 
+Here, we provide basic examples scripts for generating ribbon plots and chromosome sequence painting plots to visualize synteny blocks computed by ntSynt. Each R script script can be seen as a starting point, and can be customized as needed. 
 
 ## Ribbon plots
 The R package gggenomes (https://thackl.github.io/gggenomes/) is used to generate ribbon plots to visualize multi-genome synteny blocks.
@@ -8,7 +8,7 @@ The R package gggenomes (https://thackl.github.io/gggenomes/) is used to generat
 ### Steps:
 1. Format the ntSynt synteny blocks for the ribbon plots R script using the provided scripts. Before running `format_blocks_gggenomes.sh`, add the `visualization_scripts` directory to your PATH.
 ```
-(btl) [lcoombe@hpce706 visualization_scripts]$ ./format_blocks_gggenomes.sh 
+(btl) [lcoombe@hpce706 visualization_scripts]$ format_blocks_gggenomes.sh 
 Usage: format_blocks_gggenomes.sh <synteny blocks TSV> <prefix> <length threshold> <assembly to use for colour> <FAI> <FAI> [FAI..]
 ```
 This script will generate two TSV files: {prefix}.links.tsv  {prefix}.sequence_lengths.tsv
