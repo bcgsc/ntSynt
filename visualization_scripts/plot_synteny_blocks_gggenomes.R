@@ -12,7 +12,8 @@ parser$add_argument("-s", "--sequences", help = "Input sequence lengths TSV", re
 parser$add_argument("-l", "--links", help = "Synteny block links", required = TRUE)
 parser$add_argument("--scale", help = "Length of scale bar in bases (default 1 Gbp)", default = 1e9,
                     required = FALSE, type = "double")
-parser$add_argument("-p", "--prefix", help = "Output prefix for PNG image", required = FALSE,
+parser$add_argument("-p", "--prefix",
+                    help = "Output prefix for PNG image (default synteny_gggenomes_plot)", required = FALSE,
                     default = "synteny_gggenomes_plot")
 
 args <- parser$parse_args()

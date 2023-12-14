@@ -14,7 +14,8 @@ parser$add_argument("-b", "--blocks", help = "ntSynt-formatted synteny blocks", 
 parser$add_argument("-g", "--gaps",
                     help = "TSV file with gap coordinates. Required headers: chrom, chromStart, chromEnd (optional)",
                     required = FALSE)
-parser$add_argument("-p", "--prefix", help = "Output prefix for PNG image (optional)", required = FALSE,
+parser$add_argument("-p", "--prefix", help = "Output prefix for PNG image (optional, default synteny_chromosome)",
+                    required = FALSE,
                     default = "synteny_chromosome-painting_plot")
 
 args <- parser$parse_args()

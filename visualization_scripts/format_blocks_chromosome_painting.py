@@ -66,7 +66,8 @@ def main():
     "Reformat the synteny blocks TSV for chromosome sequence painting plots"
     parser = argparse.ArgumentParser(description="Formatting synteny blocks for chromosome painting")
     parser.add_argument("synteny_tsv", help="ntSynt-formatted synteny blocks TSV")
-    parser.add_argument("--convert", help="TSV file with desired conversions for assembly names", required=False)
+    parser.add_argument("--convert", help="TSV file with desired conversions for assembly names (optional)",
+                        required=False)
     parser.add_argument("--target", help="Target assembly name", required=True)
     args = parser.parse_args()
 
