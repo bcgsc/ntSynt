@@ -58,7 +58,7 @@ make_plot <- function(links, sequences, add_scale_bar = FALSE) {
     geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5) +
     geom_seq(size = 2, colour = "grey") + # draw contig/chromosome lines
     geom_bin_label(aes(label = bin_id), size = 6, hjust = 0.9) + # label each bin
-    geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
+    #geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
     theme(axis.text.x = element_text(size = 25),
           legend.position = "bottom") +
     scale_fill_manual(values = hue_pal()(length(unique(links$seq_id))),

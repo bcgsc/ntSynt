@@ -58,7 +58,7 @@ This script will output the results in standard out - pipe the output to a file.
 2. Run the R script
 * Required R packages: argparse, ggplot2, dplyr, tidyr, gtools, scales
 ```
-usage: ./chromosome-painting.R [-h] -b BLOCKS [-g GAPS] [-p PREFIX]
+usage: plot_synteny_blocks-chromosome-painting.R [-h] -b BLOCKS [-g GAPS] [-p PREFIX]
 
 Generate chromosome painting plots to visualize ntSynt synteny
 
@@ -72,3 +72,6 @@ optional arguments:
                         Output prefix for PNG image (optional)
 ```
 * These plots can also be customized as needed (plot size, scale, comparing additional tools, etc.)
+
+Example:
+![Example_gggenomes](https://github.com/bcgsc/ntSynt/blob/main/visualization_scripts/example_chromosome-painting.png)

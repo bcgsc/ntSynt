@@ -94,8 +94,10 @@ if (!is.null(args$gaps)) {
   painting_plot <- make_plot(ntsynt_blocks, gaps)
 } else {
   painting_plot <- make_plot(ntsynt_blocks)
-  cat("RAN without gaps")
 }
 
-ggsave(paste(args$prefix, ".chr-paint-plot.png", sep = ""), painting_plot,
+outfile_name <- paste(args$prefix, ".chr-paint-plot.png", sep = "")
+ggsave(outfile_name, painting_plot,
        units = "cm", height = 40, width = 70, dpi = 300)
+
+cat(paste("DONE! Chromosome painting plot saved to:", outfile_name, "\n", sep = " "))
