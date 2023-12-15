@@ -10,7 +10,7 @@ The R package gggenomes (https://thackl.github.io/gggenomes/) is used to generat
 ```
 Usage: format_blocks_gggenomes.sh <synteny blocks TSV> <prefix> <length threshold> <assembly to use for colour> <FAI> <FAI> [FAI..]
 ```
-This script will generate two TSV files: {prefix}.links.tsv  {prefix}.sequence_lengths.tsv
+This script will generate two TSV files: `{prefix}.links.tsv`  `{prefix}.sequence_lengths.tsv`
 
 2. Run the R script
 * Required R packages: argparse, gggenomes, gtools, scales
@@ -27,7 +27,8 @@ optional arguments:
                         Synteny block links
   --scale SCALE         Length of scale bar in bases (default 1 Gbp)
   -p PREFIX, --prefix PREFIX
-                        Output prefix for PNG image
+                        Output prefix for PNG image (default
+                        synteny_gggenomes_plot)
 ```
 Example:
 ![Example_gggenomes](https://github.com/bcgsc/ntSynt/blob/main/visualization_scripts/example_gggenomes.png)
@@ -49,7 +50,7 @@ positional arguments:
 
 optional arguments:
   -h, --help         show this help message and exit
-  --convert CONVERT  TSV file with desired conversions for assembly names
+  --convert CONVERT  TSV file with desired conversions for assembly names (optional)
   --target TARGET    Target assembly name
 ```
 
@@ -58,7 +59,7 @@ This script will output the results in standard out - pipe the output to a file.
 2. Run the R script
 * Required R packages: argparse, ggplot2, dplyr, tidyr, gtools, scales
 ```
-usage: ./chromosome-painting.R [-h] -b BLOCKS [-g GAPS] [-p PREFIX]
+usage: plot_synteny_blocks-chromosome-painting.R [-h] -b BLOCKS [-g GAPS] [-p PREFIX]
 
 Generate chromosome painting plots to visualize ntSynt synteny
 
@@ -69,6 +70,10 @@ optional arguments:
   -g GAPS, --gaps GAPS  TSV file with gap coordinates. Required headers:
                         chrom, chromStart, chromEnd (optional)
   -p PREFIX, --prefix PREFIX
-                        Output prefix for PNG image (optional)
+                        Output prefix for PNG image (optional, default
+                        synteny_chromosome)
 ```
 * These plots can also be customized as needed (plot size, scale, comparing additional tools, etc.)
+
+Example:
+![Example_gggenomes](https://github.com/bcgsc/ntSynt/blob/main/visualization_scripts/example_chromosome-painting.png)

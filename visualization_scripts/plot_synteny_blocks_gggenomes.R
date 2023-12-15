@@ -12,7 +12,8 @@ parser$add_argument("-s", "--sequences", help = "Input sequence lengths TSV", re
 parser$add_argument("-l", "--links", help = "Synteny block links", required = TRUE)
 parser$add_argument("--scale", help = "Length of scale bar in bases (default 1 Gbp)", default = 1e9,
                     required = FALSE, type = "double")
-parser$add_argument("-p", "--prefix", help = "Output prefix for PNG image", required = FALSE,
+parser$add_argument("-p", "--prefix",
+                    help = "Output prefix for PNG image (default synteny_gggenomes_plot)", required = FALSE,
                     default = "synteny_gggenomes_plot")
 
 args <- parser$parse_args()
@@ -58,7 +59,7 @@ make_plot <- function(links, sequences, add_scale_bar = FALSE) {
     geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5) +
     geom_seq(size = 2, colour = "grey") + # draw contig/chromosome lines
     geom_bin_label(aes(label = bin_id), size = 6, hjust = 0.9) + # label each bin
-    geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
+    #geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
     theme(axis.text.x = element_text(size = 25),
           legend.position = "bottom") +
     scale_fill_manual(values = hue_pal()(length(unique(links$seq_id))),
