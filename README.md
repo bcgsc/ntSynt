@@ -157,6 +157,7 @@ More information can be found on our [wiki page](https://github.com/bcgsc/ntSynt
 ### Tips
 - To lower the peak memory usage, increase the false positive rate (--fpr) for the constructed Bloom filter
 - Customize parameters such as --merge, --indel, --block_size and --w_rounds for your particular input data and research questions
+- For example scripts for visualizing the output synteny blocks, see the sub-directory [visualization_scripts](https://github.com/bcgsc/ntSynt/tree/main/visualization_scripts)
 
 ## License
 ntSynt Copyright (c) 2023 British Columbia Cancer Agency Branch. All rights reserved.
