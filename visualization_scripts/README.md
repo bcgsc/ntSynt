@@ -10,6 +10,7 @@ The R package gggenomes (https://thackl.github.io/gggenomes/) is used to generat
 ```
 Usage: format_blocks_gggenomes.sh <synteny blocks TSV> <prefix> <length threshold> <assembly to use for colour> <FAI> <FAI> [FAI..]
 ```
+The order of assembly FAI files will dictate the order of the genomes in the ribbon plots.
 This script will generate two TSV files: `{prefix}.links.tsv`  `{prefix}.sequence_lengths.tsv`
 
 2. Run the R script

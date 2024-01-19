@@ -25,7 +25,7 @@ sequences <- read.csv(args$sequences, sep = "\t", header = TRUE)
 # https://stackoverflow.com/questions/32378108/using-gtoolsmixedsort-or-alternatives-with-dplyrarrange
 mixedrank <- function(x) order(gtools::mixedorder(x))
 sequences <- sequences %>%
-  arrange(factor(bin_id), mixedrank(seq_id))
+  arrange(mixedrank(seq_id))
 
 
 # Read in and prepare synteny links
@@ -65,13 +65,13 @@ make_plot <- function(links, sequences, add_scale_bar = FALSE) {
     scale_fill_manual(values = hue_pal()(length(unique(links$seq_id))),
                       breaks = unique(links$seq_id)) +
     scale_colour_manual(values = c("red")) +
-    guides(fill = guide_legend(title = "", ncol=10),
+    guides(fill = guide_legend(title = "", ncol = 10),
            colour = guide_legend(title = ""))
 
   if (add_scale_bar) {
     plot <- plot + geom_segment(data = scale_bar, aes(x = x, xend = xend, y = y, yend = yend),
                                 linewidth = 1.5) +
-      geom_text(data = scale_bar, aes(x = x + (xend/2), y = y - 0.3, label = label)) + no_x_axis()
+      geom_text(data = scale_bar, aes(x = x + (xend / 2), y = y - 0.3, label = label)) + no_x_axis()
   }
 
   return(plot)
