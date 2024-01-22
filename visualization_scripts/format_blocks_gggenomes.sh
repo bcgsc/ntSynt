@@ -4,6 +4,7 @@
 
 if [ $# -lt 6 ]; then
     echo "Usage: $(basename $0) <synteny blocks TSV> <prefix> <length threshold> <assembly to use for colour> <FAI> <FAI> [FAI..]"
+    echo "NOTE: The order of FAI files will dictate the order of the genomes in the ribbon plot"
     exit 1
 fi
 
@@ -15,7 +16,11 @@ fais=$@
 
 set -eux -o pipefail
 
-format_blocks_gggenomes.py --fai ${fais} --prefix ${prefix} --blocks ${synteny_tsv} \
+# Sort the blocks based on the specified order
+sort_ntsynt_blocks.py --synteny_blocks ${synteny_tsv} --sort_order ${fais} --fais > ${prefix}.synteny_blocks.sorted.tsv
+
+# Generate the files needed for plotting with gggenomes
+format_blocks_gggenomes.py --fai ${fais} --prefix ${prefix} --blocks ${prefix}.synteny_blocks.sorted.tsv \
     --length ${length_threshold} --colour ${target_colour}
-cat ${prefix}.links.tsv  |mlr --tsv sort -f strand -n block_id -f bin_id > ${prefix}.links.sorted.tsv && mv ${prefix}.links.sorted.tsv ${prefix}.links.tsv
-cat ${prefix}.sequence_lengths.tsv |mlr --tsv sort -f bin_id,seq_id > ${prefix}.sequence_lengths.sorted.tsv && mv ${prefix}.sequence_lengths.sorted.tsv ${prefix}.sequence_lengths.tsv
+cat ${prefix}.links.tsv  |mlr --tsv sort -f strand -n block_id > ${prefix}.links.sorted.tsv && mv ${prefix}.links.sorted.tsv ${prefix}.links.tsv
+cat ${prefix}.sequence_lengths.tsv |mlr --tsv sort -f seq_id > ${prefix}.sequence_lengths.sorted.tsv && mv ${prefix}.sequence_lengths.sorted.tsv ${prefix}.sequence_lengths.tsv
