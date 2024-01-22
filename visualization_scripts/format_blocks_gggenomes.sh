@@ -4,7 +4,7 @@
 
 if [ $# -lt 6 ]; then
     echo "Usage: $(basename $0) <synteny blocks TSV> <prefix> <length threshold> <assembly to use for colour> <FAI> <FAI> [FAI..]"
-    echo "NOTE: The order of FAI files specified will dictate the order of the genomes in the ribbon plot"
+    echo "NOTE: The order of FAI files will dictate the order of the genomes in the ribbon plot"
     exit 1
 fi
 
