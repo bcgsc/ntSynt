@@ -83,7 +83,7 @@ rule indexlr:
 
 rule ntsynt_synteny:
     input: mx=expand("{fasta}.k{k}.w{w}.tsv", fasta=references, k=k, w=w),
-            common="{prefix}.common.bf" if common is True else [],
+            common=f"{prefix}.common.bf" if common is True else [],
             repeat=f"{prefix}.repeat.bf" if repeat is True else [],
             fais=expand("{fasta}.fai", fasta=references)
     output: f"{prefix}.synteny_blocks.tsv"
