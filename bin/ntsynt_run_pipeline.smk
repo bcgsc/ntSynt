@@ -40,7 +40,7 @@ script_path = workflow.basedir
 
 rule all:
     input: expand("{ref}.k{k}.w{w}.tsv", ref=references, k=k, w=w),
-            expand("{prefix}.synteny_blocks.tsv", prefix=prefix)
+            f"{prefix}.synteny_blocks.tsv"
 
 rule faidx:
     input: fa="{file}"
@@ -51,11 +51,11 @@ rule faidx:
 
 rule make_common_bf:
     input: refs=references
-    output: expand("{prefix}.common.bf", prefix=prefix)
+    output: f"{prefix}.common.bf"
     threads: max_threads
-    params: options=expand("-p {prefix}.common --fpr {fpr} -k {k}", prefix=prefix, fpr=fpr, k=k),
-            path_to_script=expand("{base_path}/ntsynt_make_common_bf", base_path=script_path),
-            benchmarking=expand("{benchmark_path} -o {prefix}.make_common_bf.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else []
+    params: options=f"-p {prefix}.common --fpr {fpr} -k {k}",
+            path_to_script=f"{base_path}/ntsynt_make_common_bf",
+            benchmarking=f"{benchmark_path} -o {prefix}.make_common_bf.time" if benchmark else []
     shell: "{params.benchmarking} {params.path_to_script} --genome {input.refs} {params.options} -t {threads}"
 
 # For posterity, included but this is experimental
@@ -63,19 +63,19 @@ rule make_repeat_bf:
     input: refs=references
     output: expand("{prefix}.repeat.bf", prefix=prefix)
     threads: max_threads
-    params: options=expand("-p {prefix}.repeat --fpr {fpr} -k {k}", prefix=prefix, fpr=fpr, k=k),
-            path_to_script=expand("{base_path}/ntsynt_make_repeat_bfs.py", base_path=script_path),
+    params: options=f"-p {prefix}.repeat --fpr {fpr} -k {k}",
+            path_to_script=f"{script_path}/ntsynt_make_repeat_bfs.py",
             benchmarking=expand("{benchmark_path} -o {prefix}.make_repeat_bf.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else []
     shell: "{params.benchmarking} {params.path_to_script} --genome {input.refs} {params.options} -t {threads}"
 
 rule indexlr:
     input: fa="{fasta}",
-            common=expand("{prefix}.common.bf", prefix=prefix) if common is True else [],
-            repeat=expand("{prefix}.repeat.bf", prefix=prefix) if repeat is True else []
+            common=f"{prefix}.common.bf" if common is True else [],
+            repeat=f"{prefix}.repeat.bf" if repeat is True else []
     output: expand("{{fasta}}.k{k}.w{w}.tsv", k=k, w=w)
     threads: 5
     resources: load=1
-    params: options=expand("-k {k} -w {w} --long --seq --pos", k=k, w=w),
+    params: options=f"-k {k} -w {w} --long --seq --pos",
             bf="-s" if common is True else [],
             repeat="-r" if repeat is True else [],
             benchmarking=expand("{benchmark_path} -o {{fasta}}.indexlr.time", benchmark_path=benchmark_path) if benchmark else []
@@ -83,19 +83,17 @@ rule indexlr:
 
 rule ntsynt_synteny:
     input: mx=expand("{fasta}.k{k}.w{w}.tsv", fasta=references, k=k, w=w),
-            common=expand("{prefix}.common.bf", prefix=prefix) if common is True else [],
-            repeat=expand("{prefix}.repeat.bf", prefix=prefix) if repeat is True else [],
+            common="{prefix}.common.bf" if common is True else [],
+            repeat=f"{prefix}.repeat.bf" if repeat is True else [],
             fais=expand("{fasta}.fai", fasta=references)
-    output: expand("{prefix}.synteny_blocks.tsv", prefix=prefix)
+    output: f"{prefix}.synteny_blocks.tsv"
     threads: max_threads
-    params: path_to_script=expand("{base_path}/ntsynt_run.py", base_path=script_path),
-            options=expand("-k {k} -w {w} --w-rounds {w_rounds} -p {prefix} --bp {indel_merge} --collinear-merge {collinear_merge} -z {min_block_size}",
-                            k=k, w=w, w_rounds=[w_rounds], prefix=prefix, indel_merge=indel_merge, collinear_merge=collinear_merge,
-                            min_block_size=min_block_size),
+    params: path_to_script=f"{script_path}/ntsynt_run.py",
+            options=f"-k {k} -w {w} --w-rounds {w_rounds} -p {prefix} --bp {indel_merge} --collinear-merge {collinear_merge} -z {min_block_size}",
             common_bf="--common" if common is True else [],
             repeat_bf="--repeat" if repeat is True else [],
             simplify_graph="--simplify-graph" if simplify_graph is True else [],
             dev="--dev" if dev is True else [],
-            benchmarking=expand("{benchmark_path} -o {prefix}.synteny_blocks.time", benchmark_path=benchmark_path, prefix=prefix) if benchmark else [] 
+            benchmarking=f"{benchmark_path} -o {prefix}.synteny_blocks.time" if benchmark else [] 
     shell: "{params.benchmarking} python3 {params.path_to_script} {input.mx} {params.options} {params.common_bf} {input.common}  {params.simplify_graph} \
              --btllib_t {threads} {params.repeat_bf} {input.repeat} {params.dev}"
