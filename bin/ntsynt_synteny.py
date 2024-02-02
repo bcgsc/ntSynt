@@ -618,6 +618,10 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             self.print_interarrivals(paths)
         paths_sorted_for_printing = sorted(paths)
 
+        if not paths_sorted_for_printing:
+            print("Error - no paths found. Try adjusting the specified k/w parameters.")
+            sys.exit(1)
+
         with open(f"{self.args.p}.synteny_blocks.tsv", 'w', encoding="utf-8") as outfile:
             block_num = 0
             for block in paths_sorted_for_printing:
