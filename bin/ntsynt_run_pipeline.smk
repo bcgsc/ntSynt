@@ -54,7 +54,7 @@ rule make_common_bf:
     output: f"{prefix}.common.bf"
     threads: max_threads
     params: options=f"-p {prefix}.common --fpr {fpr} -k {k}",
-            path_to_script=f"{base_path}/ntsynt_make_common_bf",
+            path_to_script=f"{script_path}/ntsynt_make_common_bf",
             benchmarking=f"{benchmark_path} -o {prefix}.make_common_bf.time" if benchmark else []
     shell: "{params.benchmarking} {params.path_to_script} --genome {input.refs} {params.options} -t {threads}"
 
