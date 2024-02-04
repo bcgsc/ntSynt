@@ -48,6 +48,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         print("Running ntJoin synteny detection...")
         print("Parameters:")
         print("\tMinimizer TSV files: ", self.args.FILES)
+        print("\t--fastas", self.args.fastas)
         print("\t-n", self.args.n)
         print("\t-p", self.args.p)
         print("\t-k", self.args.k)
