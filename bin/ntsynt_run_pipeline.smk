@@ -38,16 +38,19 @@ if benchmark:
 # Get path to the base directory (where snakemake file and other scripts are located)
 script_path = workflow.basedir
 
+# basenames for files
+config["dict_references"] = {os.path.basename(genome): genome for genome in references}
+
 rule all:
-    input: expand("{ref}.k{k}.w{w}.tsv", ref=references, k=k, w=w),
+    input: expand("{ref}.k{k}.w{w}.tsv", ref=config["dict_references"].keys(), k=k, w=w),
             f"{prefix}.synteny_blocks.tsv"
 
 rule faidx:
-    input: fa="{file}"
+    input: fa=lambda wildcards: config['dict_references'][wildcards.file]
     output: "{file}.fai"
     params: benchmarking=expand("{benchmark_path} -o {{file}}.faidx.time", benchmark_path=benchmark_path) if benchmark else []
     threads: 1
-    shell: "{params.benchmarking} samtools faidx {input.fa}"
+    shell: "{params.benchmarking} samtools faidx -o {output} {input.fa}"
 
 rule make_common_bf:
     input: refs=references
@@ -69,7 +72,7 @@ rule make_repeat_bf:
     shell: "{params.benchmarking} {params.path_to_script} --genome {input.refs} {params.options} -t {threads}"
 
 rule indexlr:
-    input: fa="{fasta}",
+    input: fa=lambda wildcards: config['dict_references'][wildcards.fasta],
             common=f"{prefix}.common.bf" if common is True else [],
             repeat=f"{prefix}.repeat.bf" if repeat is True else []
     output: expand("{{fasta}}.k{k}.w{w}.tsv", k=k, w=w)
@@ -82,10 +85,11 @@ rule indexlr:
     shell: "{params.benchmarking} indexlr {params.options} -t {threads} {params.bf} {input.common} {params.repeat} {input.repeat} {input.fa} > {output}"
 
 rule ntsynt_synteny:
-    input: mx=expand("{fasta}.k{k}.w{w}.tsv", fasta=references, k=k, w=w),
+    input: mx=expand("{fasta}.k{k}.w{w}.tsv", fasta=config['dict_references'].keys(), k=k, w=w),
             common=f"{prefix}.common.bf" if common is True else [],
             repeat=f"{prefix}.repeat.bf" if repeat is True else [],
-            fais=expand("{fasta}.fai", fasta=references)
+            fais=expand("{fasta}.fai", fasta=config['dict_references'].keys()),
+            fastas=references
     output: f"{prefix}.synteny_blocks.tsv"
     threads: max_threads
     params: path_to_script=f"{script_path}/ntsynt_run.py",
@@ -96,4 +100,4 @@ rule ntsynt_synteny:
             dev="--dev" if dev is True else [],
             benchmarking=f"{benchmark_path} -o {prefix}.synteny_blocks.time" if benchmark else [] 
     shell: "{params.benchmarking} python3 {params.path_to_script} {input.mx} {params.options} {params.common_bf} {input.common}  {params.simplify_graph} \
-             --btllib_t {threads} {params.repeat_bf} {input.repeat} {params.dev}"
+             --btllib_t {threads}  --fastas {input.fastas} {params.repeat_bf} {input.repeat} {params.dev}"

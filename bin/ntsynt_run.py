@@ -11,6 +11,7 @@ def parse_arguments():
     "Parse arguments from argparse"
     parser = argparse.ArgumentParser(description="Run the dynamic minimizer graph stage of ntSyny")
     parser.add_argument("FILES", nargs="+", help="Minimizer TSV files of input assemblies")
+    parser.add_argument("--fastas", nargs="+", help="Assembly fasta files", required=True, type=str)
     parser.add_argument("-n", help="Minimum edge weight [Number of input assemblies]", default=0, type=int)
     parser.add_argument("-p", help="Output prefix [out]",
                                 default="out", type=str, required=False)

@@ -7,6 +7,7 @@ Written by Lauren Coombe @lcoombe
 from collections import defaultdict
 import copy
 import datetime
+import os
 import re
 import shlex
 import subprocess
@@ -133,15 +134,17 @@ class NtSyntSynteny(ntjoin.Ntjoin):
     def mask_assemblies_with_synteny_extents(self, synteny_beds, w):
         "Mask each reference assembly with determined synteny blocks"
         mx_to_fa_dict = {}
+        assembly_to_fastas = {os.path.basename(fasta): fasta for fasta in self.args.fastas}
         for assembly, contig_dict in synteny_beds.items():
             bed_str = [f"{ctg}\t{bed.start}\t{bed.end}\tSYNTENY" for ctg in contig_dict \
                         for bed in contig_dict[ctg] if bed.end - bed.start > max(2*w, w+self.args.k+1)]
             bed_str = "\n".join(bed_str)
             fa_filename = self.find_fa_name(assembly)
+            fa_filename_full = assembly_to_fastas[fa_filename]
             synteny_bed = pybedtools.BedTool(bed_str, from_string=True).slop(g=f"{fa_filename}.fai",
                                                                              l=-1*(w+self.args.k),
                                                                              r=-1*(w+self.args.k)).sort()
-            synteny_bed.mask_fasta(fi=fa_filename, fo=f"{fa_filename}_masked.fa.tmp")
+            synteny_bed.mask_fasta(fi=fa_filename_full, fo=f"{fa_filename}_masked.fa.tmp")
 
             # pybedtools may output multi-line fasta which breaks btllib reading, need seqtk to make single line
             with open(f"{fa_filename}_masked.fa", "w", encoding="utf-8") as fout:
