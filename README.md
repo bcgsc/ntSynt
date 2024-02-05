@@ -45,7 +45,7 @@ usage: ntSynt [-h] -d DIVERGENCE [-p PREFIX] [-k K] [-w W] [-t T] [--fpr FPR] [-
                  [--indel INDEL] [-n] [--benchmark] [-f] [--dev] [-v]
                  fastas [fastas ...]
 
-ntSynt: Genome synteny detection using dynamic minimizer graphs
+ntSynt: Multi-genome synteny detection using minimizer graphs
 
 positional arguments:
   fastas                Input genome fasta files
@@ -53,12 +53,12 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -d DIVERGENCE, --divergence DIVERGENCE
-                        Approx. maximum percent sequence divergence between input genome assemblies(Ex. -d 1 for 1% divergence).
-                        This will be used to set --indel, --merge, --w_rounds, --block - See below for set values.
-                        You can also set any of those parameters yourself, which will override these settings.
+                        Approx. maximum percent sequence divergence between input genomes (Ex. -d 1 for 1% divergence).
+                        This will be used to set --indel, --merge, --w_rounds, --block_size
+                        See below for set values - You can also set any of those parameters yourself, which will override these settings.
   -p PREFIX, --prefix PREFIX
                         Prefix for ntSynt output files [ntSynt.k<k>.w<w>]
-  -k K                  Minimizer kmer size [24]
+  -k K                  Minimizer k-mer size [24]
   -w W                  Minimizer window size [1000]
   -t T                  Number of threads [12]
   --fpr FPR             False positive rate for Bloom filter creation [0.025]
@@ -67,7 +67,7 @@ optional arguments:
   --merge MERGE         Maximum distance between collinear synteny blocks for merging (bp). 
                         Can also specify a multiple of the window size (ex. 3w)
   --w_rounds W_ROUNDS [W_ROUNDS ...]
-                        List of window sizes for iterative rounds
+                        List of decreasing window sizes for synteny block refinement
   --indel INDEL         Threshold for indel detection (bp)
   -n, --dry-run         Print out the commands that will be executed
   --benchmark           Store benchmarks for each step of the ntSynt pipeline

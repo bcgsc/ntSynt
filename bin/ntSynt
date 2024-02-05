@@ -13,6 +13,15 @@ import snakemake
 
 NTSYNT_VERSION = "ntSynt v0.0.1"
 
+NTSYNT_ASCII = """
+        _    ____                 _ 
+ _ __  | |_ / ___|  _   _  _ __  | |_ 
+| '_ \ | __|\___ \ | | | || '_ \ | __|
+| | | || |_  ___) || |_| || | | || |_ 
+|_| |_| \__||____/  \__, ||_| |_| \__|
+                    |___/   
+"""
+
 def main():
     "Run ntSynt snakemake file"
 
@@ -23,19 +32,19 @@ def main():
                   "If any of these parameters are set manually, those values will override the above.",
                   "\nIf you have any questions about ntSynt, please create a GitHub issue: https://github.com/bcgsc/ntSynt"])
 
-    parser = argparse.ArgumentParser(description="ntSynt: Genome synteny detection using dynamic minimizer graphs",
+    parser = argparse.ArgumentParser(description="ntSynt: Multi-genome synteny detection using minimizer graphs",
                                      formatter_class=argparse.RawTextHelpFormatter,
                                      epilog=epilog_str)
     parser.add_argument("fastas", help="Input genome fasta files", nargs="+")
     parser.add_argument("-d", "--divergence",
-                        help="Approx. maximum percent sequence divergence between input genome assemblies"\
-                            "(Ex. -d 1 for 1%% divergence).\n"\
-                            "This will be used to set --indel, --merge, --w_rounds, --block - See below for set values.\n"\
-                            "You can also set any of those parameters yourself, which will override these settings.",
+                        help="Approx. maximum percent sequence divergence between input genomes"\
+                            " (Ex. -d 1 for 1%% divergence).\n"\
+                            "This will be used to set --indel, --merge, --w_rounds, --block_size\n"\
+                            "See below for set values - You can also set any of those parameters yourself, which will override these settings.",
                         required=True, type=float)
     parser.add_argument("-p", "--prefix", help="Prefix for ntSynt output files [ntSynt.k<k>.w<w>]",
                         required=False)
-    parser.add_argument("-k", help="Minimizer kmer size [24]", type=int, required=False, default=24)
+    parser.add_argument("-k", help="Minimizer k-mer size [24]", type=int, required=False, default=24)
     parser.add_argument("-w", help="Minimizer window size [1000]", type=int, required=False, default=1000)
     parser.add_argument("-t", help="Number of threads [12]", type=int, default=12)
     parser.add_argument("--fpr", help="False positive rate for Bloom filter creation [0.025]",
@@ -45,7 +54,7 @@ def main():
     parser.add_argument("--merge", help="Maximum distance between collinear synteny blocks for merging (bp). \n"\
                                         "Can also specify a multiple of the window size (ex. 3w)",
                         type=str)
-    parser.add_argument("--w_rounds", help="List of window sizes for iterative rounds",
+    parser.add_argument("--w_rounds", help="List of decreasing window sizes for synteny block refinement",
                         nargs="+", type=int)
     parser.add_argument("--indel", help="Threshold for indel detection (bp)", type=int)
     parser.add_argument("--no-common", help=argparse.SUPPRESS,
@@ -87,6 +96,7 @@ def main():
     if len(args.fastas) < 2:
         parser.error("Must supply at least two reference genomes to compare")
 
+    print(NTSYNT_ASCII)
     intro_string = ["Running ntSynt...",
                     f"Specified percent divergence: {args.divergence}",
                     "Parameter settings:",
@@ -103,6 +113,11 @@ def main():
                     f"\t--fpr {args.fpr}",
                     ]
     print("\n".join(intro_string), flush=True)
+
+    # Check that the input fastas exist
+    for fasta in args.fastas:
+        if not os.path.isfile(fasta):
+            raise FileNotFoundError(f"Input file {fasta} not found.")
 
     args.w_rounds = " ".join(map(str, args.w_rounds))
     command = f"snakemake -s {base_dir}/ntsynt_run_pipeline.smk -p --cores {args.t} " \

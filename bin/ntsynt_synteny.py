@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-ntJoin: Identifying synteny between genome assemblies using minimizer graphs
+ntSynt: Identifying synteny between genome assemblies using minimizer graphs
 Written by Lauren Coombe @lcoombe
 """
 
 from collections import defaultdict
 import copy
 import datetime
+import os
 import re
 import shlex
 import subprocess
@@ -24,7 +25,7 @@ from synteny_block import SyntenyBlock
 fai_re = re.compile(r'^(\S+).k\d+.w\d+.tsv')
 
 class NtSyntSynteny(ntjoin.Ntjoin):
-    "Instance for ntJoin synteny mode"
+    "Instance for ntSynt synteny detection"
 
     def __init__(self, args):
         super().__init__(args)
@@ -41,12 +42,12 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             raise ValueError("--collinear-merge must be provided with an integer value or string in the form '<num>w'")
 
     def print_parameters_synteny(self):
-        "Pring the set parameters for the ntJoin synteny run"
+        "Pring the set parameters for the ntSynt synteny run"
         if self.args.n == 0:
             self.args.n = len(self.args.FILES)
-        print("Running ntJoin synteny detection...")
         print("Parameters:")
         print("\tMinimizer TSV files: ", self.args.FILES)
+        print("\t--fastas", self.args.fastas)
         print("\t-n", self.args.n)
         print("\t-p", self.args.p)
         print("\t-k", self.args.k)
@@ -133,15 +134,17 @@ class NtSyntSynteny(ntjoin.Ntjoin):
     def mask_assemblies_with_synteny_extents(self, synteny_beds, w):
         "Mask each reference assembly with determined synteny blocks"
         mx_to_fa_dict = {}
+        assembly_to_fastas = {os.path.basename(fasta): fasta for fasta in self.args.fastas}
         for assembly, contig_dict in synteny_beds.items():
             bed_str = [f"{ctg}\t{bed.start}\t{bed.end}\tSYNTENY" for ctg in contig_dict \
                         for bed in contig_dict[ctg] if bed.end - bed.start > max(2*w, w+self.args.k+1)]
             bed_str = "\n".join(bed_str)
             fa_filename = self.find_fa_name(assembly)
+            fa_filename_full = assembly_to_fastas[fa_filename]
             synteny_bed = pybedtools.BedTool(bed_str, from_string=True).slop(g=f"{fa_filename}.fai",
                                                                              l=-1*(w+self.args.k),
                                                                              r=-1*(w+self.args.k)).sort()
-            synteny_bed.mask_fasta(fi=fa_filename, fo=f"{fa_filename}_masked.fa.tmp")
+            synteny_bed.mask_fasta(fi=fa_filename_full, fo=f"{fa_filename}_masked.fa.tmp")
 
             # pybedtools may output multi-line fasta which breaks btllib reading, need seqtk to make single line
             with open(f"{fa_filename}_masked.fa", "w", encoding="utf-8") as fout:
@@ -587,7 +590,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
 
 
     def main_synteny(self):
-        "Run the steps for ntJoin synteny mode"
+        "Run the steps for ntSynt synteny detection"
 
         # Check that the w_rounds specified don't have any duplicates
         if len(self.args.w_rounds) != len(set(self.args.w_rounds)):
@@ -597,20 +600,25 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         if self.args.filter and not self.args.repeat:
             raise ValueError("If --filter is specified, must supply repeat Bloom filter with --repeat")
 
-        # Run the common ntJoin steps
+        # Load the minimizers
         if self.args.filter == "Filter":
             self.repeat_bf = btllib.KmerBloomFilter(self.args.repeat)
             self.load_minimizers(self.repeat_bf)
         else:
             self.load_minimizers()
 
+        # Make the minimizer graph
         self.make_minimizer_graph()
+
+        # Simplify the minimizer graph, then filter
         if self.args.simplify_graph:
             self.graph = self.run_graph_simplification(self.graph)
         self.graph = self.filter_graph_global(self.graph)
 
+        # Find the initial paths
         paths = self.ntjoin_find_paths()
 
+        # Detect the synteny blocks from graph paths, refine them
         paths = self.find_paths_synteny_blocks(paths)
         paths = self.check_for_indels(paths)
         paths = self.filter_synteny_blocks(paths, 4)
@@ -631,6 +639,8 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                 outfile.write(block.get_block_string(block_num))
                 block_num += 1
         print(datetime.datetime.today(), ": Done initial synteny blocks", file=sys.stdout, flush=True)
+
+        # Further refine the synteny blocks
         self.refine_block_coordinates(paths)
 
         print(datetime.datetime.today(), ": DONE!", file=sys.stdout, flush=True)

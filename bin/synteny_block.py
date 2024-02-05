@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-Represents an ntJoin synteny block
+Represents an ntSynt synteny block
 '''
 from collections import namedtuple
 import re
