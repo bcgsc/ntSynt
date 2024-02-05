@@ -3,6 +3,8 @@
 Make a BF of k-mers with multiplicity of 2+ in either input genome
 '''
 import argparse
+import math
+import re
 import btllib
 
 def parse_bf_size(bf_size_str, parser):

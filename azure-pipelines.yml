@@ -33,7 +33,7 @@ jobs:
   - script: |
       source activate ntsynt_ci
       cd ntSynt_build/bin/
-      pylint --rcfile ../../bin/.pylintrc *py
+      pylint --rcfile ../../bin/.pylintrc --extension-pkg-allow-list=btllib *py
     displayName: Run pylint
 
   - script: |
