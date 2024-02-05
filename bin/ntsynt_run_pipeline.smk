@@ -38,7 +38,7 @@ if benchmark:
 # Get path to the base directory (where snakemake file and other scripts are located)
 script_path = workflow.basedir
 
-# basenames for files
+# basenames for input fasta files
 config["dict_references"] = {os.path.basename(genome): genome for genome in references}
 
 rule all:
