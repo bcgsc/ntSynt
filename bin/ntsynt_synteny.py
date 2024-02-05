@@ -609,7 +609,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
 
         # Make the minimizer graph
         self.make_minimizer_graph()
-        
+
         # Simplify the minimizer graph, then filter
         if self.args.simplify_graph:
             self.graph = self.run_graph_simplification(self.graph)
@@ -640,7 +640,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                 block_num += 1
         print(datetime.datetime.today(), ": Done initial synteny blocks", file=sys.stdout, flush=True)
 
-        # Further refine the synteny blocks    
+        # Further refine the synteny blocks
         self.refine_block_coordinates(paths)
 
         print(datetime.datetime.today(), ": DONE!", file=sys.stdout, flush=True)
