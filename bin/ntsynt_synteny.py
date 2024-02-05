@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ntJoin: Identifying synteny between genome assemblies using minimizer graphs
+ntSynt: Identifying synteny between genome assemblies using minimizer graphs
 Written by Lauren Coombe @lcoombe
 """
 
@@ -25,7 +25,7 @@ from synteny_block import SyntenyBlock
 fai_re = re.compile(r'^(\S+).k\d+.w\d+.tsv')
 
 class NtSyntSynteny(ntjoin.Ntjoin):
-    "Instance for ntJoin synteny mode"
+    "Instance for ntSynt synteny detection"
 
     def __init__(self, args):
         super().__init__(args)
@@ -42,10 +42,9 @@ class NtSyntSynteny(ntjoin.Ntjoin):
             raise ValueError("--collinear-merge must be provided with an integer value or string in the form '<num>w'")
 
     def print_parameters_synteny(self):
-        "Pring the set parameters for the ntJoin synteny run"
+        "Pring the set parameters for the ntSynt synteny run"
         if self.args.n == 0:
             self.args.n = len(self.args.FILES)
-        print("Running ntJoin synteny detection...")
         print("Parameters:")
         print("\tMinimizer TSV files: ", self.args.FILES)
         print("\t--fastas", self.args.fastas)
@@ -591,7 +590,7 @@ class NtSyntSynteny(ntjoin.Ntjoin):
 
 
     def main_synteny(self):
-        "Run the steps for ntJoin synteny mode"
+        "Run the steps for ntSynt synteny detection"
 
         # Check that the w_rounds specified don't have any duplicates
         if len(self.args.w_rounds) != len(set(self.args.w_rounds)):
@@ -601,20 +600,25 @@ class NtSyntSynteny(ntjoin.Ntjoin):
         if self.args.filter and not self.args.repeat:
             raise ValueError("If --filter is specified, must supply repeat Bloom filter with --repeat")
 
-        # Run the common ntJoin steps
+        # Load the minimizers
         if self.args.filter == "Filter":
             self.repeat_bf = btllib.KmerBloomFilter(self.args.repeat)
             self.load_minimizers(self.repeat_bf)
         else:
             self.load_minimizers()
 
+        # Make the minimizer graph
         self.make_minimizer_graph()
+        
+        # Simplify the minimizer graph, then filter
         if self.args.simplify_graph:
             self.graph = self.run_graph_simplification(self.graph)
         self.graph = self.filter_graph_global(self.graph)
 
+        # Find the initial paths
         paths = self.ntjoin_find_paths()
 
+        # Detect the synteny blocks from graph paths, refine them
         paths = self.find_paths_synteny_blocks(paths)
         paths = self.check_for_indels(paths)
         paths = self.filter_synteny_blocks(paths, 4)
@@ -635,6 +639,8 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                 outfile.write(block.get_block_string(block_num))
                 block_num += 1
         print(datetime.datetime.today(), ": Done initial synteny blocks", file=sys.stdout, flush=True)
+
+        # Further refine the synteny blocks    
         self.refine_block_coordinates(paths)
 
         print(datetime.datetime.today(), ": DONE!", file=sys.stdout, flush=True)

@@ -43,19 +43,19 @@ int
 main(int argc, const char** argv)
 {
 
-  argparse::ArgumentParser parser("ntjoin_make_common_bf");
+  argparse::ArgumentParser parser("ntsynt_make_common_bf");
   parser.add_argument("--genome")
     .nargs(argparse::nargs_pattern::at_least_one)
     .help("Input genome file(s)")
     .required();
   parser.add_argument("-k")
-    .help("K-mer size (bp)")
+    .help("k-mer size (bp)")
     .required()
     .scan<'u', unsigned>();
 
   parser.add_argument("--fpr")
     .help("False positive rate for Bloom filter")
-    .default_value((double)0.01)
+    .default_value((double)0.025)
     .scan<'g', double>();
 
   parser.add_argument("-p")

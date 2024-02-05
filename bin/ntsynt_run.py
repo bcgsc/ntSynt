@@ -9,13 +9,13 @@ NTSYNT_VERSION = 'ntSynt v0.0.1'
 
 def parse_arguments():
     "Parse arguments from argparse"
-    parser = argparse.ArgumentParser(description="Run the dynamic minimizer graph stage of ntSyny")
+    parser = argparse.ArgumentParser(description="Run the dynamic minimizer graph stage of ntSynt")
     parser.add_argument("FILES", nargs="+", help="Minimizer TSV files of input assemblies")
     parser.add_argument("--fastas", nargs="+", help="Assembly fasta files", required=True, type=str)
     parser.add_argument("-n", help="Minimum edge weight [Number of input assemblies]", default=0, type=int)
     parser.add_argument("-p", help="Output prefix [out]",
                                 default="out", type=str, required=False)
-    parser.add_argument("-k", help="Kmer size used for minimizer step", required=True, type=int)
+    parser.add_argument("-k", help="k-mer size used for minimizer step", required=True, type=int)
     parser.add_argument("-w", help="Window size used for minimizers", required=True, type=int)
     parser.add_argument("-z", help="Minimum synteny block size (bp) [500]", type=int, default=500)
     parser.add_argument("--filter", help="Type of repeat filtering", choices=["Filter", "Indexlr"], type=str)
@@ -45,7 +45,7 @@ def parse_arguments():
 
 def main():
     "Run ntSynt"
-    print("Running ntSynt v0.0.1", flush=True)
+    print(f"Running {NTSYNT_VERSION}", flush=True)
     args = parse_arguments()
     NtSyntSynteny(args).main_synteny()
 
