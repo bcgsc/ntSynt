@@ -1,3 +1,5 @@
+![GitHub Release](https://img.shields.io/github/v/release/bcgsc/ntsynt)
+
 ![Logo](https://github.com/bcgsc/ntSynt/blob/main/logo/ntsynt-logo.png)
 
 # ntSynt
