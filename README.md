@@ -88,6 +88,11 @@ Any of these parameters can be overridden by specifying them in your command. Wh
 
 ## Installation
 
+### Installing via conda:
+```
+conda install -c bioconda -c conda-forge ntsynt
+```
+
 ### Dependencies:
 - python 3.9+ with modules:
   - [intervaltree](https://github.com/chaimleib/intervaltree)
@@ -101,11 +106,6 @@ Any of these parameters can be overridden by specifying them in your command. Wh
 - [snakemake](https://snakemake.readthedocs.io/en/stable/)
 - [samtools](http://www.htslib.org/)
 - [seqtk](https://github.com/lh3/seqtk)
-
-**All ntSynt dependencies can be installed using conda:**
-```
-conda install -c bioconda -c conda-forge python intervaltree pybedtools ncls python-igraph compilers btllib meson ninja snakemake samtools
-```
 
 ### Installing ntSynt from the source code
 ```
