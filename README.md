@@ -88,12 +88,12 @@ Any of these parameters can be overridden by specifying them in your command. Wh
 
 ## Installation
 
-### Installing via conda:
+### Installing via conda
 ```
 conda install -c bioconda -c conda-forge ntsynt
 ```
 
-### Dependencies:
+### Dependencies
 - python 3.9+ with modules:
   - [intervaltree](https://github.com/chaimleib/intervaltree)
   - [pybedtools](https://daler.github.io/pybedtools/)
