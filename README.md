@@ -1,4 +1,5 @@
 ![GitHub Release](https://img.shields.io/github/v/release/bcgsc/ntsynt)
+[![Preprint](https://img.shields.io/badge/Preprint-blue.svg)](https://doi.org/10.1101/2024.02.07.579356)
 
 ![Logo](https://github.com/bcgsc/ntSynt/blob/main/logo/ntsynt-logo.png)
 
@@ -9,13 +10,14 @@ Detecting synteny blocks between multiple genome assemblies using a dynamic mini
 ## Contents
 1. [Description of the algorithm](#description-of-the-algorithm)
 2. [Credits](#credits)
-3. [Usage](#usage)
-4. [Installation instructions](#installation)
-5. [Example](#example-command)
-6. [Output files](#output-files)
-7. [Asssessment](#basic-assessment-of-synteny-blocks)
-8. [Tips](#tips)
-9. [License](#license)
+3. [Citing ntSynt](#citing-ntsynt)
+4. [Usage](#usage)
+5. [Installation instructions](#installation)
+6. [Example](#example-command)
+7. [Output files](#output-files)
+8. [Asssessment](#basic-assessment-of-synteny-blocks)
+9. [Tips](#tips)
+10. [License](#license)
 
 ## Description of the algorithm
 
@@ -39,6 +41,11 @@ ntSynt can take multiple genome assemblies as input, and will compute synteny bl
 Concept: Lauren Coombe and Rene Warren
 
 Design and implementation: Lauren Coombe
+
+## Citing ntSynt
+If you use ntSynt in your work, please cite:
+
+Lauren Coombe, Parham Kazemi, Johnathan Wong, Inanc Birol, René L. Warren. Multi-genome synteny detection using minimizer graph mappings. bioRxiv (2024) https://doi.org/10.1101/2024.02.07.579356.
 
 ## Usage
 
