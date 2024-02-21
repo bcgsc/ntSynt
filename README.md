@@ -1,5 +1,5 @@
 ![GitHub Release](https://img.shields.io/github/v/release/bcgsc/ntsynt)
-![Conda Downloads](https://img.shields.io/conda/dn/bioconda/ntsynt)
+![Conda Downloads](https://img.shields.io/conda/dn/bioconda/ntsynt?label=Conda%20downloads)
 [![Preprint](https://img.shields.io/badge/Preprint-blue.svg)](https://doi.org/10.1101/2024.02.07.579356)
 
 ![Logo](https://github.com/bcgsc/ntSynt/blob/main/logo/ntsynt-logo.png)
