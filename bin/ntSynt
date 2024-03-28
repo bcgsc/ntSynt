@@ -22,6 +22,14 @@ NTSYNT_ASCII = """
                     |___/   
 """
 
+def read_fasta_files(filename):
+    "Read in fasta file names in the specified file"
+    fastas = []
+    with open(filename, 'r', encoding="utf-8") as fin:
+        for fasta in fin:
+            fastas.append(fasta.strip())
+    return fastas
+
 def main():
     "Run ntSynt snakemake file"
 
@@ -35,7 +43,9 @@ def main():
     parser = argparse.ArgumentParser(description="ntSynt: Multi-genome synteny detection using minimizer graphs",
                                      formatter_class=argparse.RawTextHelpFormatter,
                                      epilog=epilog_str)
-    parser.add_argument("fastas", help="Input genome fasta files", nargs="+")
+    parser.add_argument("fastas", help="Input genome fasta files", nargs="*")
+    parser.add_argument("--fastas_list", help="File listing input genome fasta files, one per line",
+                        required=False, type=str)
     parser.add_argument("-d", "--divergence",
                         help="Approx. maximum percent sequence divergence between input genomes"\
                             " (Ex. -d 1 for 1%% divergence).\n"\
@@ -93,14 +103,27 @@ def main():
         if w > args.w:
             parser.error("All values specified for --w_rounds must be smaller than -w")
 
-    if len(args.fastas) < 2:
+    if not args.fastas and not args.fastas_list:
+        parser.error("Please supply the input genome fasta files as positional arguments, " \
+                     "or specify a file listing the files (one fasta per line) with --fastas_list")
+
+    if args.fastas and args.fastas_list:
+        parser.error("Please supply the input genome fasta files as positional arguments, "\
+                    "or specify a single file (one fasta per line) with --fastas_list, NOT both.")
+
+    if args.fastas_list:
+        fastas_input = read_fasta_files(args.fastas_list)
+    else:
+        fastas_input = args.fastas
+
+    if len(fastas_input) < 2:
         parser.error("Must supply at least two reference genomes to compare")
 
     print(NTSYNT_ASCII)
     intro_string = ["Running ntSynt...",
                     f"Specified percent divergence: {args.divergence}",
                     "Parameter settings:",
-                    f"\tfastas {args.fastas}",
+                    f"\tfastas {fastas_input}",
                     f"\t--divergence {args.divergence}",
                     f"\t--block_size {args.block_size}",
                     f"\t--merge {args.merge}",
@@ -115,13 +138,13 @@ def main():
     print("\n".join(intro_string), flush=True)
 
     # Check that the input fastas exist
-    for fasta in args.fastas:
+    for fasta in fastas_input:
         if not os.path.isfile(fasta):
             raise FileNotFoundError(f"Input file {fasta} not found.")
 
     args.w_rounds = " ".join(map(str, args.w_rounds))
     command = f"snakemake -s {base_dir}/ntsynt_run_pipeline.smk -p --cores {args.t} " \
-                f"--config references='{args.fastas}' k={args.k} w={args.w} t={args.t} fpr={args.fpr} " \
+                f"--config references='{fastas_input}' k={args.k} w={args.w} t={args.t} fpr={args.fpr} " \
                 f"prefix={args.prefix} w_rounds='{args.w_rounds}' indel_merge={args.indel} " \
                 f"collinear_merge={args.merge} block_size={args.block_size} "
     command += "common=False " if args.no_common else "common=True "
