@@ -23,9 +23,10 @@ args <- parser$parse_args()
 sequences <- read.csv(args$sequences, sep = "\t", header = TRUE)
 
 # https://stackoverflow.com/questions/32378108/using-gtoolsmixedsort-or-alternatives-with-dplyrarrange
+input_order <- unique(sequences$bin_id)
 mixedrank <- function(x) order(gtools::mixedorder(x))
 sequences <- sequences %>%
-  arrange(mixedrank(seq_id))
+  arrange(factor(bin_id, levels=input_order), mixedrank(seq_id))
 
 
 # Read in and prepare synteny links
