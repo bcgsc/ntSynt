@@ -51,9 +51,9 @@ Lauren Coombe, Parham Kazemi, Johnathan Wong, Inanc Birol, René L. Warren. Mult
 ## Usage
 
 ```
-usage: ntSynt [-h] -d DIVERGENCE [-p PREFIX] [-k K] [-w W] [-t T] [--fpr FPR] [-b BLOCK_SIZE] [--merge MERGE] [--w_rounds W_ROUNDS [W_ROUNDS ...]]
-                 [--indel INDEL] [-n] [--benchmark] [-f] [--dev] [-v]
-                 fastas [fastas ...]
+usage: ntSynt [-h] [--fastas_list FASTAS_LIST] -d DIVERGENCE [-p PREFIX] [-k K] [-w W] [-t T] [--fpr FPR] [-b BLOCK_SIZE] [--merge MERGE]
+              [--w_rounds W_ROUNDS [W_ROUNDS ...]] [--indel INDEL] [-n] [--benchmark] [-f] [--dev] [-v]
+              [fastas ...]
 
 ntSynt: Multi-genome synteny detection using minimizer graphs
 
@@ -62,6 +62,8 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  --fastas_list FASTAS_LIST
+                        File listing input genome fasta files, one per line
   -d DIVERGENCE, --divergence DIVERGENCE
                         Approx. maximum percent sequence divergence between input genomes (Ex. -d 1 for 1% divergence).
                         This will be used to set --indel, --merge, --w_rounds, --block_size
