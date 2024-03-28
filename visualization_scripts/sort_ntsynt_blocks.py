@@ -4,6 +4,7 @@ Sort the assemblies within each synteny block in the specified order.
 Assumes ntSynt-formatted synteny blocks
 '''
 import argparse
+import os
 import re
 from collections import namedtuple
 
@@ -49,7 +50,7 @@ def main():
     args = parser.parse_args()
 
     if args.fais:
-        sort_order_dict = {re.search(faidx_re, asm).group(1): i for i, asm in enumerate(args.sort_order)}
+        sort_order_dict = {re.search(faidx_re, os.path.basename(os.path.realpath(asm))).group(1): i for i, asm in enumerate(args.sort_order)}
     else:
         sort_order_dict = {asm: i for i, asm in enumerate(args.sort_order)}
 
