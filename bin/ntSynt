@@ -23,7 +23,7 @@ NTSYNT_ASCII = """
 """
 
 def read_fasta_files(filename):
-    "Read in fasta files in the specified file"
+    "Read in fasta file names in the specified file"
     fastas = []
     with open(filename, 'r', encoding="utf-8") as fin:
         for fasta in fin:
