@@ -23,3 +23,9 @@ sort_ntsynt_blocks.py --synteny_blocks ${synteny_tsv} --sort_order ${fais} --fai
 format_blocks_gggenomes.py --fai ${fais} --prefix ${prefix} --blocks ${prefix}.synteny_blocks.sorted.tsv \
     --length ${length_threshold} --colour ${target_colour}
 cat ${prefix}.links.tsv  |mlr --tsv sort -f strand -n block_id > ${prefix}.links.sorted.tsv && mv ${prefix}.links.sorted.tsv ${prefix}.links.tsv
+
+# Sort the sequences based on the synteny block mappings
+target_fai=$(echo ${fais} |tr " " "\n" |grep "${target_colour}")
+gggenomes_sort_sequences.py --target ${target_colour} --fai ${target_fai} --blocks ${synteny_tsv} \
+    --lengths ${prefix}.sequence_lengths.tsv    > ${prefix}.sequence_lengths.updated.tsv
+mv ${prefix}.sequence_lengths.updated.tsv ${prefix}.sequence_lengths.tsv 
