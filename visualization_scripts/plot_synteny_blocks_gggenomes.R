@@ -18,7 +18,6 @@ parser$add_argument("-p", "--prefix",
 
 args <- parser$parse_args()
 
-
 # Read in and prepare sequences
 sequences <- read.csv(args$sequences, sep = "\t", header = TRUE)
 

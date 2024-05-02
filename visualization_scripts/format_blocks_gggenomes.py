@@ -10,8 +10,16 @@ import os
 re_fai = re.compile(r'^(\S+).fai$')
 SyntenyBlock = namedtuple("SyntenyBlock", ["id", "genome", "chrom", "start", "end", "strand"])
 
-def make_sequence_file(fai_files, prefix):
+def make_sequence_file(fai_files, prefix, name_conversion_file=None):
     "Generate a sequence length TSV from the input FAI files"
+    if name_conversion_file:
+        name_maps = {}
+        with open(name_conversion_file, 'r', encoding="utf-8") as fin:
+            for line in fin:
+                line = line.strip().split('\t')
+                old, new = line
+                name_maps[old] = new
+
     with open(f"{prefix}.sequence_lengths.tsv", 'w', encoding="utf-8") as fout:
         fout.write("bin_id\tseq_id\tlength\n")
         for fai_file in fai_files:
@@ -20,7 +28,10 @@ def make_sequence_file(fai_files, prefix):
                     line = line.strip().split('\t')
                     chrom_name, length = line[:2]
                     file_basename = os.path.basename(fai_file)
-                    fout.write(f"{re.search(re_fai, file_basename).group(1)}\t{chrom_name}\t{length}\n")
+                    if name_conversion_file:
+                        fout.write(f"{name_maps[re.search(re_fai, file_basename).group(1)]}\t{chrom_name}\t{length}\n")
+                    else:
+                        fout.write(f"{re.search(re_fai, file_basename).group(1)}\t{chrom_name}\t{length}\n")
 
 def make_links_file(synteny_file, prefix, valid_blocks_set, target_assembly):
     "Generate the links TSV from the input synteny blocks file"
@@ -82,13 +93,15 @@ def main():
     parser.add_argument("-l", "--length", help="Minimum block length [10kb]", required=False, type=int, default=10000)
     parser.add_argument("--colour", help="Add chromosome of specified assembly to a final column",
                         required=False, type=str)
+    parser.add_argument("--name_conversion", help="Specified file with old -> new names in TSV format",
+                        required=False, type=str)
     args = parser.parse_args()
 
     valid_blocks = find_valid_block_ids(args.blocks, args.length)
 
     colour_assembly = args.colour if args.colour else re.search(r'^(\S+).fai$', args.fai[0]).group(1)
 
-    make_sequence_file(args.fai, args.prefix)
+    make_sequence_file(args.fai, args.prefix, args.name_conversion)
     make_links_file(args.blocks, args.prefix, valid_blocks, colour_assembly)
 
 if __name__ == "__main__":

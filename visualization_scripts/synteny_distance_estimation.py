@@ -98,7 +98,7 @@ def main():
 
     pairwise_vectors = compare_block_consistencies(blocks, num_blocks, all_assembly_pairs, indel_threshold)
 
-    print("asm1", "asm2", "edit_distance", sep="\t")
+    print("asm1", "asm2", "est_distance", sep="\t")
     # Print out each pairwise vector list with the assembly names
     for asm1, asm2 in all_assembly_pairs:
         edit_distance = calculate_distance(pairwise_vectors[asm1][asm2])
