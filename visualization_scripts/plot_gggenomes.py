@@ -44,6 +44,7 @@ def main():
         default=0.1, type=float, required=False
     )
     parser.add_argument("-f", "--force", help="Force a re-run of the script", action="store_true")
+    parser.add_argument("-n", help="Dry-run for snakemake pipeline", action="store_true")
     
     args = parser.parse_args()
 
@@ -64,6 +65,8 @@ def main():
            f"scale={args.scale} "
     if args.force:
         cmd += " -F "
+    if args.n:
+        cmd += " -n "
     print(cmd)
 
     subprocess.check_call(shlex.split(cmd))

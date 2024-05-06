@@ -106,16 +106,19 @@ def main():
         asm_order = [tile_tup[0] for i, tile_tup in enumerate(tiles) if max_indexes[tile_tup[0]][0] == i]
         asm_orders[asm] = {chrom: i for i, chrom in enumerate(asm_order)}
 
+
     stored_lines = {} # asm -> stored_lines
     with open(args.lengths, 'r', encoding='utf-8') as fin:
         for line in fin:
-            bin_id, chrom, length = line.strip().split("\t")
-            if bin_id == "bin_id" or bin_id == args.target:
-                print(bin_id, chrom, length, sep="\t")
+            asm_name, chrom, length = line.strip().split("\t")
+            if asm_name == "bin_id" or asm_name == args.target:
+                print(asm_name, chrom, length, sep="\t")
             else:
-                if bin_id not in stored_lines:
-                    stored_lines[bin_id] = []
-                stored_lines[bin_id].append((bin_id, chrom, length))
+                if asm_name not in stored_lines:
+                    stored_lines[asm_name] = []
+                stored_lines[asm_name].append((asm_name, chrom, length))
+                if chrom not in asm_orders[asm_name]:
+                    asm_orders[asm_name][chrom] = len(asm_orders[asm_name])
 
     for asm, lines_list in stored_lines.items():
         asm_orders_asm = asm_orders[asm]

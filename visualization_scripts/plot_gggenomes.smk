@@ -37,6 +37,28 @@ def sort_fais(fai_list, name_conversion, orders):
 
     return " ".join(sorted(fai_list, key=lambda x: order_dict[os.path.basename(x).removesuffix(".fai")]))
 
+def get_first_asm_and_fai(orders, name_conversion, fai_list):
+    "Given the orders files, and a list of corresponding FAI, return the first file name and the FAI"
+    target = None
+    with open(orders, 'r', encoding="utf-8") as fin:
+        for line in fin:
+            line = line.strip()
+            target = line
+            break
+
+    asm_name = None
+    with open(name_conversion, 'r', encoding="utf-8") as fin:
+        for line in fin:
+            old_name, new_name = line.strip().split("\t")
+            if new_name == target:
+                asm_name = old_name
+                break
+
+    for fai in fai_list:
+        if asm_name in fai:
+            return target, fai
+    raise ValueError(f"Expected FAI for assembly {asm_name} not found. FAI list: {fai_list}")
+
 rule all:
     input: f"{prefix}_ribbon-plot.png"
 
@@ -124,10 +146,28 @@ rule gggenomes_files:
             fais_str = " ".join(input.fais)
             shell(f"format_blocks_gggenomes.py --fai {fais_str} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block}")
 
+rule chrom_sorting:
+    input: 
+        fais = fais,
+        orders = rules.cladogram.output.orders,
+        sequences = rules.gggenomes_files.output.sequences,
+        blocks = rules.sort_blocks.output
+    output:
+        sorted_seqs = f"{prefix}.sequence_lengths.sorted.tsv"
+    run:
+        if name_conversion:
+            target, fai = get_first_asm_and_fai(input.orders, name_conversion, input.fais)
+            shell(f"gggenomes_sort_sequences.py --target {target} --fai {fai} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
+        else:
+            fai = input.fais[0]
+            target = fai.removesuffix(".fai")
+            shell(f"gggenomes_sort_sequences.py --target {target} --fai {fai} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
+
+
 rule ribbon_plot:
     input: 
         links = rules.gggenomes_files.output.links,
-        sequences = rules.gggenomes_files.output.sequences,
+        sequences = rules.chrom_sorting.output.sorted_seqs,
         tree = rules.make_nj_tree.output
     output:
         png = f"{prefix}_ribbon-plot.png"
