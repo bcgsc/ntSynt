@@ -143,8 +143,10 @@ rule gggenomes_files:
         if name_conversion:
             shell(f"format_blocks_gggenomes.py --fai {sort_fais(input.fais, name_conversion, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} --name_conversion {name_conversion}")
         else:
-            fais_str = " ".join(input.fais)
-            shell(f"format_blocks_gggenomes.py --fai {fais_str} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block}")
+            print("TODO: implement this")
+            pass
+            # fais_str = " ".join(input.fais)
+            # shell(f"format_blocks_gggenomes.py --fai {fais_str} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block}")
 
 rule chrom_sorting:
     input: 
@@ -156,12 +158,13 @@ rule chrom_sorting:
         sorted_seqs = f"{prefix}.sequence_lengths.sorted.tsv"
     run:
         if name_conversion:
+            fais = sort_fais(input.fais, name_conversion, input.orders)
             target, fai = get_first_asm_and_fai(input.orders, name_conversion, input.fais)
-            shell(f"gggenomes_sort_sequences.py --target {target} --fai {fai} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
+            shell(f"gggenomes_sort_sequences.py --fai {fais} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
         else:
             fai = input.fais[0]
             target = fai.removesuffix(".fai")
-            shell(f"gggenomes_sort_sequences.py --target {target} --fai {fai} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
+            shell(f"gggenomes_sort_sequences.py --fai {fai} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
 
 
 rule ribbon_plot:

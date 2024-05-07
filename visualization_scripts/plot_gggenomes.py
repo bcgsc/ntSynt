@@ -20,9 +20,10 @@ def main():
     parser = argparse.ArgumentParser(
         description="Running ntSynt synteny block distance estimation and generating a ribbon plot")
     parser.add_argument("--blocks", help="ntSynt synteny blocks TSV", required=True, type=str)
-    parser.add_argument("--name_conversion", help="TSV for converting names in the blocks TSV (old -> new). NOTE: new names cannot have spaces.",
+    parser.add_argument("--name_conversion",
+                        help="TSV for converting names in the blocks TSV (old -> new). NOTE: new names cannot have spaces.",
                         required=False, type=str)
-    parser.add_argument("--fais", 
+    parser.add_argument("--fais",
                         help="FAI files for all input assemblies. Can be a list of a file with one FAI path per line.",
                         nargs="+", required=True, type=str)
     parser.add_argument("--prefix", help="Prefix for output files [ntSynt_distance-est]", required=False, type=str,
@@ -45,7 +46,7 @@ def main():
     )
     parser.add_argument("-f", "--force", help="Force a re-run of the script", action="store_true")
     parser.add_argument("-n", help="Dry-run for snakemake pipeline", action="store_true")
-    
+
     args = parser.parse_args()
 
     base_dir = os.path.dirname(os.path.realpath(__file__))
@@ -60,7 +61,7 @@ def main():
            f"blocks={args.blocks} " \
            f"name_conversion={args.name_conversion} " \
            f"fai='{args.fais}' " \
-           f"ribbon_adjust={args.ribbon_adjust} " \
+           f"ribbon_ratio={args.ribbon_adjust} " \
            f"cladogram_adjust={args.cladogram_adjust} " \
            f"scale={args.scale} "
     if args.force:
