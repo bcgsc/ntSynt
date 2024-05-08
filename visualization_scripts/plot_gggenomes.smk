@@ -10,7 +10,7 @@ onsuccess:
 synteny_blocks = config["blocks"] if "blocks" in config else None
 name_conversion = config["name_conversion"] if "name_conversion" in config else None
 prefix = config["prefix"] if "prefix" in config else "ntSynt_gggenomes"
-min_len = config["min_len"] if "min_len" in config else 50000
+indel_threshold = config["indel_threshold"] if "indel_threshold" in config else 50000
 fais = config["fai"] if "fai" in config else None
 ribbon_ratio = config["ribbon_ratio"] if "ribbon_ratio" in config else 0.1
 cladogram_ratio = config["cladogram_adjust"] if "cladogram_adjust" in config else 0.1
@@ -78,9 +78,9 @@ rule compute_distances:
         rules.renaming.output
     output: 
         distance_tsv = f"{prefix}_est-distances.tsv"
-    params: min_len=min_len
+    params: indel_threshold=indel_threshold
     shell:
-        "synteny_distance_estimation.py {input} {params.min_len} > {output.distance_tsv}"
+        "synteny_distance_estimation.py {input} {params.indel_threshold} > {output.distance_tsv}"
 
 rule convert_phylip:
     input: 

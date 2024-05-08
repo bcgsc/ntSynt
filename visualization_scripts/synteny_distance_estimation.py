@@ -20,19 +20,27 @@ class SyntenyBlock:
         self.num_mx = int(num_mx)
         self.reason = reason
 
+def get_block_i(block_id, block_ids):
+    "Generate the new block ID"
+    if block_id not in block_ids:
+            block_ids[block_id] = len(block_ids)
+    return block_ids[block_id]
+
 def load_blocks(blocks_filename):
     "Read in the synteny blocks"
     blocks = {} # key: synteny block id, value: dictionary with (key: assembly; value: SyntenyBlock)
     block_ids = set() # set of block ids
     assemblies = set()
+    block_i_ids = {}
     with open(blocks_filename, 'r', encoding="utf-8") as fin:
         for line in fin:
             line = line.strip().split("\t")
             block = SyntenyBlock(*line)
             block_ids.add(block.id)
-            if block.id not in blocks:
-                blocks[block.id] = {}
-            blocks[block.id][block.genome] = block
+            block_i = get_block_i(block.id, block_i_ids)
+            if block_i not in blocks:
+                blocks[block_i] = {}
+            blocks[block_i][block.genome] = block
             assemblies.add(block.genome)
     return blocks, len(block_ids), list(assemblies)
 
@@ -51,8 +59,18 @@ def asm_blocks_consistent(block_i1, block_i2, block_j1, block_j2, indel_threshol
         return False
     len_diff_i, is_decreasing_i = get_difference_between_blocks(block_i1, block_j1)
     len_diff_j, is_decreasing_j = get_difference_between_blocks(block_i2, block_j2)
-    if is_decreasing_i != is_decreasing_j:
-        return False
+    valid_transition = False
+    if block_i1.strand == "+" and block_i2.strand == "+" and not is_decreasing_i and not is_decreasing_j:
+        valid_transition = True
+    elif block_i1.strand == "-" and block_i2.strand == "-" and is_decreasing_i and is_decreasing_j:
+        valid_transition = True
+    elif block_i1.strand == "+" and block_i2.strand == "-" and not is_decreasing_i and is_decreasing_j:
+        valid_transition = True
+    elif block_i1.strand == "-" and block_i2.strand == "+" and is_decreasing_i and not is_decreasing_j:
+        valid_transition = True
+    if not valid_transition:
+        return False    
+
     if abs(len_diff_j - len_diff_i) > indel_threshold:
         return False
     return True

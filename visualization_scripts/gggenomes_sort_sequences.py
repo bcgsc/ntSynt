@@ -78,7 +78,7 @@ def get_chrom_orders(tile_list):
         chrom, length = tup
         if chrom not in max_indexes or length > max_indexes[chrom][1]:
             max_indexes[chrom] = (i, length)
-    seq_order = [tile_tup[0] for i, tile_tup in enumerate(tile_list) if max_indexes[tile_tup[0]][0] == i]
+    seq_order = [tile_tup[0] for i, tile_tup in enumerate(collapsed_list) if max_indexes[tile_tup[0]][0] == i]
     seq_order = {chrom: i for i, chrom in enumerate(seq_order)}
     return seq_order
 

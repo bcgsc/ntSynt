@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--fais",
                         help="FAI files for all input assemblies. Can be a list of a file with one FAI path per line.",
                         nargs="+", required=True, type=str)
+    parser.add_argument("--indel", help="Indel size threshold [50000]", default=50000, type=int)
     parser.add_argument("--prefix", help="Prefix for output files [ntSynt_distance-est]", required=False, type=str,
                         default="ntSynt_distance-est")
     parser.add_argument("--scale", help="Length of scale bar in bases (default 1Gbp)", required=False, type=int,
@@ -63,7 +64,8 @@ def main():
            f"fai='{args.fais}' " \
            f"ribbon_ratio={args.ribbon_adjust} " \
            f"cladogram_adjust={args.cladogram_adjust} " \
-           f"scale={args.scale} "
+           f"scale={args.scale} " \
+           f"indel_threshold={args.indel} "
     if args.force:
         cmd += " -F "
     if args.n:
