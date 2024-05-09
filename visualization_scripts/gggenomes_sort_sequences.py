@@ -53,6 +53,8 @@ def tally_chromosome_hits(tree, asm, chrom, length, tile):
     for start in range(0, length, tile):
         asm_tallies = defaultdict(defaultdict) # chrom -> length
         end = min(start + tile, length)
+        if chrom not in tree[asm]:
+            continue
         for interval_hit in tree[asm][chrom][start: end]:
             map_region = interval_hit.data
             if map_region.chrom not in asm_tallies:
