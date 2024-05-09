@@ -40,17 +40,17 @@ input_chrom_order <- unique(sequences$seq_id)
 
 mixedrank <- function(x) order(gtools::mixedorder(x))
 sequences <- sequences %>%
-  arrange(factor(bin_id, levels = input_order), factor(seq_id, levels = input_chrom_order))
-
+  arrange(factor(bin_id, levels = input_order))
 
 # Read in and prepare synteny links
 links_ntsynt <- read.csv(args$links,
                          sep = "\t", header = TRUE)
 links_ntsynt$seq_id <- factor(links_ntsynt$seq_id,
                               levels = input_chrom_order)
-links_ntsynt <- links_ntsynt[mixedorder(links_ntsynt$seq_id), ]
+links_ntsynt <- links_ntsynt %>% arrange(factor(seq_id, levels = input_chrom_order))
 links_ntsynt$seq_id2 <- as.character(links_ntsynt$seq_id2)
-links_ntsynt$colour_block <- as.factor(links_ntsynt$colour_block)
+links_ntsynt$colour_block <- factor(links_ntsynt$colour_block,
+                                    levels = input_chrom_order)
 
 # Prepare scale bar data frame
 scale <- args$scale
@@ -81,7 +81,7 @@ make_plot <- function(links, sequences, add_scale_bar = FALSE) {
     theme(axis.text.x = element_text(size = 25),
           legend.position = "bottom") +
     scale_fill_manual(values = hue_pal()(num_colours),
-                      breaks = unique(links$colour_block)) +
+                      breaks = levels(links_ntsynt$colour_block)) +
     scale_colour_manual(values = c("red")) +
     guides(fill = guide_legend(title = "", ncol = 10),
            colour = guide_legend(title = ""))
