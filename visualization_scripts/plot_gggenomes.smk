@@ -16,6 +16,7 @@ fais = config["fai"] if "fai" in config else None
 ribbon_ratio = config["ribbon_ratio"] if "ribbon_ratio" in config else 0.1
 cladogram_ratio = config["cladogram_adjust"] if "cladogram_adjust" in config else 0.1
 scale = config["scale"] if "scale" in config else 1e9
+centromeres = config["centromeres"] if "centromeres" in config else None
 blocks_no_suffix = os.path.basename(synteny_blocks).removesuffix(".tsv")
 
 def sort_fais(fai_list, name_conversion, orders):
@@ -184,6 +185,7 @@ rule ribbon_plot:
     params:
         prefix = f"{prefix}_ribbon-plot",
         ratio = ribbon_ratio,
-        scale = scale
+        scale = scale,
+        centromeres = f"--centromeres {centromeres}" if centromeres is not None else ""
     shell:
-        "plot_synteny_blocks_gggenomes_ggtree.R -s {input.sequences} -l {input.links} -p {params.prefix} --tree {input.tree} --ratio {params.ratio} --scale {params.scale} -c {input.colour_feats}"
+        "plot_synteny_blocks_gggenomes_ggtree.R -s {input.sequences} -l {input.links} -p {params.prefix} --tree {input.tree} --ratio {params.ratio} --scale {params.scale} -c {input.colour_feats} {params.centromeres}"

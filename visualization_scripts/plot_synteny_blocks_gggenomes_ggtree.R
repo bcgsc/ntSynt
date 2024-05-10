@@ -17,6 +17,7 @@ parser <- ArgumentParser(description = "Plot the ntSynt synteny blocks and clado
 parser$add_argument("-s", "--sequences", help = "Input sequence lengths TSV", required = TRUE)
 parser$add_argument("-l", "--links", help = "Synteny block links", required = TRUE)
 parser$add_argument("-c", "--painting", help = "File with chromosome painting information", required = FALSE)
+parser$add_argument("--centromeres", help = "File with centromere positions", required = FALSE, default = NULL)
 parser$add_argument("--scale", help = "Length of scale bar in bases (default 1 Gbp)", default = 1e9,
                     required = FALSE, type = "double")
 parser$add_argument("--tree", help = "Newick-formatted cladogram", required = TRUE)
@@ -70,9 +71,13 @@ if (scale %% 1e9 == 0) {
 painting <- read.csv(args$painting, sep = "\t", header = TRUE)
 
 # Make the ribbon plot - these layers can be fully customized as needed!
-make_plot <- function(links, sequences, painting, add_scale_bar = FALSE) {
+make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centromeres = FALSE) {
   num_colours <- length(unique(links$colour_block))
-  p <-  gggenomes(seqs = sequences, links = links, feats = painting)
+  if (is.data.frame(centromeres)) {
+    p <-  gggenomes(seqs = sequences, links = links, feats = list(painting, centromeres))
+  } else {
+    p <-  gggenomes(seqs = sequences, links = links, feats = painting)
+  }
   plot <- p + theme_gggenomes_clean(base_size = 15) +
     geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5, size = 0.05) +
     geom_seq(size = 2, colour = "darkgrey") + # draw contig/chromosome lines
@@ -90,6 +95,11 @@ make_plot <- function(links, sequences, painting, add_scale_bar = FALSE) {
   xmax <- ggplot_build(plot)$layout$panel_params[[1]]$x.range[[2]]
   plot <- plot + xlim(0 - xmax * args$ratio, NA)
 
+  if (is.data.frame(centromeres)) {
+    plot <- plot + geom_feat(data = feats(centromeres), position = "identity",
+                             linewidth = 2, colour = "black")
+  }
+
   if (add_scale_bar) {
     plot <- plot + geom_segment(data = scale_bar, aes(x = x, xend = xend, y = y, yend = yend),
                                 linewidth = 1.5) +
@@ -104,7 +114,13 @@ make_plot <- function(links, sequences, painting, add_scale_bar = FALSE) {
 
 }
 
-synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE)
+# Make the ribbon plot
+if (! is.null(args$centromeres)) {
+  centromeres <- read.csv(args$centromeres, sep = "\t", header = TRUE)
+  synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE, centromeres = centromeres)
+} else {
+  synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE, centromeres = FALSE)
+}
 
 # Prepare the tree
 ntsynt_tree <- treeio::read.newick(args$tree)

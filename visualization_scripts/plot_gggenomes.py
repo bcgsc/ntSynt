@@ -28,6 +28,10 @@ def main():
                         nargs="+", required=True, type=str)
     parser.add_argument("--indel", help="Indel size threshold [50000]", default=50000, type=int)
     parser.add_argument("--length", help="Minimum synteny block length [50000]", default=50000, type=int)
+    parser.add_argument("--centromeres",
+                        help="TSV file with centromere positions. Must have the headers: bin_id,seq_id,start,end. "\
+                            "bin_id must match the new names from --name_conversion or the assembly names if --name_conversion is not specified"\
+                            "seq_id is the chromosome name.", required=False, type=str)
     parser.add_argument("--prefix", help="Prefix for output files [ntSynt_distance-est]", required=False, type=str,
                         default="ntSynt_distance-est")
     parser.add_argument("--scale", help="Length of scale bar in bases (default 1Gbp)", required=False, type=int,
@@ -68,6 +72,8 @@ def main():
            f"scale={args.scale} " \
            f"indel_threshold={args.indel} " \
            f"min_length={args.length} "
+    if args.centromeres:
+        cmd += f"centromeres={args.centromeres} "
     if args.force:
         cmd += " -F "
     if args.n:
