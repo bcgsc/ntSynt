@@ -18,15 +18,15 @@ parser$add_argument("-p", "--prefix",
 
 args <- parser$parse_args()
 
-
 # Read in and prepare sequences
 sequences <- read.csv(args$sequences, sep = "\t", header = TRUE)
 
 # https://stackoverflow.com/questions/32378108/using-gtoolsmixedsort-or-alternatives-with-dplyrarrange
 input_order <- unique(sequences$bin_id)
+input_chrom_order <- unique(sequences$seq_id)
 mixedrank <- function(x) order(gtools::mixedorder(x))
 sequences <- sequences %>%
-  arrange(factor(bin_id, levels=input_order), mixedrank(seq_id))
+  arrange(factor(bin_id, levels=input_order), factor(seq_id, levels=input_chrom_order))
 
 
 # Read in and prepare synteny links
@@ -54,16 +54,16 @@ if (args$scale %% 1e9 == 0) {
 
 # Make the ribbon plot - these layers can be fully customized as needed!
 make_plot <- function(links, sequences, add_scale_bar = FALSE) {
-
+  num_colours <- length(unique(links$colour_block))
   p <-  gggenomes(seqs = sequences, links = links)
   plot <- p + theme_gggenomes_clean(base_size = 15) +
-    geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5) +
+    geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5, size = 0.05) +
     geom_seq(size = 2, colour = "grey") + # draw contig/chromosome lines
     geom_bin_label(aes(label = bin_id), size = 6, hjust = 0.9) + # label each bin
     #geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
     theme(axis.text.x = element_text(size = 25),
           legend.position = "bottom") +
-    scale_fill_manual(values = hue_pal()(length(unique(links$seq_id))),
+    scale_fill_manual(values = hue_pal()(num_colours),
                       breaks = unique(links$seq_id)) +
     scale_colour_manual(values = c("red")) +
     guides(fill = guide_legend(title = "", ncol = 10),
