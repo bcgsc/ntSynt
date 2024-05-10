@@ -16,6 +16,7 @@ suppressWarnings(suppressPackageStartupMessages(library(gggenomes)))
 parser <- ArgumentParser(description = "Plot the ntSynt synteny blocks and cladogram using gggenomes")
 parser$add_argument("-s", "--sequences", help = "Input sequence lengths TSV", required = TRUE)
 parser$add_argument("-l", "--links", help = "Synteny block links", required = TRUE)
+parser$add_argument("-c", "--painting", help="File with chromosome painting information", required = FALSE)
 parser$add_argument("--scale", help = "Length of scale bar in bases (default 1 Gbp)", default = 1e9,
                     required = FALSE, type = "double")
 parser$add_argument("--tree", help = "Newick-formatted cladogram", required = TRUE)
@@ -26,10 +27,6 @@ parser$add_argument("-p", "--prefix",
                     default = "synteny_gggenomes_plot")
 
 args <- parser$parse_args()
-
-# sequences <- "/projects/btl_scratch/lcoombe/synteny/runs/human-chimp-bonobo-gorilla-organutan-gibbon/ntsynt/distance_estimation/ribbon-plots/fresh_run/ntSynt_gggenomes.sequence_lengths.tsv"
-# links <- "/projects/btl_scratch/lcoombe/synteny/runs/human-chimp-bonobo-gorilla-organutan-gibbon/ntsynt/distance_estimation/ribbon-plots/fresh_run/ntSynt_gggenomes.links.tsv"
-# scale <- 1e9
 
 # Read in and prepare sequences
 sequences <- read.csv(args$sequences, sep = "\t", header = TRUE)
@@ -68,21 +65,25 @@ if (scale %% 1e9 == 0) {
   label <- paste(scale / 1e3, "kbp", sep = " ")
 }
 
+# Read in the data frame for chromosome painting features
+painting <- read.csv(args$painting, sep = "\t", header = TRUE)
 
 # Make the ribbon plot - these layers can be fully customized as needed!
-make_plot <- function(links, sequences, add_scale_bar = FALSE) {
+make_plot <- function(links, sequences, painting, add_scale_bar = FALSE) {
   num_colours <- length(unique(links$colour_block))
-  p <-  gggenomes(seqs = sequences, links = links)
+  p <-  gggenomes(seqs = sequences, links = links, feats=painting)
   plot <- p + theme_gggenomes_clean(base_size = 15) +
-    geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5) +
+    geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5, size = 0.05) +
     geom_seq(size = 2, colour = "darkgrey") + # draw contig/chromosome lines
+    geom_feat(aes(colour = colour_block), position = "identity", linewidth = 2) +
     geom_bin_label(aes(label = bin_id), size = 6, hjust = 0.9) + # label each bin
     #geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
     theme(axis.text.x = element_text(size = 25),
           legend.position = "bottom") +
     scale_fill_manual(values = hue_pal()(num_colours),
                       breaks = levels(links_ntsynt$colour_block)) +
-    scale_colour_manual(values = c("red")) +
+    scale_colour_manual(values = hue_pal()(num_colours),
+                      breaks = levels(links_ntsynt$colour_block)) +
     guides(fill = guide_legend(title = "", ncol = 10),
            colour = guide_legend(title = ""))
     xmax <- ggplot_build(plot)$layout$panel_params[[1]]$x.range[[2]]
@@ -102,7 +103,7 @@ make_plot <- function(links, sequences, add_scale_bar = FALSE) {
 
 }
 
-synteny_plot <- make_plot(links_ntsynt, sequences, add_scale_bar = TRUE)
+synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE)
 
 # Prepare the tree
 ntsynt_tree <- treeio::read.newick(args$tree)

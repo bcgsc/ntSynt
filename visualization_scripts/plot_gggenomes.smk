@@ -167,12 +167,18 @@ rule chrom_sorting:
             target = fai.removesuffix(".fai")
             shell(f"gggenomes_sort_sequences.py --fai {fai} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
 
+rule chrom_paint:
+    input: links = rules.gggenomes_files.output.links
+    output: colour_feats = f"{prefix}.chrom-paint-feats.tsv"
+    shell:
+        '''cat {input.links} |perl -ne 'chomp; @a=split("\t"); if(!defined $ct){{print "block_id\tseq_id\tbin_id\tstart\tend\tcolour_block\n"; $ct=1}} else {{print "$a[0]\t$a[1]\t$a[2]\t$a[3]\t$a[4]\t$a[11]\n"; print "$a[0]\t$a[5]\t$a[6]\t$a[7]\t$a[8]\t$a[11]\n";}}' > {output.colour_feats}'''
 
 rule ribbon_plot:
     input: 
         links = rules.gggenomes_files.output.links,
         sequences = rules.chrom_sorting.output.sorted_seqs,
-        tree = rules.make_nj_tree.output
+        tree = rules.make_nj_tree.output,
+        colour_feats = rules.chrom_paint.output.colour_feats
     output:
         png = f"{prefix}_ribbon-plot.png"
     params:
@@ -180,4 +186,4 @@ rule ribbon_plot:
         ratio = ribbon_ratio,
         scale = scale
     shell:
-        "plot_synteny_blocks_gggenomes_ggtree.R -s {input.sequences} -l {input.links} -p {params.prefix} --tree {input.tree} --ratio {params.ratio} --scale {params.scale}"
+        "plot_synteny_blocks_gggenomes_ggtree.R -s {input.sequences} -l {input.links} -p {params.prefix} --tree {input.tree} --ratio {params.ratio} --scale {params.scale} -c {input.colour_feats}"
