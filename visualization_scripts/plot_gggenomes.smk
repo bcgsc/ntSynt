@@ -17,6 +17,7 @@ ribbon_ratio = config["ribbon_ratio"] if "ribbon_ratio" in config else 0.1
 cladogram_ratio = config["cladogram_adjust"] if "cladogram_adjust" in config else 0.1
 scale = config["scale"] if "scale" in config else 1e9
 centromeres = config["centromeres"] if "centromeres" in config else None
+normalize = config["normalize"] if "normalize" in config else False
 blocks_no_suffix = os.path.basename(synteny_blocks).removesuffix(".tsv")
 
 def sort_fais(fai_list, name_conversion, orders):
@@ -115,16 +116,25 @@ rule cladogram:
 rule sort_blocks:
     input: 
         blocks = f"{blocks_no_suffix}.renamed.tsv",
-        orders = rules.cladogram.output.orders
+        orders = rules.cladogram.output.orders,
+        fais = fais
     output:
-        sorted_blocks = f"{blocks_no_suffix}.renamed.sorted.tsv"
+        sorted_blocks = f"{blocks_no_suffix}.renamed.sorted.blocks.tsv"
+    params:
+        intermediate_blocks = f"{blocks_no_suffix}.renamed.sorted-tmp.tsv",
+        name_conversion = f"-c {name_conversion}" if name_conversion else "",
+        prefix = f"{blocks_no_suffix}.renamed.sorted"
     run:
         order_blocks = []
         with open(input.orders, 'r') as fin:
             for line in fin:
                 order_blocks.append(line.strip())
         order_blocks_str = " ".join(order_blocks)
-        shell(f"sort_ntsynt_blocks.py --synteny_blocks {input.blocks} --sort_order {order_blocks_str} > {output.sorted_blocks}")
+        if normalize:
+            shell(f"sort_ntsynt_blocks.py --synteny_blocks {input.blocks} --sort_order {order_blocks_str} > {params.intermediate_blocks}")
+            shell(f"gggenomes_normalize_strands.py --blocks {params.intermediate_blocks} --fais {sort_fais(input.fais, name_conversion, input.orders)} -p {params.prefix} {params.name_conversion}")
+        else:
+            shell(f"sort_ntsynt_blocks.py --synteny_blocks {input.blocks} --sort_order {order_blocks_str} > {output.sorted_blocks}")
 
 rule gggenomes_files:
     input: 
@@ -155,7 +165,7 @@ rule chrom_sorting:
         fais = fais,
         orders = rules.cladogram.output.orders,
         sequences = rules.gggenomes_files.output.sequences,
-        blocks = rules.sort_blocks.output
+        blocks = rules.sort_blocks.output.sorted_blocks
     output:
         sorted_seqs = f"{prefix}.sequence_lengths.sorted.tsv"
     run:

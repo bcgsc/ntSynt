@@ -7,7 +7,8 @@ suppressPackageStartupMessages({
   library(treeio)
   library(phytools)
   library(dplyr)
-  library(ggpubr)})
+  library(ggpubr)
+  library(stringr)})
 suppressWarnings(suppressPackageStartupMessages(library(gggenomes)))
 
 # Example script for generating ntSynt synteny ribbon plots using gggenomes
@@ -33,7 +34,13 @@ args <- parser$parse_args()
 # Read in and prepare sequences
 sequences <- read.csv(args$sequences, sep = "\t", header = TRUE)
 
+# Prepare name conversions for tree
+name_conversions <- sequences %>% select(bin_id) %>%
+  mutate(bin_id_translate = str_replace_all(bin_id, "_", " "))
+
 # https://stackoverflow.com/questions/32378108/using-gtoolsmixedsort-or-alternatives-with-dplyrarrange
+sequences <- sequences %>%
+  mutate(bin_id = str_replace_all(bin_id, "_", " "))
 input_order <- unique(sequences$bin_id)
 input_chrom_order <- unique(sequences$seq_id)
 
@@ -43,7 +50,9 @@ sequences <- sequences %>%
 
 # Read in and prepare synteny links
 links_ntsynt <- read.csv(args$links,
-                         sep = "\t", header = TRUE)
+                         sep = "\t", header = TRUE) %>%
+  mutate(bin_id = str_replace_all(bin_id, "_", " "),
+         bin_id2 = str_replace_all(bin_id2, "_", " "))
 links_ntsynt$seq_id <- factor(links_ntsynt$seq_id,
                               levels = input_chrom_order)
 links_ntsynt <- links_ntsynt %>% arrange(factor(seq_id, levels = input_chrom_order))
@@ -68,28 +77,31 @@ if (scale %% 1e9 == 0) {
 }
 
 # Read in the data frame for chromosome painting features
-painting <- read.csv(args$painting, sep = "\t", header = TRUE)
+painting <- read.csv(args$painting, sep = "\t", header = TRUE) %>%
+  mutate(bin_id = str_replace_all(bin_id, "_", " "))
 
 # Make the ribbon plot - these layers can be fully customized as needed!
 make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centromeres = FALSE) {
-  num_colours <- length(unique(links$colour_block))
+  target_genome <- (sequences %>% head(1) %>% select(bin_id))[[1]]
+  sequences_filt <- unique((sequences %>% filter(bin_id == target_genome))$seq_id)
+  num_colours <- length(sequences_filt)
   if (is.data.frame(centromeres)) {
     p <-  gggenomes(seqs = sequences, links = links, feats = list(painting, centromeres))
   } else {
     p <-  gggenomes(seqs = sequences, links = links, feats = painting)
   }
-  plot <- p + theme_gggenomes_clean(base_size = 15) +
+   plot <- p + theme_gggenomes_clean(base_size = 15) +
     geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5, size = 0.05) +
     geom_seq(size = 2, colour = "darkgrey") + # draw contig/chromosome lines
     geom_feat(aes(colour = colour_block), position = "identity", linewidth = 2) +
-    geom_bin_label(aes(label = bin_id), size = 6, hjust = 0.9) + # label each bin
+    geom_bin_label(aes(label = bin_id), size = 6, fontface = "italic") + # label each bin
     #geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
     theme(axis.text.x = element_text(size = 25),
           legend.position = "bottom") +
     scale_fill_manual(values = hue_pal()(num_colours),
-                      breaks = levels(links_ntsynt$colour_block)) +
+                      breaks = sequences_filt) +
     scale_colour_manual(values = hue_pal()(num_colours),
-                        breaks = levels(links_ntsynt$colour_block)) +
+                        breaks = sequences_filt) +
     guides(fill = guide_legend(title = "", ncol = 10),
            colour = guide_legend(title = ""))
   xmax <- ggplot_build(plot)$layout$panel_params[[1]]$x.range[[2]]
@@ -114,6 +126,7 @@ make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centrom
 
 }
 
+
 # Make the ribbon plot
 if (! is.null(args$centromeres)) {
   centromeres <- read.csv(args$centromeres, sep = "\t", header = TRUE)
@@ -125,6 +138,7 @@ if (! is.null(args$centromeres)) {
 # Prepare the tree
 ntsynt_tree <- treeio::read.newick(args$tree)
 ntsynt_tree <- midpoint_root(ntsynt_tree)
+ntsynt_tree <- rename_taxa(ntsynt_tree, name_conversions)
 ntsynt_ggtree <- ggtree(ntsynt_tree, branch.length = "none")
 
 # Align the plots properly
