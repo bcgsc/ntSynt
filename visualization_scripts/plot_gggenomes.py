@@ -15,6 +15,19 @@ def read_fai_files(fai_file):
             fai_list.append(line.strip())
     return fai_list
 
+def check_name_conversion(name_conversion, parser):
+    "Check if the name conversion file is valid"
+    with open(name_conversion, 'r', encoding="utf-8") as fin:
+        for line in fin:
+            line = line.strip().split("\t")
+            _, new = line
+            if " " in new:
+                raise parser.error(
+                    f"New name {new} cannot have spaces. "
+                    f"Use the special character '_' instead. "
+                    f"All underscores in the new name will be "
+                    f"converted to spaces for the final output.")
+
 def main():
     "Run distance estimation and gggenomes for ntSynt results"
     parser = argparse.ArgumentParser(
@@ -58,6 +71,8 @@ def main():
     args = parser.parse_args()
 
     base_dir = os.path.dirname(os.path.realpath(__file__))
+
+    check_name_conversion(args.name_conversion, parser)
 
     if len(args.fais) == 1:
         args.fais = read_fai_files(args.fais[0])
