@@ -9,6 +9,7 @@ onsuccess:
 # Parameters
 synteny_blocks = config["blocks"] if "blocks" in config else None
 name_conversion = config["name_conversion"] if "name_conversion" in config else None
+name_conversion = None if name_conversion == "None" else name_conversion
 prefix = config["prefix"] if "prefix" in config else "ntSynt_gggenomes"
 indel_threshold = config["indel_threshold"] if "indel_threshold" in config else 50000
 min_len = config["min_length"] if "min_length" in config else 50000
@@ -38,6 +39,18 @@ def sort_fais(fai_list, name_conversion, orders):
             order_dict[names_dict[new_name]] = i
             i += 1
 
+    return " ".join(sorted(fai_list, key=lambda x: order_dict[os.path.basename(x).removesuffix(".fai")]))
+
+def sort_fais_no_name_conversion(fai_list, orders):
+    "Sort the FAIS when have no name conversion file"
+    # Make order dictionary
+    order_dict = {}
+    with open(orders, 'r') as fin:
+        i = 0
+        for line in fin:
+            order_dict[line.strip()] = i
+            i += 1
+    
     return " ".join(sorted(fai_list, key=lambda x: order_dict[os.path.basename(x).removesuffix(".fai")]))
 
 def get_first_asm_and_fai(orders, name_conversion, fai_list):
@@ -132,7 +145,10 @@ rule sort_blocks:
         order_blocks_str = " ".join(order_blocks)
         if normalize:
             shell(f"sort_ntsynt_blocks.py --synteny_blocks {input.blocks} --sort_order {order_blocks_str} > {params.intermediate_blocks}")
-            shell(f"gggenomes_normalize_strands.py --blocks {params.intermediate_blocks} --fais {sort_fais(input.fais, name_conversion, input.orders)} -p {params.prefix} {params.name_conversion}")
+            if name_conversion:
+                shell(f"gggenomes_normalize_strands.py --blocks {params.intermediate_blocks} --fais {sort_fais(input.fais, name_conversion, input.orders)} -p {params.prefix} {params.name_conversion}")
+            else:
+                shell(f"gggenomes_normalize_strands.py --blocks {params.intermediate_blocks} --fais {sort_fais_no_name_conversion(input.fais, input.orders)} -p {params.prefix} {params.name_conversion}")
         else:
             shell(f"sort_ntsynt_blocks.py --synteny_blocks {input.blocks} --sort_order {order_blocks_str} > {output.sorted_blocks}")
 
@@ -155,10 +171,8 @@ rule gggenomes_files:
         if name_conversion:
             shell(f"format_blocks_gggenomes.py --fai {sort_fais(input.fais, name_conversion, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} --name_conversion {name_conversion}")
         else:
-            print("TODO: implement this")
-            pass
-            # fais_str = " ".join(input.fais)
-            # shell(f"format_blocks_gggenomes.py --fai {fais_str} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block}")
+            shell(f"format_blocks_gggenomes.py --fai {sort_fais_no_name_conversion(input.fais, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block}")
+
 
 rule chrom_sorting:
     input: 
@@ -171,12 +185,10 @@ rule chrom_sorting:
     run:
         if name_conversion:
             fais = sort_fais(input.fais, name_conversion, input.orders)
-            target, fai = get_first_asm_and_fai(input.orders, name_conversion, input.fais)
             shell(f"gggenomes_sort_sequences.py --fai {fais} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
         else:
-            fai = input.fais[0]
-            target = fai.removesuffix(".fai")
-            shell(f"gggenomes_sort_sequences.py --fai {fai} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
+            fais = sort_fais_no_name_conversion(input.fais, input.orders)
+            shell(f"gggenomes_sort_sequences.py --fai {fais} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
 
 rule chrom_paint:
     input: links = rules.gggenomes_files.output.links

@@ -72,7 +72,8 @@ def main():
 
     base_dir = os.path.dirname(os.path.realpath(__file__))
 
-    check_name_conversion(args.name_conversion, parser)
+    if args.name_conversion:
+        check_name_conversion(args.name_conversion, parser)
 
     if len(args.fais) == 1:
         args.fais = read_fai_files(args.fais[0])
