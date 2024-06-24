@@ -90,9 +90,9 @@ jobs:
     displayName: Run pytests
 
 - job:
-  displayName: macOS-13
+  displayName: macOS-14
   pool:
-    vmImage: 'macOS-13'
+    vmImage: 'macOS-14'
 
   steps:
   - checkout: self
