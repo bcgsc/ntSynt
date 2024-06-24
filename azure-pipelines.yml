@@ -111,6 +111,7 @@ jobs:
 
   - script: |
       echo "##vso[task.prependpath]~/miniconda3/bin"
+      echo $PATH
       which conda
       conda --version
     displayName: Verify conda
