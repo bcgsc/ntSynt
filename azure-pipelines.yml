@@ -106,17 +106,11 @@ jobs:
       rm -rf ~/miniconda3/miniconda.sh
       ~/miniconda3/bin/conda init bash
       ~/miniconda3/bin/conda init zsh
-      realpath ~/miniconda3/bin
+      export CONDA=$(realpath ~/miniconda3/bin)
+      echo "##vso[task.prependpath]$CONDA"
     displayName: Install conda
 
   - script: |
-      realpath ~/miniconda3/bin
-      export CONDA=$(realpath ~/miniconda3/bin)
-      echo $CONDA
-      echo $PATH
-      echo "##vso[task.prependpath]$CONDA"
-      echo $PATH
-      export PATH=$CONDA:$PATH
       echo $PATH
       which conda
       conda --version
