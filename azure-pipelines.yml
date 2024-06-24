@@ -110,7 +110,10 @@ jobs:
     displayName: Install conda
 
   - script: |
+      realpath ~/miniconda3/bin
       export CONDA=$(realpath ~/miniconda3/bin)
+      echo $CONDA
+      echo $PATH
       echo "##vso[task.prependpath]$CONDA"
       echo $PATH
       which conda
