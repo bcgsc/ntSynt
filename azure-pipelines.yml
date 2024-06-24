@@ -106,9 +106,12 @@ jobs:
       rm -rf ~/miniconda3/miniconda.sh
       ~/miniconda3/bin/conda init bash
       ~/miniconda3/bin/conda init zsh
+    displayName: Install conda
+
+  - script: |
       which conda
       conda --version
-    displayName: Install conda
+    displayName: Verify conda
 
   - script: conda create --yes --quiet --name ntsynt_ci
     displayName: Create Anaconda environment
