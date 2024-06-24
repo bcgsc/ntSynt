@@ -58,7 +58,7 @@ jobs:
     persistCredentials: true
     submodules: true
 
-  - script: echo "##vso[task.prependpath]$CONDA/bin"
+  - script: echo "##vso[task.prependpath]$CONDA/bin" && echo $CONDA
     displayName: Add conda to PATH
 
   - script: conda create --yes --quiet --name ntsynt_ci
@@ -110,7 +110,8 @@ jobs:
     displayName: Install conda
 
   - script: |
-      echo "##vso[task.prependpath]~/miniconda3/bin"
+      export CONDA=$(realpath ~/miniconda3/bin)
+      echo "##vso[task.prependpath]$CONDA"
       echo $PATH
       which conda
       conda --version
