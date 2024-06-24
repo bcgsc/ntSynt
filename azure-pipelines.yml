@@ -88,3 +88,52 @@ jobs:
       cd tests
       pytest -vs ntsynt_tests.py
     displayName: Run pytests
+
+- job:
+  displayName: macOS-13
+  pool:
+    vmImage: 'macOS-13'
+
+  steps:
+  - checkout: self
+    persistCredentials: true
+    submodules: true
+
+  - script: |
+      mkdir -p ~/miniconda3
+      curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh  -o ~/miniconda3/miniconda.sh
+      bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+      rm -rf ~/miniconda3/miniconda.sh
+      ~/miniconda3/bin/conda init bash
+      ~/miniconda3/bin/conda init zsh
+      which conda
+      conda --version
+    displayName: Install conda
+
+  - script: conda create --yes --quiet --name ntsynt_ci
+    displayName: Create Anaconda environment
+
+  - script: |
+      source activate ntsynt_ci
+      conda install --yes -c bioconda -c conda-forge python=3.10 mamba
+      mamba install --yes -c bioconda -c conda-forge intervaltree pybedtools ncls python-igraph compilers  btllib=1.6.2 meson ninja snakemake samtools pytest seqtk
+    displayName: Install dependencies
+
+  - script: |
+      source activate ntsynt_ci
+      meson setup build --prefix=$(pwd)/ntSynt_build
+      cd build
+      ninja install
+    displayName: Install ntSynt
+
+  - script: |
+      source activate ntsynt_ci
+      ./ntSynt_build/bin/ntSynt --help
+    displayName: Print ntSynt help message
+
+  - script: |
+      source activate ntsynt_ci
+      export PATH=$(pwd)/ntSynt_build/bin:$PATH
+      cd tests
+      pytest -vs ntsynt_tests.py
+    displayName: Run pytests
