@@ -69,7 +69,7 @@ def find_valid_block_ids(block_filename, length_threshold):
         for line in fin:
             line = line.strip().split("\t")
             curr_block = SyntenyBlock(*line[:6])
-            if int(curr_block.end) - int(curr_block.start) >= length_threshold:
+            if int(curr_block.end) - int(curr_block.start) < length_threshold:
                 omit_blocks.add(curr_block.id)
             all_blocks.add(curr_block.id)
     return all_blocks - omit_blocks

@@ -3,8 +3,6 @@ import shutil
 import sys
 import os
 
-onsuccess:
-    shutil.rmtree(".snakemake", ignore_errors=True)
 
 # Parameters
 synteny_blocks = config["blocks"] if "blocks" in config else None

@@ -53,20 +53,20 @@ def main():
                             "seq_id is the chromosome name.", required=False, type=str)
     parser.add_argument("--prefix", help="Prefix for output files [ntSynt_distance-est]", required=False, type=str,
                         default="ntSynt_distance-est")
-    parser.add_argument("--scale", help="Length of scale bar in bases (default 1 Gbp)", required=False, type=int,
+    parser.add_argument("--scale", help="Length of scale bar in bases [1 Gbp]", required=False, type=int,
                         default=1e9)
     parser.add_argument(
         "--ribbon_adjust",
         help="Ratio for adjusting spacing between ribbon plot and cladogram. "
         "Increase if ribbon plot labels are cut off, and decrease to reduce  "
-        "the white space between the ribbon plot and cladogram",
+        "the white space between the ribbon plot and cladogram [0.1]",
         default=0.1, type=float, required=False
     )
     parser.add_argument(
         "--cladogram_adjust",
         help="Ratio for adjusting xlimit of the cladogram. "
         "Increase if cladogram labels are cut off, and decrease to reduce  "
-        "the white space on the right side of the cladogram",
+        "the white space on the right side of the cladogram [0.1]",
         default=0.1, type=float, required=False
     )
     parser.add_argument("-f", "--force", help="Force a re-run of the script", action="store_true")
