@@ -185,10 +185,9 @@ rule chrom_sorting:
     run:
         if name_conversion:
             fais = sort_fais(input.fais, name_conversion, input.orders)
-            shell(f"gggenomes_sort_sequences.py --fai {fais} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
         else:
             fais = sort_fais_no_name_conversion(input.fais, input.orders)
-            shell(f"gggenomes_sort_sequences.py --fai {fais} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
+        shell(f"gggenomes_sort_sequences.py --fai {fais} --blocks {input.blocks} --lengths {input.sequences} > {output.sorted_seqs}")
 
 rule chrom_paint:
     input: links = rules.gggenomes_files.output.links

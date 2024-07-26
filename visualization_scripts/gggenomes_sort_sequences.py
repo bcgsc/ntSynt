@@ -74,7 +74,6 @@ def get_chrom_orders(tile_list):
     for chrom, group in itertools.groupby(tile_list, key=lambda x: x[0]):
         total = sum(c[1] for c in group)
         collapsed_list.append((chrom, total))
-    seq_order = []
     max_indexes = {} # chrom -> (max_index, max_val)
     for i, tup in enumerate(collapsed_list):
         chrom, length = tup

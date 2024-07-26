@@ -9,7 +9,6 @@ from collections import namedtuple
 
 SyntenyBlock = namedtuple("SyntenyBlock", ["id", "genome", "chrom", "start", "end", "strand", "num_mx", "reason"])
 
-
 def read_fais(fais, name_convert=False):
     "Read in the FAI files, creating a dictionary with asm -> chr -> length"
     fai_dict = {}
@@ -31,8 +30,6 @@ def read_name_conversions(name_conversion_fin):
     with open(name_conversion_fin, 'r', encoding="utf-8") as fin:
         for line in fin:
             old_name, new_name = line.strip().split("\t")
-            if old_name == "assembly":
-                continue
             name_conversion_dict[old_name] = new_name
     return name_conversion_dict
 
@@ -83,7 +80,8 @@ def assign_orientations(ori_dict):
 
 def print_synteny_block(block, out_file):
     "Print the synteny block, adjusting the reason for the orientation if needed"
-    out_file.write(f"{block.id}\t{block.genome}\t{block.chrom}\t{block.start}\t{block.end}\t{block.strand}\t{block.num_mx}\t{block.reason}\n")
+    out_file.write(f"{block.id}\t{block.genome}\t{block.chrom}\t{block.start}"
+                   f"\t{block.end}\t{block.strand}\t{block.num_mx}\t{block.reason}\n")
 
 
 def reverse_complement_coordinates(block, chrom_length):

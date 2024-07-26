@@ -4,6 +4,7 @@ Convert a pairwise distance matrix to a phylip format
 '''
 import argparse
 from collections import defaultdict
+from gggenomes_normalize_strands import read_name_conversions
 
 def load_distance_matrix(tsv_in):
     "Load the distance matrix into a dictionary"
@@ -31,15 +32,6 @@ def print_phylip_lower_triangle(distances_dict, conversion_dict):
             dist_str.append(distances_dict[asm1][asm2])
         print(" ".join(map(str,dist_str)))
 
-def read_conversions(tsvfile_in):
-    "Read a conversion file"
-    conversions = {}
-    with open(tsvfile_in, 'r', encoding="utf-8") as fin:
-        for line in fin:
-            line = line.strip().split("\t")
-            conversions[line[0]] = line[1]
-    return conversions
-
 def main():
     "Convert pairwise distances to phylip format matrix (lower triangle)"
     parser = argparse.ArgumentParser(description='Convert a pairwise distance matrix to a phylip format')
@@ -53,7 +45,7 @@ def main():
 
     conversion_dict = None
     if args.convert:
-        conversion_dict = read_conversions(args.convert)
+        conversion_dict = read_name_conversions(args.convert)
 
     print_phylip_lower_triangle(distances, conversion_dict)
 

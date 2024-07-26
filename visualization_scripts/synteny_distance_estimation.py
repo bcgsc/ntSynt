@@ -23,7 +23,7 @@ class SyntenyBlock:
 def get_block_i(block_id, block_ids):
     "Generate the new block ID"
     if block_id not in block_ids:
-            block_ids[block_id] = len(block_ids)
+        block_ids[block_id] = len(block_ids)
     return block_ids[block_id]
 
 def load_blocks(blocks_filename):
@@ -52,7 +52,7 @@ def get_difference_between_blocks(blocki, blockj):
 
 
 def asm_blocks_consistent(block_i1, block_i2, block_j1, block_j2, indel_threshold):
-    "Check if the two blocks from the  assemblies are consistent"
+    "Check if the two blocks from the assemblies are consistent"
     asm1_transition = block_i1.strand == block_j1.strand
     asm2_transition = block_i2.strand == block_j2.strand
     if asm1_transition != asm2_transition:
@@ -69,7 +69,7 @@ def asm_blocks_consistent(block_i1, block_i2, block_j1, block_j2, indel_threshol
     elif block_i1.strand == "-" and block_i2.strand == "+" and is_decreasing_i and not is_decreasing_j:
         valid_transition = True
     if not valid_transition:
-        return False    
+        return False
 
     if abs(len_diff_j - len_diff_i) > indel_threshold:
         return False
@@ -85,7 +85,7 @@ def compare_block_consistencies(blocks, num_blocks, assembly_pairs, indel_thresh
 
     while i < num_blocks - 1:
         j = i + 1
-        for asm1, asm2 in assembly_pairs: 
+        for asm1, asm2 in assembly_pairs:
             if asm_blocks_consistent(blocks[i][asm1], blocks[i][asm2],
                                      blocks[j][asm1], blocks[j][asm2], indel_threshold):
                 assembly_distances[asm1][asm2].append(True)

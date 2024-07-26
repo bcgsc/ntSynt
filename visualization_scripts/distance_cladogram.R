@@ -28,7 +28,7 @@ treefile <- midpoint_root(treefile)
 tree_ggtree <- ggtree(treefile, branch.length = "none") +
   geom_tiplab() + hexpand(ratio = args$lim)
 
-ggsave(paste(args$prefix, ".cladogram.png", sep = ""), tree_ggtree, width = 15, height = 10, units = "cm",
+ggsave(paste(args$prefix, ".cladogram.png", sep = ""), tree_ggtree, width = 25, height = 25, units = "cm",
        dpi = 300)
 
 ordered_labels <- fortify(treefile) %>% filter(isTip) %>% arrange(desc(y)) %>% pull(label)

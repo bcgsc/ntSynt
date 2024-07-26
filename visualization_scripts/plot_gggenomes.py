@@ -31,21 +31,25 @@ def check_name_conversion(name_conversion, parser):
 def main():
     "Run distance estimation and gggenomes for ntSynt results"
     parser = argparse.ArgumentParser(
-        description="Running ntSynt synteny block distance estimation and generating a ribbon plot")
+        description="Run ntSynt synteny block distance estimation and generate a ribbon plot")
     parser.add_argument("--blocks", help="ntSynt synteny blocks TSV", required=True, type=str)
     parser.add_argument("--name_conversion",
-                        help="TSV for converting names in the blocks TSV (old -> new). IMPORTANT: new names cannot have spaces. If you want to have spaces in the final ribbon plot, use the special character '_'. All underscores in the new name will be converted to spaces.",
+                        help="TSV for converting names in the blocks TSV (old -> new). "
+                        "IMPORTANT: new names cannot have spaces. If you want to have spaces in the final ribbon plot, "
+                        "use the special character '_'. All underscores in the new name will be converted to spaces.",
                         required=False, type=str)
     parser.add_argument("--fais",
                         help="FAI files for all input assemblies. Can be a list of a file with one FAI path per line.",
                         nargs="+", required=True, type=str)
-    parser.add_argument("--normalize", help="Normalize strand of genomes relative to the target (top) genome in the ribbon plots",
+    parser.add_argument("--normalize", help="Normalize strand of genomes relative to the "
+                        "target (top) genome in the ribbon plots",
                         action="store_true")
     parser.add_argument("--indel", help="Indel size threshold [50000]", default=50000, type=int)
     parser.add_argument("--length", help="Minimum synteny block length [50000]", default=50000, type=int)
     parser.add_argument("--centromeres",
                         help="TSV file with centromere positions. Must have the headers: bin_id,seq_id,start,end. "\
-                            "bin_id must match the new names from --name_conversion or the assembly names if --name_conversion is not specified. "\
+                            "bin_id must match the new names from --name_conversion or "
+                            "the assembly names if --name_conversion is not specified. "\
                             "seq_id is the chromosome name.", required=False, type=str)
     parser.add_argument("--prefix", help="Prefix for output files [ntSynt_distance-est]", required=False, type=str,
                         default="ntSynt_distance-est")
