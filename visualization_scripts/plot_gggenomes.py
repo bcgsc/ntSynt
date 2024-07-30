@@ -33,14 +33,20 @@ def main():
     parser = argparse.ArgumentParser(
         description="Run ntSynt synteny block distance estimation and generate a ribbon plot")
     parser.add_argument("--blocks", help="ntSynt synteny blocks TSV", required=True, type=str)
+    parser.add_argument("--fais",
+                        help="FAI files for all input assemblies. Can be a list of a file with one FAI path per line.",
+                        nargs="+", required=True, type=str)
     parser.add_argument("--name_conversion",
                         help="TSV for converting names in the blocks TSV (old -> new). "
                         "IMPORTANT: new names cannot have spaces. If you want to have spaces in the final ribbon plot, "
                         "use the special character '_'. All underscores in the new name will be converted to spaces.",
                         required=False, type=str)
-    parser.add_argument("--fais",
-                        help="FAI files for all input assemblies. Can be a list of a file with one FAI path per line.",
-                        nargs="+", required=True, type=str)
+    parser.add_argument("--tree", help="User-input tree file in newick format. "
+                        "If specified, this tree will be plotted next to the output ribbon plot, "
+                        "and used for ordering the assemblies. "
+                        "If not specified, the synteny blocks will be used to estimate pairwise distances "
+                        "for the assembly ordering and associated tree.",
+                        required=False, type=str)
     parser.add_argument("--normalize", help="Normalize strand of genomes relative to the "
                         "target (top) genome in the ribbon plots",
                         action="store_true")
@@ -82,7 +88,7 @@ def main():
     if len(args.fais) == 1:
         args.fais = read_fai_files(args.fais[0])
 
-    cmd = f"snakemake -s {base_dir}/plot_gggenomes.smk --cores 2 " \
+    cmd = f"snakemake -s {base_dir}/plot_gggenomes.smk " \
            f"-p --cores 2 " \
            f"--config " \
            f"prefix={args.prefix} " \
@@ -97,7 +103,9 @@ def main():
     if args.centromeres:
         cmd += f"centromeres={args.centromeres} "
     if args.normalize:
-        cmd += "normalize=True"
+        cmd += "normalize=True "
+    if args.tree:
+        cmd += f"tree={args.tree} "
     if args.force:
         cmd += " -F "
     if args.n:

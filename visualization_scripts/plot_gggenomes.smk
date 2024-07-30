@@ -18,6 +18,7 @@ scale = config["scale"] if "scale" in config else 1e9
 centromeres = config["centromeres"] if "centromeres" in config else None
 normalize = config["normalize"] if "normalize" in config else False
 blocks_no_suffix = os.path.basename(synteny_blocks).removesuffix(".tsv")
+tree = config["tree"] if "tree" in config else None
 
 def sort_fais(fai_list, name_conversion, orders):
     "Based on the name conversion TSV, sort the FAIs based on orders"
@@ -80,7 +81,7 @@ rule renaming:
     input: 
         blocks=f"{synteny_blocks}"
     output:
-        renamed_blocks=temp(f"{blocks_no_suffix}.renamed.tsv")
+        renamed_blocks=f"{blocks_no_suffix}.renamed.tsv"
     run:
         if name_conversion is not None:
             shell(f"rename_synteny_blocks.py {input.blocks} {name_conversion} > {output.renamed_blocks}")
@@ -106,11 +107,14 @@ rule convert_phylip:
 
 rule make_nj_tree:
     input:
-        rules.convert_phylip.output
+        file = tree if tree is not None else rules.convert_phylip.output 
     output:
-        nwk = f"{prefix}_est-distances.nwk"
-    shell:
-        "quicktree -in m -out t {input} > {output.nwk}"
+        nwk = temp(f"{prefix}_est-distances.nwk")
+    run:
+        if tree is not None:
+            shell("ln -sf {input.file} {output.nwk}")
+        else:
+            shell("quicktree -in m -out t {input} > {output.nwk}")
 
 rule cladogram:
     input:
