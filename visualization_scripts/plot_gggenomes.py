@@ -59,23 +59,18 @@ def main():
                             "seq_id is the chromosome name.", required=False, type=str)
     parser.add_argument("--prefix", help="Prefix for output files [ntSynt_distance-est]", required=False, type=str,
                         default="ntSynt_distance-est")
+    parser.add_argument("--format", help="Output format of ribbon plot [png]",
+                        required=False, choices=["png", "pdf"], default="png")
     parser.add_argument("--scale", help="Length of scale bar in bases [1 Gbp]", required=False, type=int,
                         default=1e9)
     parser.add_argument(
         "--ribbon_adjust",
-        help="Ratio for adjusting spacing between ribbon plot and cladogram. "
+        help="Ratio for adjusting spacing beside ribbon plot. "
         "Increase if ribbon plot labels are cut off, and decrease to reduce  "
-        "the white space between the ribbon plot and cladogram [0.1]",
+        "the white space to the left of the ribbon plot [0.1]",
         default=0.1, type=float, required=False
     )
-    parser.add_argument(
-        "--cladogram_adjust",
-        help="Ratio for adjusting xlimit of the cladogram. "
-        "Increase if cladogram labels are cut off, and decrease to reduce  "
-        "the white space on the right side of the cladogram [0.1]",
-        default=0.1, type=float, required=False
-    )
-    parser.add_argument("-f", "--force", help="Force a re-run of the script", action="store_true")
+    parser.add_argument("-f", "--force", help="Force a re-run of the entire pipeline", action="store_true")
     parser.add_argument("-n", help="Dry-run for snakemake pipeline", action="store_true")
 
     args = parser.parse_args()
@@ -89,27 +84,32 @@ def main():
         args.fais = read_fai_files(args.fais[0])
 
     cmd = f"snakemake -s {base_dir}/plot_gggenomes.smk " \
-           f"-p --cores 2 " \
-           f"--config " \
-           f"prefix={args.prefix} " \
-           f"blocks={args.blocks} " \
-           f"name_conversion={args.name_conversion} " \
-           f"fai='{args.fais}' " \
-           f"ribbon_ratio={args.ribbon_adjust} " \
-           f"cladogram_adjust={args.cladogram_adjust} " \
-           f"scale={args.scale} " \
-           f"indel_threshold={args.indel} " \
-           f"min_length={args.length} "
+            f"--cores 2 " \
+            f"--config " \
+            f"prefix={args.prefix} " \
+            f"blocks={args.blocks} " \
+            f"name_conversion={args.name_conversion} " \
+            f"fai='{args.fais}' " \
+            f"ribbon_ratio={args.ribbon_adjust} " \
+            f"scale={args.scale} " \
+            f"indel_threshold={args.indel} " \
+            f"min_length={args.length} " \
+            f"format={args.format} "
+
     if args.centromeres:
         cmd += f"centromeres={args.centromeres} "
     if args.normalize:
         cmd += "normalize=True "
     if args.tree:
         cmd += f"tree={args.tree} "
+        target = "gggenomes_ribbon_plot_tree"
+    else:
+        target = "all"
     if args.force:
         cmd += " -F "
     if args.n:
         cmd += " -n "
+    cmd += f"-p {target}"
     print(cmd)
 
     subprocess.check_call(shlex.split(cmd))

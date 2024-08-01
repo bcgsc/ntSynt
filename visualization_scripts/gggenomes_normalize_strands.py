@@ -6,6 +6,7 @@ The normalization will be based on the first listed assembly
 import argparse
 import os
 from collections import namedtuple
+from format_blocks_gggenomes import find_valid_block_ids, read_name_conversions
 
 SyntenyBlock = namedtuple("SyntenyBlock", ["id", "genome", "chrom", "start", "end", "strand", "num_mx", "reason"])
 
@@ -24,15 +25,6 @@ def read_fais(fais, name_convert=False):
     return fai_dict
 
 
-def read_name_conversions(name_conversion_fin):
-    "Read in the TSV file with name conversions"
-    name_conversion_dict = {}
-    with open(name_conversion_fin, 'r', encoding="utf-8") as fin:
-        for line in fin:
-            old_name, new_name = line.strip().split("\t")
-            name_conversion_dict[old_name] = new_name
-    return name_conversion_dict
-
 def tally_orientations(blocks_list, ori_dict):
     "Tally the lengths of same or different orientations of the blocks compared to the target (first)"
     target_block = blocks_list[0]
@@ -45,7 +37,7 @@ def tally_orientations(blocks_list, ori_dict):
         ori_dict[block.genome][block.chrom][relative_strand] += int(block.end) - int(block.start)
 
 
-def tally_orientation_blocks(synteny_blocks):
+def tally_orientation_blocks(synteny_blocks, valid_block_ids):
     "Tally the lengths of same or different orientations of the blocks compared to the target (first)"
     ori_dict = {} # asm -> chr -> {+: len, -: len}
     cur_block_id = None
@@ -54,15 +46,15 @@ def tally_orientation_blocks(synteny_blocks):
         for line in fin:
             block = SyntenyBlock(*line.strip().split("\t"))
             if cur_block_id != block.id:
-                if cur_block_id is not None:
+                if cur_block_id is not None and cur_block_id in valid_block_ids:
                     # Tally the information needed for all blocks
                     tally_orientations(blocks, ori_dict)
                 blocks = [block]
                 cur_block_id = block.id
             else:
                 blocks.append(block)
-
-    tally_orientations(blocks, ori_dict)
+    if cur_block_id in valid_block_ids:
+        tally_orientations(blocks, ori_dict)
     return ori_dict
 
 def assign_orientations(ori_dict):
@@ -98,7 +90,7 @@ def normalize_blocks(synteny_blocks_fin, fai_dict, orientations, prefix):
             open(f"{prefix}.blocks.tsv", 'w', encoding="utf-8") as fout:
         for line in fin:
             block = SyntenyBlock(*line.strip().split("\t"))
-            if block.genome not in orientations:
+            if block.genome not in orientations or block.chrom not in orientations[block.genome]:
                 print_synteny_block(block, fout)
             else:
                 if orientations[block.genome][block.chrom] == "-":
@@ -113,6 +105,8 @@ def main():
     parser.add_argument("-f", "--fais", help="FAI files for assemblies, in same sort order as --blocks", required=True,
                         type=str, nargs="+")
     parser.add_argument("-c", "--name_convert", help="Name conversion TSV", required=False, type=str)
+    parser.add_argument("-l", "--length", help="Minimum block length (bp) [10000]", required=False,
+                        type=int, default=10000)
     parser.add_argument("-p", "--prefix", help="Prefix for output files", default="normalize_strands", type=str)
     args = parser.parse_args()
 
@@ -122,7 +116,8 @@ def main():
     else:
         fai_dict = read_fais(args.fais)
 
-    orientation_tallies = tally_orientation_blocks(args.blocks)
+    valid_block_ids = find_valid_block_ids(args.blocks, args.length)
+    orientation_tallies = tally_orientation_blocks(args.blocks, valid_block_ids)
 
     orientations = assign_orientations(orientation_tallies)
 
@@ -131,9 +126,10 @@ def main():
             if asm not in orientations:
                 fout.write(f"#Orientations relative to {asm}\n")
                 fout.write("genome\tchromosome\trelative_orientation\n")
-        for asm, chr_dict in orientations.items():
+        for asm, chr_dict in fai_dict.items():
             for chrom in chr_dict:
-                fout.write(f"{asm}\t{chrom}\t{orientations[asm][chrom]}\n")
+                ori = orientations[asm][chrom] if asm in orientations and chrom in orientations[asm] else "+"
+                fout.write(f"{asm}\t{chrom}\t{ori}\n")
 
     normalize_blocks(args.blocks, fai_dict, orientations, args.prefix)
 

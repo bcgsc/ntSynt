@@ -19,6 +19,7 @@ centromeres = config["centromeres"] if "centromeres" in config else None
 normalize = config["normalize"] if "normalize" in config else False
 blocks_no_suffix = os.path.basename(synteny_blocks).removesuffix(".tsv")
 tree = config["tree"] if "tree" in config else None
+format_img = config["format"] if "format" in config else "png"
 
 def sort_fais(fai_list, name_conversion, orders):
     "Based on the name conversion TSV, sort the FAIs based on orders"
@@ -75,7 +76,10 @@ def get_first_asm_and_fai(orders, name_conversion, fai_list):
     raise ValueError(f"Expected FAI for assembly {asm_name} not found. FAI list: {fai_list}")
 
 rule all:
-    input: f"{prefix}_ribbon-plot.png"
+    input: f"{prefix}_ribbon-plot.png" if format_img == "png" else f"{prefix}_ribbon-plot.pdf" 
+
+rule gggenomes_ribbon_plot_tree:
+    input: f"{prefix}_ribbon-plot_tree.png" if format_img == "png" else f"{prefix}_ribbon-plot_tree.pdf"
 
 rule renaming:
     input: 
@@ -109,7 +113,7 @@ rule make_nj_tree:
     input:
         file = tree if tree is not None else rules.convert_phylip.output 
     output:
-        nwk = temp(f"{prefix}_est-distances.nwk")
+        nwk = f"{prefix}_est-distances.nwk"
     run:
         if tree is not None:
             shell("ln -sf {input.file} {output.nwk}")
@@ -120,7 +124,6 @@ rule cladogram:
     input:
         rules.make_nj_tree.output
     output:
-        cladogram = f"{prefix}_est-distances.cladogram.png",
         orders = f"{prefix}_est-distances.order.tsv"
     params:
         prefix = f"{prefix}_est-distances",
@@ -163,7 +166,8 @@ rule gggenomes_files:
         links = f"{prefix}.links.tsv",
         sequences = f"{prefix}.sequence_lengths.tsv"
     params:
-        prefix = prefix
+        prefix = prefix,
+        oris = f"--orientations {blocks_no_suffix}.renamed.sorted.chrom-orientations.tsv" if normalize else ""
     run:
         first_block = None
         with open(input.orders, 'r') as fin:
@@ -171,9 +175,9 @@ rule gggenomes_files:
                 first_block = line.strip()
                 break
         if name_conversion:
-            shell(f"format_blocks_gggenomes.py --fai {sort_fais(input.fais, name_conversion, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} --name_conversion {name_conversion}")
+            shell(f"format_blocks_gggenomes.py --fai {sort_fais(input.fais, name_conversion, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} --name_conversion {name_conversion} {params.oris}")
         else:
-            shell(f"format_blocks_gggenomes.py --fai {sort_fais_no_name_conversion(input.fais, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block}")
+            shell(f"format_blocks_gggenomes.py --fai {sort_fais_no_name_conversion(input.fais, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} {params.oris}")
 
 
 rule chrom_sorting:
@@ -195,20 +199,37 @@ rule chrom_paint:
     input: links = rules.gggenomes_files.output.links
     output: colour_feats = f"{prefix}.chrom-paint-feats.tsv"
     shell:
-        '''cat {input.links} |perl -ne 'chomp; @a=split("\t"); if(!defined $ct){{print "block_id\tseq_id\tbin_id\tstart\tend\tcolour_block\n"; $ct=1}} else {{print "$a[0]\t$a[1]\t$a[2]\t$a[3]\t$a[4]\t$a[11]\n"; print "$a[0]\t$a[5]\t$a[6]\t$a[7]\t$a[8]\t$a[11]\n";}}' > {output.colour_feats}'''
+        '''cat {input.links} |perl -ne 'chomp; @a=split("\t"); if(!defined $ct){{print "block_id\tseq_id\tbin_id\tstart\tend\tcolour_block\n"; $ct=1}} else {{print "$a[0]\t$a[1]\t$a[2]\t$a[3]\t$a[4]\t$a[10]\n"; print "$a[0]\t$a[5]\t$a[6]\t$a[7]\t$a[8]\t$a[10]\n";}}' > {output.colour_feats}'''
 
 rule ribbon_plot:
+    input: 
+        links = rules.gggenomes_files.output.links,
+        sequences = rules.chrom_sorting.output.sorted_seqs,
+        colour_feats = rules.chrom_paint.output.colour_feats
+    output:
+        out_img = f"{prefix}_ribbon-plot.png" if format_img == "png" else f"{prefix}_ribbon-plot.pdf"
+    params:
+        prefix = f"{prefix}_ribbon-plot",
+        ratio = ribbon_ratio,
+        scale = scale,
+        centromeres = f"--centromeres {centromeres}" if centromeres is not None else "",
+        out_img_format = "png" if format_img == "png" else "pdf"
+    shell:
+        "plot_synteny_blocks_ribbon_plot.R -s {input.sequences} -l {input.links} -p {params.prefix} --ratio {params.ratio} --scale {params.scale} -c {input.colour_feats} --format {params.out_img_format} {params.centromeres}"
+
+rule ribbon_plot_tree:
     input: 
         links = rules.gggenomes_files.output.links,
         sequences = rules.chrom_sorting.output.sorted_seqs,
         tree = rules.make_nj_tree.output,
         colour_feats = rules.chrom_paint.output.colour_feats
     output:
-        png = f"{prefix}_ribbon-plot.png"
+        out_img = f"{prefix}_ribbon-plot_tree.png" if format_img == "png" else f"{prefix}_ribbon-plot_tree.pdf"
     params:
-        prefix = f"{prefix}_ribbon-plot",
+        prefix = f"{prefix}_ribbon-plot_tree",
         ratio = ribbon_ratio,
         scale = scale,
-        centromeres = f"--centromeres {centromeres}" if centromeres is not None else ""
+        centromeres = f"--centromeres {centromeres}" if centromeres is not None else "",
+        out_img_format = "png" if format_img == "png" else "pdf"
     shell:
-        "plot_synteny_blocks_gggenomes_ggtree.R -s {input.sequences} -l {input.links} -p {params.prefix} --tree {input.tree} --ratio {params.ratio} --scale {params.scale} -c {input.colour_feats} {params.centromeres}"
+        "plot_synteny_blocks_ribbon_plot.R -s {input.sequences} -l {input.links} -p {params.prefix} --tree {input.tree} --ratio {params.ratio} --scale {params.scale} -c {input.colour_feats} --format {params.out_img_format} {params.centromeres}"

@@ -15,21 +15,24 @@ parser <- ArgumentParser(
 )
 parser$add_argument("--nwk", help = "Newick file", required = TRUE)
 parser$add_argument("-p", "--prefix",
-                    help = "Output prefix for PNG cladogram and file ordering (default ntsynt_dists)", required = FALSE,
+                    help = "Output prefix for file ordering (default ntsynt_dists)", required = FALSE,
                     default = "ntsynt_dists")
 parser$add_argument("--lim", help = "Ratio adjustment for xlimits (default 0.1)",
                     required = FALSE, default = 0.1, type = "double")
+parser$add_argument("--png", help = "Output cladogram in PNG format", required = FALSE,
+                    action = "store_true")
 
 args <- parser$parse_args()
-
 treefile <- treeio::read.newick(args$nwk)
 treefile <- midpoint_root(treefile)
 
-tree_ggtree <- ggtree(treefile, branch.length = "none") +
-  geom_tiplab() + hexpand(ratio = args$lim)
+if (args$png) {
+  tree_ggtree <- ggtree(treefile, branch.length = "none") +
+    geom_tiplab() + hexpand(ratio = args$lim)
 
-ggsave(paste(args$prefix, ".cladogram.png", sep = ""), tree_ggtree, width = 25, height = 25, units = "cm",
-       dpi = 300)
+  ggsave(paste(args$prefix, ".cladogram.png", sep = ""), tree_ggtree, width = 25, height = 25, units = "cm",
+         dpi = 300)
+}
 
 ordered_labels <- fortify(treefile) %>% filter(isTip) %>% arrange(desc(y)) %>% pull(label)
 write.table(ordered_labels, paste(args$prefix, ".order.tsv", sep = ""),

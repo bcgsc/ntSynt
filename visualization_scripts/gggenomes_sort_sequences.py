@@ -130,13 +130,13 @@ def main():
     stored_lines = {} # asm -> stored_lines
     with open(args.lengths, 'r', encoding='utf-8') as fin:
         for line in fin:
-            asm_name, chrom, length = line.strip().split("\t")
+            asm_name, chrom, length, relative_ori = line.strip().split("\t")
             if asm_name == "bin_id" or asm_name == asm_orders[0]:
-                print(asm_name, chrom, length, sep="\t")
+                print(asm_name, chrom, length, relative_ori, sep="\t")
             else:
                 if asm_name not in stored_lines:
                     stored_lines[asm_name] = []
-                stored_lines[asm_name].append((asm_name, chrom, length))
+                stored_lines[asm_name].append((asm_name, chrom, length, relative_ori))
                 if chrom not in asm_seq_orders[asm_name]:
                     asm_seq_orders[asm_name][chrom] = len(asm_seq_orders[asm_name])
 

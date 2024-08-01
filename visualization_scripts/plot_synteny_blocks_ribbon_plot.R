@@ -14,28 +14,34 @@ suppressWarnings(suppressPackageStartupMessages(library(gggenomes)))
 # Example script for generating ntSynt synteny ribbon plots using gggenomes
 
 # Parse the input arguments
-parser <- ArgumentParser(description = "Plot the ntSynt synteny blocks and cladogram using gggenomes")
+parser <- ArgumentParser(description = "Plot the ntSynt synteny blocks ribbon plot using gggenomes")
 parser$add_argument("-s", "--sequences", help = "Input sequence lengths TSV", required = TRUE)
 parser$add_argument("-l", "--links", help = "Synteny block links", required = TRUE)
 parser$add_argument("-c", "--painting", help = "File with chromosome painting information", required = FALSE)
 parser$add_argument("--centromeres", help = "File with centromere positions", required = FALSE, default = NULL)
 parser$add_argument("--scale", help = "Length of scale bar in bases (default 1 Gbp)", default = 1e9,
                     required = FALSE, type = "double")
-parser$add_argument("--tree", help = "Newick-formatted cladogram", required = TRUE)
+parser$add_argument("--tree", help = "Newick-formatted cladogram", required = FALSE)
 parser$add_argument("--ratio",
-                    help = "Ratio adjustment for labels on left side of the ribbon plot. Increase if the labels are cut-off, decrease to decrease space between ribbon plot and cladogram",
+                    help = paste("Ratio adjustment for labels on left side of the ribbon plot.",
+                                 "Increase if the labels are cut-off,",
+                                 "decrease to decrease space between ribbon plot and cladogram"),
                     default = 0.1, required = FALSE, type = "double")
 parser$add_argument("-p", "--prefix",
                     help = "Output prefix for PNG image (default synteny_gggenomes_plot)", required = FALSE,
                     default = "synteny_gggenomes_plot")
+parser$add_argument("--format", help = "Output format for image (png or pdf)", required = FALSE,
+                    default = "png", choices = c("png", "pdf"))
 
 args <- parser$parse_args()
 
 # Read in and prepare sequences
-sequences <- read.csv(args$sequences, sep = "\t", header = TRUE)
+sequences <- read.csv(args$sequences, sep = "\t", header = TRUE) %>%
+  mutate(relative_orientation = if_else(relative_orientation == "_", "", relative_orientation))
 
 # Prepare name conversions for tree
-name_conversions <- sequences %>% select(bin_id) %>%
+name_conversions <- sequences %>%
+  select(bin_id) %>%
   mutate(bin_id_translate = str_replace_all(bin_id, "_", " "))
 
 # https://stackoverflow.com/questions/32378108/using-gtoolsmixedsort-or-alternatives-with-dplyrarrange
@@ -88,15 +94,16 @@ make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centrom
   if (is.data.frame(centromeres)) {
     p <-  gggenomes(seqs = sequences, links = links, feats = list(painting, centromeres))
   } else {
-    p <-  gggenomes(seqs = sequences, links = links, feats = painting)
+    p <-  gggenomes(seqs = sequences, links = links, feats = list(painting))
   }
-   plot <- p + theme_gggenomes_clean(base_size = 15) +
+    plot <- p + theme_gggenomes_clean(base_size = 15) +
     geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5, size = 0.05) +
     geom_seq(size = 2, colour = "darkgrey") + # draw contig/chromosome lines
-    geom_feat(aes(colour = colour_block), position = "identity", linewidth = 2) +
+    geom_feat(data = feats(painting), aes(colour = colour_block), position = "identity", linewidth = 2) +
     geom_bin_label(aes(label = bin_id), size = 6, fontface = "italic") + # label each bin
+    geom_seq_label(aes(label = relative_orientation), nudge_y = -0.05, size = 4) + # Can add seq labels if desired
     #geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
-    theme(axis.text.x = element_text(size = 25),
+    theme(axis.text = element_text(size = 25, face = "italic"),
           legend.position = "bottom") +
     scale_fill_manual(values = hue_pal()(num_colours),
                       breaks = sequences_filt) +
@@ -135,23 +142,33 @@ if (! is.null(args$centromeres)) {
   synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE, centromeres = FALSE)
 }
 
-# Prepare the tree
-ntsynt_tree <- treeio::read.newick(args$tree)
-ntsynt_tree <- midpoint_root(ntsynt_tree)
-ntsynt_tree <- rename_taxa(ntsynt_tree, name_conversions)
-ntsynt_ggtree <- ggtree(ntsynt_tree, branch.length = "none")
+if (is.null(args$tree)) {
+  # If no tree is provided, just plot the synteny blocks
+  plots <- synteny_plot
+} else {
+  # Prepare the tree
+  ntsynt_tree <- treeio::read.newick(args$tree)
+  ntsynt_tree <- midpoint_root(ntsynt_tree)
+  ntsynt_tree <- rename_taxa(ntsynt_tree, name_conversions)
+  ntsynt_ggtree <- ggtree(ntsynt_tree, branch.length = "none")
 
-# Align the plots properly
-synteny_y_range <- ggplot_build(synteny_plot)$layout$panel_params[[1]]$y.range
+  # Align the plots properly
+  synteny_y_range <- ggplot_build(synteny_plot)$layout$panel_params[[1]]$y.range
 
-plots <- ggarrange(ntsynt_ggtree + scale_y_continuous(limits = synteny_y_range, expand = c(0, 0)),
-                   (synteny_plot %>% pick_by_tree(ntsynt_ggtree)),
-                   common.legend = TRUE, align = "hv",
-                   widths = c(1, 10), legend = "bottom")
-
+  plots <- ggarrange(ntsynt_ggtree + scale_y_continuous(limits = synteny_y_range, expand = c(0, 0)),
+                     (synteny_plot %>% pick_by_tree(ntsynt_ggtree)),
+                     common.legend = TRUE, align = "hv",
+                     widths = c(1, 10), legend = "bottom")
+}
 
 # Save the ribbon plot
-ggsave(paste(args$prefix, ".png", sep = ""), plots,
-       units = "cm", width = 50, height = 20, bg = "white")
-
-cat(paste("Plot saved:", paste(args$prefix, ".png", sep = ""), "\n", sep = " "))
+if (args$format == "pdf") {
+  ggsave(paste(args$prefix, ".pdf", sep = ""), plots,
+         units = "cm", width = 50, height = 20, bg = "white")
+  cat(paste("Plot saved:", paste(args$prefix, ".pdf", sep = ""), "\n", sep = " "))
+} else {
+  png(paste(args$prefix, ".png", sep = ""), units = "cm", width = 50, height = 20, res = 300, bg = "white")
+  print(plots)
+  dev.off()
+  cat(paste("Plot saved:", paste(args$prefix, ".png", sep = ""), "\n", sep = " "))
+}

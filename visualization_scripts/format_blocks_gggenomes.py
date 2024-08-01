@@ -4,18 +4,45 @@ Format input FAI files and synteny TSV for visualization with gggenomes in R
 '''
 import argparse
 import re
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 import os
-from gggenomes_normalize_strands import read_name_conversions
 
 re_fai = re.compile(r'^(\S+).fai$')
 SyntenyBlock = namedtuple("SyntenyBlock", ["id", "genome", "chrom", "start", "end", "strand"])
 
-def make_sequence_file(fai_files, prefix, name_conversion_dict=None):
+REVERSE_COMP_CHAR = "*"
+PLACEHOLDER_CHAR = "_"
+
+def read_orientations_file(orientations):
+    "Read in file with relative orientations"
+    orientations_dict = defaultdict(dict)
+    with open(orientations, 'r', encoding="utf-8") as fin:
+        for line in fin:
+            if line.startswith("#"):
+                continue
+            genome, chrom, relative_ori = line.strip().split("\t")
+            orientations_dict[genome][chrom] = REVERSE_COMP_CHAR if relative_ori == "-" else PLACEHOLDER_CHAR
+    return orientations_dict
+
+def read_name_conversions(name_conversion_fin):
+    "Read in the TSV file with name conversions"
+    name_conversion_dict = {}
+    with open(name_conversion_fin, 'r', encoding="utf-8") as fin:
+        for line in fin:
+            old_name, new_name = line.strip().split("\t")
+            name_conversion_dict[old_name] = new_name
+    return name_conversion_dict
+
+def make_sequence_file(fai_files, prefix, name_conversion_dict=None, orientations=None):
     "Generate a sequence length TSV from the input FAI files"
 
+    if orientations:
+        orientations_dict = read_orientations_file(orientations) # assembly -> chr -> ori
+    else:
+        orientations_dict = None
+
     with open(f"{prefix}.sequence_lengths.tsv", 'w', encoding="utf-8") as fout:
-        fout.write("bin_id\tseq_id\tlength\n")
+        fout.write("bin_id\tseq_id\tlength\trelative_orientation\n")
         for fai_file in fai_files:
             with open(fai_file, 'r', encoding="utf-8") as fai_in:
                 for line in fai_in:
@@ -23,10 +50,13 @@ def make_sequence_file(fai_files, prefix, name_conversion_dict=None):
                     chrom_name, length = line[:2]
                     file_basename = os.path.basename(fai_file)
                     if name_conversion_dict:
-                        fout.write(f"{name_conversion_dict[re.search(re_fai, file_basename).group(1)]}\t"
-                                   f"{chrom_name}\t{length}\n")
+                        genome_name = name_conversion_dict[re.search(re_fai, file_basename).group(1)]
+                        relative_ori = f"\t{orientations_dict[genome_name][chrom_name]}" if orientations_dict and genome_name in orientations_dict else "\t_"
+                        fout.write(f"{genome_name}\t{chrom_name}\t{length}{relative_ori}\n")
                     else:
-                        fout.write(f"{re.search(re_fai, file_basename).group(1)}\t{chrom_name}\t{length}\n")
+                        genome_name = re.search(re_fai, file_basename).group(1)
+                        relative_ori = f"\t{orientations_dict[genome_name][chrom_name]}" if orientations_dict and genome_name in orientations_dict else "\t_"
+                        fout.write(f"{genome_name}\t{chrom_name}\t{length}{relative_ori}\n")
 
 def make_links_file(synteny_file, prefix, valid_blocks_set, target_assembly):
     "Generate the links TSV from the input synteny blocks file"
@@ -88,6 +118,8 @@ def main():
                         required=False, type=str)
     parser.add_argument("--name_conversion", help="Specified file with old -> new names in TSV format",
                         required=False, type=str)
+    parser.add_argument("--orientations", help="File with relative orientations to target assembly in TSV format",
+                        required=False, type=str)
     args = parser.parse_args()
 
     name_conversion_dict = read_name_conversions(args.name_conversion)
@@ -96,7 +128,7 @@ def main():
 
     colour_assembly = args.colour if args.colour else re.search(r'^(\S+).fai$', args.fai[0]).group(1)
 
-    make_sequence_file(args.fai, args.prefix, name_conversion_dict)
+    make_sequence_file(args.fai, args.prefix, name_conversion_dict, args.orientations)
     make_links_file(args.blocks, args.prefix, valid_blocks, colour_assembly)
 
 if __name__ == "__main__":
