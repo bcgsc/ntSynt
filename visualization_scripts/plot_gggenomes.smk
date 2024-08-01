@@ -20,6 +20,8 @@ normalize = config["normalize"] if "normalize" in config else False
 blocks_no_suffix = os.path.basename(synteny_blocks).removesuffix(".tsv")
 tree = config["tree"] if "tree" in config else None
 format_img = config["format"] if "format" in config else "png"
+plot_height = config["height"] if "height" in config else 20
+plot_width = config["width"] if "width" in config else 50
 
 def sort_fais(fai_list, name_conversion, orders):
     "Based on the name conversion TSV, sort the FAIs based on orders"
@@ -213,9 +215,12 @@ rule ribbon_plot:
         ratio = ribbon_ratio,
         scale = scale,
         centromeres = f"--centromeres {centromeres}" if centromeres is not None else "",
-        out_img_format = "png" if format_img == "png" else "pdf"
+        out_img_format = "png" if format_img == "png" else "pdf",
+        height = plot_height, width = plot_width
     shell:
-        "plot_synteny_blocks_ribbon_plot.R -s {input.sequences} -l {input.links} -p {params.prefix} --ratio {params.ratio} --scale {params.scale} -c {input.colour_feats} --format {params.out_img_format} {params.centromeres}"
+        "plot_synteny_blocks_ribbon_plot.R -s {input.sequences} -l {input.links} -p {params.prefix} --ratio {params.ratio}" 
+        " --scale {params.scale} -c {input.colour_feats} --format {params.out_img_format} --height {params.height} --width {params.width}"
+        " {params.centromeres}"
 
 rule ribbon_plot_tree:
     input: 
@@ -230,6 +235,9 @@ rule ribbon_plot_tree:
         ratio = ribbon_ratio,
         scale = scale,
         centromeres = f"--centromeres {centromeres}" if centromeres is not None else "",
-        out_img_format = "png" if format_img == "png" else "pdf"
+        out_img_format = "png" if format_img == "png" else "pdf",
+        height = plot_height, width = plot_width
     shell:
-        "plot_synteny_blocks_ribbon_plot.R -s {input.sequences} -l {input.links} -p {params.prefix} --tree {input.tree} --ratio {params.ratio} --scale {params.scale} -c {input.colour_feats} --format {params.out_img_format} {params.centromeres}"
+        "plot_synteny_blocks_ribbon_plot.R -s {input.sequences} -l {input.links} -p {params.prefix} --tree {input.tree}"
+        " --ratio {params.ratio} --scale {params.scale} -c {input.colour_feats} --format {params.out_img_format}  --height {params.height} --width {params.width}"
+        " {params.centromeres}"

@@ -122,13 +122,18 @@ def main():
                         required=False, type=str)
     args = parser.parse_args()
 
-    name_conversion_dict = read_name_conversions(args.name_conversion)
+    if args.name_conversion:
+        name_conversion_dict = read_name_conversions(args.name_conversion)
 
     valid_blocks = find_valid_block_ids(args.blocks, args.length)
 
     colour_assembly = args.colour if args.colour else re.search(r'^(\S+).fai$', args.fai[0]).group(1)
 
-    make_sequence_file(args.fai, args.prefix, name_conversion_dict, args.orientations)
+    if args.name_conversion:
+            make_sequence_file(args.fai, args.prefix, name_conversion_dict, args.orientations)
+    else:
+        make_sequence_file(args.fai, args.prefix, orientations=args.orientations)
+
     make_links_file(args.blocks, args.prefix, valid_blocks, colour_assembly)
 
 if __name__ == "__main__":

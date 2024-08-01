@@ -43,7 +43,7 @@ def main():
                         required=False, type=str)
     parser.add_argument("--tree", help="User-input tree file in newick format. "
                         "If specified, this tree will be plotted next to the output ribbon plot, "
-                        "and used for ordering the assemblies. "
+                        "and used for ordering the assemblies. The names in the newick file must match the new names if --name_conversion is specified, or the genome file names in the synteny blocks input file. "
                         "If not specified, the synteny blocks will be used to estimate pairwise distances "
                         "for the assembly ordering and associated tree.",
                         required=False, type=str)
@@ -63,6 +63,8 @@ def main():
                         required=False, choices=["png", "pdf"], default="png")
     parser.add_argument("--scale", help="Length of scale bar in bases [1 Gbp]", required=False, type=int,
                         default=1e9)
+    parser.add_argument("--height", help="Height of plot in cm [20]", required=False, type=int, default=20)
+    parser.add_argument("--width", help="Width of plot in cm [50]", required=False, type=int, default=50)
     parser.add_argument(
         "--ribbon_adjust",
         help="Ratio for adjusting spacing beside ribbon plot. "
@@ -94,7 +96,9 @@ def main():
             f"scale={args.scale} " \
             f"indel_threshold={args.indel} " \
             f"min_length={args.length} " \
-            f"format={args.format} "
+            f"format={args.format} " \
+            f"height={args.height} " \
+            f"width={args.width} "
 
     if args.centromeres:
         cmd += f"centromeres={args.centromeres} "

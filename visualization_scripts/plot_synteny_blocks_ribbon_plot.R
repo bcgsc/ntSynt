@@ -21,6 +21,10 @@ parser$add_argument("-c", "--painting", help = "File with chromosome painting in
 parser$add_argument("--centromeres", help = "File with centromere positions", required = FALSE, default = NULL)
 parser$add_argument("--scale", help = "Length of scale bar in bases (default 1 Gbp)", default = 1e9,
                     required = FALSE, type = "double")
+parser$add_argument("--width", help = "Width of plot in cm (default 50)", default = 50,
+                    required = FALSE, type = "double")
+parser$add_argument("--height", help = "Height of plot in cm (default 20)", default = 20,
+                    required = FALSE, type = "double")
 parser$add_argument("--tree", help = "Newick-formatted cladogram", required = FALSE)
 parser$add_argument("--ratio",
                     help = paste("Ratio adjustment for labels on left side of the ribbon plot.",
@@ -164,10 +168,11 @@ if (is.null(args$tree)) {
 # Save the ribbon plot
 if (args$format == "pdf") {
   ggsave(paste(args$prefix, ".pdf", sep = ""), plots,
-         units = "cm", width = 50, height = 20, bg = "white")
+         units = "cm", width = args$width, height = args$height, bg = "white")
   cat(paste("Plot saved:", paste(args$prefix, ".pdf", sep = ""), "\n", sep = " "))
 } else {
-  png(paste(args$prefix, ".png", sep = ""), units = "cm", width = 50, height = 20, res = 300, bg = "white")
+  png(paste(args$prefix, ".png", sep = ""), units = "cm", width = args$width, height = args$height,
+      res = 300, bg = "white")
   print(plots)
   dev.off()
   cat(paste("Plot saved:", paste(args$prefix, ".png", sep = ""), "\n", sep = " "))
