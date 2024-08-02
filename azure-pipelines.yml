@@ -50,7 +50,7 @@ jobs:
   
   - script: |
       source activate ntsynt_ci
-      mamba install -c conda-forge -c bioconda quicktree r-base bioconductor-treeio r-ggpubr bioconductor-ggtree r-phytools r-dplyr \
+      mamba install --yes -c conda-forge -c bioconda quicktree r-base bioconductor-treeio r-ggpubr bioconductor-ggtree r-phytools r-dplyr \
         r-argparse r-scales r-stringr
       R -e 'install.packages(c("gggenomes"), repos= "https://cran.r-project.org")'
       export PATH=$(pwd)/visualization_scripts:$PATH
