@@ -34,7 +34,7 @@ def main():
         description="Run ntSynt synteny block distance estimation and generate a ribbon plot")
     parser.add_argument("--blocks", help="ntSynt synteny blocks TSV", required=True, type=str)
     parser.add_argument("--fais",
-                        help="FAI files for all input assemblies. Can be a list of a file with one FAI path per line.",
+                        help="FAI files for all input assemblies. Can be a list or a file with one FAI path per line.",
                         nargs="+", required=True, type=str)
     parser.add_argument("--name_conversion",
                         help="TSV for converting names in the blocks TSV (old -> new). "

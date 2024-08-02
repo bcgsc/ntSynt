@@ -1,80 +1,87 @@
-# Example visualization scripts for ntSynt
+# Visualizing ntSynt synteny blocks
+
+Here, we provide an easy-to-use pipline for generating ribbon plots combined with chromosome painting to visualize the output synteny blocks from ntSynt.
+
+This flexible pipeline implements numerous features, including:
+* Option to normalize the strands of input chromosomes, based on a target assembly
+* Evidence-guided ordering of assemblies from top-to-bottom, based on an input tree structure or distance estimates from the synteny blocks
+* Sorting chromosomes right-to-left based on mappings to other assemblies
+* Colouring both the ribbons and chromosomes based on the chromosomes in the target (top) assembly
+
+These features ensure that the output ribbon plots (powered by [gggenomes](https://thackl.github.io/gggenomes/)) are as easily understandable and information-rich as possible.
+
+### Dependencies
+* quicktree
+* R packages:
+  * [gggenomes](https://github.com/thackl/gggenomes)
+  * [treeio](https://www.bioconductor.org/packages/release/bioc/html/treeio.html)
+  * [ggpubr](https://rpkgs.datanovia.com/ggpubr/)
+  * [ggtree](https://github.com/YuLab-SMU/ggtree)
+  * [phytools](https://cran.r-project.org/web/packages/phytools/index.html)
+  * [dplyr](https://dplyr.tidyverse.org/)
+  * [argparse](https://cran.r-project.org/web/packages/argparse/index.html)
+  * [scales](https://scales.r-lib.org/)
+  * [stringr](https://stringr.tidyverse.org/)
+
+#### Installing dependencies using conda
+```
+conda install --yes -c conda-forge -c bioconda quicktree r-base bioconductor-treeio r-ggpubr bioconductor-ggtree r-phytools r-dplyr r-argparse r-scales r-stringr
+R -e 'install.packages(c("gggenomes"), repos = "https://cran.r-project.org")'
+```
+
+### Usage
+```
+usage: plot_gggenomes.py [-h] --blocks BLOCKS --fais FAIS [FAIS ...] [--name_conversion NAME_CONVERSION] [--tree TREE] [--normalize] [--indel INDEL] [--length LENGTH]
+                         [--centromeres CENTROMERES] [--prefix PREFIX] [--format {png,pdf}] [--scale SCALE] [--height HEIGHT] [--width WIDTH]
+                         [--ribbon_adjust RIBBON_ADJUST] [-f] [-n]
+
+Run ntSynt synteny block distance estimation and generate a ribbon plot
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --blocks BLOCKS       ntSynt synteny blocks TSV
+  --fais FAIS [FAIS ...]
+                        FAI files for all input assemblies. Can be a list or a file with one FAI path per line.
+  --name_conversion NAME_CONVERSION
+                        TSV for converting names in the blocks TSV (old -> new). IMPORTANT: new names cannot have spaces. If you want to have spaces in the final ribbon
+                        plot, use the special character '_'. All underscores in the new name will be converted to spaces.
+  --tree TREE           User-input tree file in newick format. If specified, this tree will be plotted next to the output ribbon plot, and used for ordering the
+                        assemblies. The names in the newick file must match the new names if --name_conversion is specified, or the genome file names in the synteny blocks
+                        input file. If not specified, the synteny blocks will be used to estimate pairwise distances for the assembly ordering and associated tree.
+  --normalize           Normalize strand of genomes relative to the target (top) genome in the ribbon plots
+  --indel INDEL         Indel size threshold [50000]
+  --length LENGTH       Minimum synteny block length [50000]
+  --centromeres CENTROMERES
+                        TSV file with centromere positions. Must have the headers: bin_id,seq_id,start,end. bin_id must match the new names from --name_conversion or the
+                        assembly names if --name_conversion is not specified. seq_id is the chromosome name.
+  --prefix PREFIX       Prefix for output files [ntSynt_distance-est]
+  --format {png,pdf}    Output format of ribbon plot [png]
+  --scale SCALE         Length of scale bar in bases [1 Gbp]
+  --height HEIGHT       Height of plot in cm [20]
+  --width WIDTH         Width of plot in cm [50]
+  --ribbon_adjust RIBBON_ADJUST
+                        Ratio for adjusting spacing beside ribbon plot. Increase if ribbon plot labels are cut off, and decrease to reduce the white space to the left of
+                        the ribbon plot [0.1]
+  -f, --force           Force a re-run of the entire pipeline
+  -n                    Dry-run for snakemake pipeline
+
+```
+#### Example commands
+All the files referenced in these commands can be found in the `tests` subfolder for you to use in testing.
+
+##### Plot ribbon plots with an input cladogram in newick format, normalizing the strands of the assembly chromosomes
+```
+plot_gggenomes.py --blocks great-apes.ntSynt.synteny_blocks.tsv --fais fais.tsv --tree great-apes.mt-tree.nwk --name_conversion great-apes.name-conversions.tsv --normalize --prefix great-apes_ribbon-plots --ribbon_adjust 0.14
+```
+![Example_ribbon_plot](https://github.com/bcgsc/ntSynt/blob/distance_est/visualization_scripts/tests/great-apes_ribbon-plots.example1.png)
+
+##### Plot ribbon plots without input cladogram, skipping normalization of the assembly chromosome strands, changing scale size and formatting output in PDF format
+```
+plot_gggenomes.py --blocks great-apes.ntSynt.synteny_blocks.tsv --fais fais.tsv  --name_conversion great-apes.name-conversions.tsv  --prefix great-apes_ribbon-plots_no-tree --ribbon_adjust 0.15 --scale 500000000 --format pdf
+```
+![Example_ribbon_plot](https://github.com/bcgsc/ntSynt/blob/distance_est/visualization_scripts/tests/great-apes_ribbon-plots.example2.pdf)
+
+For an example script for the chromosome painting plot shown in the ntSynt paper, see chromosome_painting_plots subdirectory
 
 Here, we provide basic examples scripts for generating ribbon plots and chromosome sequence painting plots to visualize synteny blocks computed by ntSynt. Each R script script can be seen as a starting point, and can be customized as needed. 
 
-## Ribbon plots
-The R package gggenomes (https://thackl.github.io/gggenomes/) is used to generate ribbon plots to visualize multi-genome synteny blocks.
-
-### Steps:
-1. Format the ntSynt synteny blocks for the ribbon plots R script using the provided script. Before running `format_blocks_gggenomes.sh`, add the `visualization_scripts` directory to your PATH.
-```
-Usage: format_blocks_gggenomes.sh <synteny blocks TSV> <prefix> <length threshold> <assembly to use for colour> <FAI> <FAI> [FAI..]
-```
-The order of assembly FAI files will dictate the order of the genomes in the ribbon plots.
-This script will generate two TSV files: `{prefix}.links.tsv`  `{prefix}.sequence_lengths.tsv`
-
-2. Run the R script
-* Required R packages: argparse, gggenomes, gtools, scales
-```
-usage: plot_synteny_blocks_gggenomes.R [-h] -s SEQUENCES -l LINKS [--scale SCALE] [-p PREFIX]
-
-Plot the ntSynt synteny blocks using gggenomes
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -s SEQUENCES, --sequences SEQUENCES
-                        Input sequence lengths TSV
-  -l LINKS, --links LINKS
-                        Synteny block links
-  --scale SCALE         Length of scale bar in bases (default 1 Gbp)
-  -p PREFIX, --prefix PREFIX
-                        Output prefix for PNG image (default
-                        synteny_gggenomes_plot)
-```
-Example:
-![Example_gggenomes](https://github.com/bcgsc/ntSynt/blob/main/visualization_scripts/example_gggenomes.png)
-
-* These plots are highly customizable, so edit/adapt the script as needed!
-
-## Chromosome sequence painting plots
-ggplot2 is used to generate chromosome painting plots to visualize the multi-genome synteny blocks. Here, the synteny blocks for the other species are compared to a selected 'target' species. The segments based on the coordinate system of the 'target' species are coloured based on the chromosome of the other species. In addition, the relative orientation between the 'target' species and the other species is indicated by nudging the boxes up (forward) or down (reverse).
-
-### Steps:
-1. Format the ntSynt synteny blocks for the chromosome painting R script using the provided script.
-```
-usage: format_blocks_chromosome_painting.py [-h] [--convert CONVERT] --target TARGET synteny_tsv
-
-Formatting synteny blocks for chromosome painting
-
-positional arguments:
-  synteny_tsv        ntSynt-formatted synteny blocks TSV
-
-optional arguments:
-  -h, --help         show this help message and exit
-  --convert CONVERT  TSV file with desired conversions for assembly names (optional)
-  --target TARGET    Target assembly name
-```
-
-This script will output the results in standard out - pipe the output to a file.
-
-2. Run the R script
-* Required R packages: argparse, ggplot2, dplyr, tidyr, gtools, scales
-```
-usage: plot_synteny_blocks-chromosome-painting.R [-h] -b BLOCKS [-g GAPS] [-p PREFIX]
-
-Generate chromosome painting plots to visualize ntSynt synteny
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -b BLOCKS, --blocks BLOCKS
-                        ntSynt-formatted synteny blocks
-  -g GAPS, --gaps GAPS  TSV file with gap coordinates. Required headers:
-                        chrom, chromStart, chromEnd (optional)
-  -p PREFIX, --prefix PREFIX
-                        Output prefix for PNG image (optional, default
-                        synteny_chromosome)
-```
-* These plots can also be customized as needed (plot size, scale, comparing additional tools, etc.)
-
-Example:
-![Example_gggenomes](https://github.com/bcgsc/ntSynt/blob/main/visualization_scripts/example_chromosome-painting.png)
