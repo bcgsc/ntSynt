@@ -75,11 +75,11 @@ plot_gggenomes.py --blocks great-apes.ntSynt.synteny_blocks.tsv --fais fais.tsv 
 ```
 ![Example_ribbon_plot](https://github.com/bcgsc/ntSynt/blob/distance_est/visualization_scripts/tests/great-apes_ribbon-plots.example1.png)
 
-##### Plot ribbon plots without input cladogram, skipping normalization of the assembly chromosome strands, changing scale size and formatting output in PDF format
+##### Plot ribbon plots without input cladogram, skipping normalization of the assembly chromosome strands, and changing scale size
 ```
-plot_gggenomes.py --blocks great-apes.ntSynt.synteny_blocks.tsv --fais fais.tsv  --name_conversion great-apes.name-conversions.tsv  --prefix great-apes_ribbon-plots_no-tree --ribbon_adjust 0.15 --scale 500000000 --format pdf
+plot_gggenomes.py --blocks great-apes.ntSynt.synteny_blocks.tsv --fais fais.tsv  --name_conversion great-apes.name-conversions.tsv  --prefix great-apes_ribbon-plots_no-tree --ribbon_adjust 0.15 --scale 500000000 
 ```
-![Example_ribbon_plot](https://github.com/bcgsc/ntSynt/blob/distance_est/visualization_scripts/tests/great-apes_ribbon-plots.example2.pdf)
+![Example_ribbon_plot](https://github.com/bcgsc/ntSynt/blob/distance_est/visualization_scripts/tests/great-apes_ribbon-plots.example2.png)
 
 For an example script for the chromosome painting plot shown in the ntSynt paper, see chromosome_painting_plots subdirectory
 
