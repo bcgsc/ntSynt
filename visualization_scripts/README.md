@@ -26,6 +26,7 @@ These features ensure that the output ribbon plots (powered by [gggenomes](https
 #### Installing dependencies using conda
 ```
 conda install --yes -c conda-forge -c bioconda quicktree r-base bioconductor-treeio r-ggpubr bioconductor-ggtree r-phytools r-dplyr r-argparse r-scales r-stringr
+
 R -e 'install.packages(c("gggenomes"), repos = "https://cran.r-project.org")'
 ```
 
