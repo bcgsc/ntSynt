@@ -35,7 +35,7 @@ usage: plot_gggenomes.py [-h] --blocks BLOCKS --fais FAIS [FAIS ...] [--name_con
                          [--centromeres CENTROMERES] [--prefix PREFIX] [--format {png,pdf}] [--scale SCALE] [--height HEIGHT] [--width WIDTH]
                          [--ribbon_adjust RIBBON_ADJUST] [-f] [-n]
 
-Run ntSynt synteny block distance estimation and generate a ribbon plot
+Generate a ribbon plot to visualize ntSynt synteny blocks
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -47,8 +47,9 @@ optional arguments:
                         plot, use the special character '_'. All underscores in the new name will be converted to spaces.
   --tree TREE           User-input tree file in newick format. If specified, this tree will be plotted next to the output ribbon plot, and used for ordering the
                         assemblies. The names in the newick file must match the new names if --name_conversion is specified, or the genome file names in the synteny blocks
-                        input file. If not specified, the synteny blocks will be used to estimate pairwise distances for the assembly ordering and associated tree.
-  --normalize           Normalize strand of genomes relative to the target (top) genome in the ribbon plots
+                        input file otherwise. If not specified, the synteny blocks will be used to estimate pairwise distances for the assembly ordering and associated
+                        tree.
+  --normalize           Normalize strand of chromosomes relative to the target (top) genome in the ribbon plots
   --indel INDEL         Indel size threshold [50000]
   --length LENGTH       Minimum synteny block length [50000]
   --centromeres CENTROMERES
@@ -56,7 +57,7 @@ optional arguments:
                         assembly names if --name_conversion is not specified. seq_id is the chromosome name.
   --prefix PREFIX       Prefix for output files [ntSynt_distance-est]
   --format {png,pdf}    Output format of ribbon plot [png]
-  --scale SCALE         Length of scale bar in bases [1 Gbp]
+  --scale SCALE         Length of scale bar in bases [1e9]
   --height HEIGHT       Height of plot in cm [20]
   --width WIDTH         Width of plot in cm [50]
   --ribbon_adjust RIBBON_ADJUST

@@ -31,7 +31,7 @@ def check_name_conversion(name_conversion, parser):
 def main():
     "Run distance estimation and gggenomes for ntSynt results"
     parser = argparse.ArgumentParser(
-        description="Run ntSynt synteny block distance estimation and generate a ribbon plot")
+        description="Generate a ribbon plot to visualize ntSynt synteny blocks")
     parser.add_argument("--blocks", help="ntSynt synteny blocks TSV", required=True, type=str)
     parser.add_argument("--fais",
                         help="FAI files for all input assemblies. Can be a list or a file with one FAI path per line.",
@@ -43,11 +43,11 @@ def main():
                         required=False, type=str)
     parser.add_argument("--tree", help="User-input tree file in newick format. "
                         "If specified, this tree will be plotted next to the output ribbon plot, "
-                        "and used for ordering the assemblies. The names in the newick file must match the new names if --name_conversion is specified, or the genome file names in the synteny blocks input file. "
+                        "and used for ordering the assemblies. The names in the newick file must match the new names if --name_conversion is specified, or the genome file names in the synteny blocks input file otherwise. "
                         "If not specified, the synteny blocks will be used to estimate pairwise distances "
                         "for the assembly ordering and associated tree.",
                         required=False, type=str)
-    parser.add_argument("--normalize", help="Normalize strand of genomes relative to the "
+    parser.add_argument("--normalize", help="Normalize strand of chromosomes relative to the "
                         "target (top) genome in the ribbon plots",
                         action="store_true")
     parser.add_argument("--indel", help="Indel size threshold [50000]", default=50000, type=int)
@@ -61,7 +61,7 @@ def main():
                         default="ntSynt_distance-est")
     parser.add_argument("--format", help="Output format of ribbon plot [png]",
                         required=False, choices=["png", "pdf"], default="png")
-    parser.add_argument("--scale", help="Length of scale bar in bases [1 Gbp]", required=False, type=int,
+    parser.add_argument("--scale", help="Length of scale bar in bases [1e9]", required=False, type=float,
                         default=1e9)
     parser.add_argument("--height", help="Height of plot in cm [20]", required=False, type=int, default=20)
     parser.add_argument("--width", help="Width of plot in cm [50]", required=False, type=int, default=50)
