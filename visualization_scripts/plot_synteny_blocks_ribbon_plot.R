@@ -1,15 +1,14 @@
 #!/usr/bin/env Rscript
 suppressPackageStartupMessages({
   library(argparse)
-  library(gtools)
   library(scales)
   library(ggtree)
   library(treeio)
   library(phytools)
   library(dplyr)
   library(ggpubr)
-  library(stringr)})
-suppressWarnings(suppressPackageStartupMessages(library(gggenomes)))
+  library(stringr)
+  library(gggenomes)})
 
 # Example script for generating ntSynt synteny ribbon plots using gggenomes
 
@@ -54,7 +53,6 @@ sequences <- sequences %>%
 input_order <- unique(sequences$bin_id)
 input_chrom_order <- unique(sequences$seq_id)
 
-mixedrank <- function(x) order(gtools::mixedorder(x))
 sequences <- sequences %>%
   arrange(factor(bin_id, levels = input_order))
 
@@ -163,6 +161,12 @@ if (is.null(args$tree)) {
                      (synteny_plot %>% pick_by_tree(ntsynt_ggtree)),
                      common.legend = TRUE, align = "hv",
                      widths = c(1, 10), legend = "bottom")
+}
+
+any_rc <- any(grepl("\\*", sequences$relative_orientation))
+if (any_rc) {
+  note <- text_grob("*: synteny blocks reverse complemented with --normalize")
+  plots <- ggarrange(plots, note, ncol = 1, heights = c(10, 1))
 }
 
 # Save the ribbon plot

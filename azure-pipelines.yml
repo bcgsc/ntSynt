@@ -47,6 +47,18 @@ jobs:
       cd tests
       pytest -vs ntsynt_tests.py
     displayName: Run pytests
+  
+  - script: |
+      source activate ntsynt_ci
+      mamba install quicktree r-base bioconductor-treeio r-ggpubr bioconductor-ggtree r-phytools r-dplyr \
+        r-argparse r-scales r-stringr
+      R -e 'install.packages(c("gggenomes"), repos= "https://cran.r-project.org")'
+      export PATH=$(pwd)/visualization_scripts:$PATH
+      cd visualization_scripts/tests
+      plot_gggenomes.py --blocks great-apes.ntSynt.synteny_blocks.tsv --fais fais.tsv \
+        --tree great-apes.mt-tree.nwk --name_conversion great-apes.name-conversions.tsv \
+        --normalize --prefix great-apes_ribbon-plots --ribbon_adjust 0.14
+
 
 - job:
   displayName: macOS-latest
