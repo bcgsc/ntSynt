@@ -81,7 +81,6 @@ plot_gggenomes.py --blocks great-apes.ntSynt.synteny_blocks.tsv --fais fais.tsv 
 ```
 ![Example_ribbon_plot](https://github.com/bcgsc/ntSynt/blob/distance_est/visualization_scripts/tests/great-apes_ribbon-plots.example2.png)
 
+#### Other visualization options
 For an example script for the chromosome painting plot shown in the ntSynt paper, see chromosome_painting_plots subdirectory
-
-Here, we provide basic examples scripts for generating ribbon plots and chromosome sequence painting plots to visualize synteny blocks computed by ntSynt. Each R script script can be seen as a starting point, and can be customized as needed. 
 
