@@ -11,7 +11,7 @@ This flexible pipeline implements numerous features, including:
 These features ensure that the output ribbon plots (powered by [gggenomes](https://thackl.github.io/gggenomes/)) are as easily understandable and information-rich as possible.
 
 ### Dependencies
-* quicktree
+* [quicktree](https://github.com/khowe/quicktree)
 * R packages:
   * [gggenomes](https://github.com/thackl/gggenomes)
   * [treeio](https://www.bioconductor.org/packages/release/bioc/html/treeio.html)
