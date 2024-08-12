@@ -1,23 +1,20 @@
 image: gitpod/workspace-base
 tasks:
 - name: Install conda
-  command: |
+  init: |
       mkdir -p ~/miniconda3
       curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh  -o ~/miniconda3/miniconda.sh
       bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
       rm -rf ~/miniconda3/miniconda.sh
       ~/miniconda3/bin/conda init bash
       ~/miniconda3/bin/conda init zsh
-      export CONDA=$(realpath ~/miniconda3/bin)
-- name: Install ntSynt
-  command: |
       conda create --yes --quiet --name ntsynt
-      source activate ntsynt
+      conda activate ntsynt
       conda install -c conda-forge -c bioconda --yes ntsynt
 - name: git clone
   command: |
     cd /workspace
-    source activate ntsynt
+    conda activate ntsynt
 vscode:
   extensions:
     - anwar.papyrus-pdf
