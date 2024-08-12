@@ -65,6 +65,9 @@ def main():
                         default=1e9)
     parser.add_argument("--height", help="Height of plot in cm [20]", required=False, type=int, default=20)
     parser.add_argument("--width", help="Width of plot in cm [50]", required=False, type=int, default=50)
+    parser.add_argument("--no-arrow", help="Only used with --normalize; "
+                        "do not draw arrows indicating reverse-complementation",
+                        action="store_true")
     parser.add_argument(
         "--ribbon_adjust",
         help="Ratio for adjusting spacing beside ribbon plot. "
@@ -104,6 +107,8 @@ def main():
         cmd += f"centromeres={args.centromeres} "
     if args.normalize:
         cmd += "normalize=True "
+    if args.no_arrow:
+        cmd += "no_arrow=True "
     if args.tree:
         cmd += f"tree={args.tree} "
         target = "gggenomes_ribbon_plot_tree"

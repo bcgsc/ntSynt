@@ -8,7 +8,7 @@ from collections import namedtuple, defaultdict
 import intervaltree
 
 SyntenyBlock = namedtuple("SyntenyBlock", ["id", "genome", "chrom", "start", "end", "strand", "num_mx", "reason"])
-MapRegion = namedtuple("MapRegion", ["chrom", "length"])
+MapRegion = namedtuple("MapRegion", ["chrom", "start", "end"])
 
 def insert_interval_tree(tree, blocks) -> None:
     "Insert block info into the intervaltree"
@@ -17,7 +17,7 @@ def insert_interval_tree(tree, blocks) -> None:
             tree[block_target.genome] = {}
         if block_target.chrom not in tree[block_target.genome]:
             tree[block_target.genome][block_target.chrom] = intervaltree.IntervalTree()
-        block_data = MapRegion(block_next.chrom, int(block_next.end) - int(block_next.start))
+        block_data = MapRegion(block_next.chrom, int(block_next.start), int(block_next.end))
         tree[block_target.genome][block_target.chrom][int(block_target.start): int(block_target.end)] = block_data
 
 
@@ -47,6 +47,11 @@ def load_synteny_blocks(blocks_file):
 
     return blocks_tree, asm_orders
 
+def get_overlap_length(interval_hit, start, end):
+    "Given the interval hit region with start/end coordinates, and the start/end of the tile, return the overlap length"
+    overlap_len = min(interval_hit.end, end) - max(interval_hit.begin, start)
+    return overlap_len
+
 def tally_chromosome_hits(tree, asm, chrom, length, tile):
     "Tally chromosome hits per assembly"
     tiles = []
@@ -59,7 +64,7 @@ def tally_chromosome_hits(tree, asm, chrom, length, tile):
             map_region = interval_hit.data
             if map_region.chrom not in asm_tallies:
                 asm_tallies[map_region.chrom] = 0
-            asm_tallies[map_region.chrom] += map_region.length
+            asm_tallies[map_region.chrom] += get_overlap_length(interval_hit, start, end)
         if asm_tallies:
             best_hit_chrom, best_hit_length = sorted([(chrom, length) for chrom, length in asm_tallies.items()],
                                                     key=lambda x: x[1],

@@ -25,6 +25,9 @@ parser$add_argument("--width", help = "Width of plot in cm (default 50)", defaul
 parser$add_argument("--height", help = "Height of plot in cm (default 20)", default = 20,
                     required = FALSE, type = "double")
 parser$add_argument("--tree", help = "Newick-formatted cladogram", required = FALSE)
+parser$add_argument("--no-arrow", help = paste("Do not plot arrows indicating reverse complementation.",
+                                                "Only use when blocks were normalized."),
+                    action = "store_true", default = FALSE)
 parser$add_argument("--ratio",
                     help = paste("Ratio adjustment for labels on left side of the ribbon plot.",
                                  "Increase if the labels are cut-off,",
@@ -40,7 +43,8 @@ args <- parser$parse_args()
 
 # Read in and prepare sequences
 sequences <- read.csv(args$sequences, sep = "\t", header = TRUE) %>%
-  mutate(relative_orientation = if_else(relative_orientation == "_", "", relative_orientation))
+  mutate(relative_orientation = if_else(relative_orientation == "_", "", "\u2190"))
+
 
 # Prepare name conversions for tree
 name_conversions <- sequences %>%
@@ -89,7 +93,7 @@ painting <- read.csv(args$painting, sep = "\t", header = TRUE) %>%
   mutate(bin_id = str_replace_all(bin_id, "_", " "))
 
 # Make the ribbon plot - these layers can be fully customized as needed!
-make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centromeres = FALSE) {
+make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centromeres = FALSE, add_arrow = FALSE) {
   target_genome <- (sequences %>% head(1) %>% select(bin_id))[[1]]
   sequences_filt <- unique((sequences %>% filter(bin_id == target_genome))$seq_id)
   num_colours <- length(sequences_filt)
@@ -98,21 +102,26 @@ make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centrom
   } else {
     p <-  gggenomes(seqs = sequences, links = links, feats = list(painting))
   }
-    plot <- p + theme_gggenomes_clean(base_size = 15) +
-    geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5, size = 0.05) +
-    geom_seq(size = 2, colour = "darkgrey") + # draw contig/chromosome lines
-    geom_feat(data = feats(painting), aes(colour = colour_block), position = "identity", linewidth = 2) +
-    geom_bin_label(aes(label = bin_id), size = 6, fontface = "italic") + # label each bin
-    geom_seq_label(aes(label = relative_orientation), nudge_y = -0.05, size = 4) + # Can add seq labels if desired
-    #geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
-    theme(axis.text = element_text(size = 25, face = "italic"),
-          legend.position = "bottom") +
-    scale_fill_manual(values = hue_pal()(num_colours),
+  plot <- p + theme_gggenomes_clean(base_size = 15) +
+  geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5, size = 0.05) +
+  #geom_seq(size = 2.5, colour = "black") + # draw contig/chromosome borders
+  geom_seq(size = 2, colour = "darkgrey") + # draw contig/chromosome lines
+  geom_feat(data = feats(painting), aes(colour = colour_block), position = "identity", linewidth = 2) +
+  geom_bin_label(aes(label = bin_id), size = 6, fontface = "italic") + # label each bin
+  #geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
+  theme(axis.text = element_text(size = 25, face = "italic"),
+        legend.position = "bottom") +
+  scale_fill_manual(values = hue_pal()(num_colours),
+                    breaks = sequences_filt) +
+  scale_colour_manual(values = hue_pal()(num_colours),
                       breaks = sequences_filt) +
-    scale_colour_manual(values = hue_pal()(num_colours),
-                        breaks = sequences_filt) +
-    guides(fill = guide_legend(title = "", ncol = 10),
-           colour = guide_legend(title = ""))
+  guides(fill = guide_legend(title = "", ncol = 10),
+          colour = guide_legend(title = ""))
+  if (add_arrow) {
+    plot <- plot + geom_seq_label(aes(label = relative_orientation, y = .data$y, 
+                                      x = pmax(.data$x, .data$xend)), nudge_y = 0, 
+                                  size = 2.5, hjust = 1, vjust=0.5) 
+  }
   xmax <- ggplot_build(plot)$layout$panel_params[[1]]$x.range[[2]]
   plot <- plot + xlim(0 - xmax * args$ratio, NA)
 
@@ -139,9 +148,9 @@ make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centrom
 # Make the ribbon plot
 if (! is.null(args$centromeres)) {
   centromeres <- read.csv(args$centromeres, sep = "\t", header = TRUE)
-  synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE, centromeres = centromeres)
+  synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE, centromeres = centromeres, add_arrow = !args$no_arrow)
 } else {
-  synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE, centromeres = FALSE)
+  synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE, centromeres = FALSE, add_arrow = !args$no_arrow)
 }
 
 if (is.null(args$tree)) {
@@ -163,9 +172,9 @@ if (is.null(args$tree)) {
                      widths = c(1, 10), legend = "bottom")
 }
 
-any_rc <- any(grepl("\\*", sequences$relative_orientation))
-if (any_rc) {
-  note <- text_grob("*: synteny blocks reverse complemented with --normalize")
+any_rc <- length((sequences %>% filter(relative_orientation != ""))$relative_orientation) > 0
+if (any_rc && !args$no_arrow) {
+  note <- text_grob("sequences reverse complemented with --normalize indicated with arrows")
   plots <- ggarrange(plots, note, ncol = 1, heights = c(10, 1))
 }
 
