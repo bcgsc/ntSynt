@@ -2,13 +2,13 @@ image: condaforge/mambaforge:22.9.0-1
 tasks:
 - name: configure conda env
   init: |
+      mamba init
       mamba create --yes --quiet --name ntsynt
       mamba activate ntsynt
       mamba install -c conda-forge -c bioconda --yes ntsynt
 - name: git clone
   command: |
     cd /workspace
-    mamba init
     mamba activate ntsynt
 vscode:
   extensions:
