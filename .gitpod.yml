@@ -8,6 +8,7 @@ tasks:
 - name: git clone
   command: |
     cd /workspace
+    mamba init
     mamba activate ntsynt
 vscode:
   extensions:
