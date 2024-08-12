@@ -1,13 +1,11 @@
 image: condaforge/mambaforge:22.9.0-1
 tasks:
 - name: configure conda env
-  init: |
-      mamba create --yes --quiet --name ntsynt
-      conda activate ntsynt
-      mamba install -c conda-forge -c bioconda --yes ntsynt
   command: |
-    cd /workspace
+    mamba create --yes --quiet --name ntsynt
     conda activate ntsynt
+    mamba install -c conda-forge -c bioconda --yes ntsynt
+    cd /workspace
 vscode:
   extensions:
     - anwar.papyrus-pdf
