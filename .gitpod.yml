@@ -1,20 +1,14 @@
-image: gitpod/workspace-base
+image: condaforge/mambaforge:22.9.0-1
 tasks:
-- name: Install conda
+- name: configure conda env
   init: |
-      mkdir -p ~/miniconda3
-      curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh  -o ~/miniconda3/miniconda.sh
-      bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-      rm -rf ~/miniconda3/miniconda.sh
-      ~/miniconda3/bin/conda init bash
-      ~/miniconda3/bin/conda init zsh
-      conda create --yes --quiet --name ntsynt
-      conda activate ntsynt
-      conda install -c conda-forge -c bioconda --yes ntsynt
+      mamba create --yes --quiet --name ntsynt
+      mamba activate ntsynt
+      mamba install -c conda-forge -c bioconda --yes ntsynt
 - name: git clone
   command: |
     cd /workspace
-    conda activate ntsynt
+    mamba activate ntsynt
 vscode:
   extensions:
     - anwar.papyrus-pdf
