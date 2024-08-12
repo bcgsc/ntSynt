@@ -5,7 +5,6 @@ tasks:
       mamba create --yes --quiet --name ntsynt
       conda activate ntsynt
       mamba install -c conda-forge -c bioconda --yes ntsynt
-- name: git clone
   command: |
     cd /workspace
     conda activate ntsynt
