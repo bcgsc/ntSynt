@@ -1,0 +1,10 @@
+image: quay.io/biocontainers/ntsynt:1.0.1--py311h2a4ad6c_3
+tasks:
+- name: git clone
+  command: |
+    cd /workspace
+vscode:
+  extensions:
+    - anwar.papyrus-pdf
+
+workspaceLocation: "/workspace"
