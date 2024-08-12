@@ -11,6 +11,8 @@ tasks:
     conda activate ntsynt
     mamba install -c conda-forge -c bioconda --yes ntsynt
   command: |
+    /workspace/conda/bin/mamba init bash
+    source ${HOME}/.bashrc
     conda activate ntsynt
     cd /workspace
 vscode:
