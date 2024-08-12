@@ -11,10 +11,13 @@ tasks:
       export CONDA=$(realpath ~/miniconda3/bin)
 - name: Install ntSynt
   command: |
-      conda install -c conda-forge -c bioconda --yes ntsynt git
+      conda create --yes --quiet --name ntsynt
+      source activate ntsynt
+      conda install -c conda-forge -c bioconda --yes ntsynt
 - name: git clone
   command: |
     cd /workspace
+    source activate ntsynt
 vscode:
   extensions:
     - anwar.papyrus-pdf
