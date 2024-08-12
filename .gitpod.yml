@@ -1,12 +1,17 @@
-image: condaforge/mambaforge:22.9.0-1
+image: gitpod/workspace-base
 tasks:
 - name: configure conda env
   init: |
-    mamba create --yes --quiet --name ntsynt_ci
-    conda activate ntsynt_ci
+    cd /workspace
+    curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+    bash Mambaforge-$(uname)-$(uname -m).sh -b -p /workspace/conda && rm Mambaforge-$(uname)-$(uname -m).sh
+    /workspace/conda/bin/mamba init bash
+    source ${HOME}/.bashrc
+    mamba create --yes --quiet --name ntsynt
+    conda activate ntsynt
     mamba install -c conda-forge -c bioconda --yes ntsynt
   command: |
-    conda activate ntsynt_ci
+    conda activate ntsynt
     cd /workspace
 vscode:
   extensions:
