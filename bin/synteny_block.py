@@ -114,4 +114,3 @@ class SyntenyBlock:
             if block != other.self.assembly_blocks[assembly]:
                 is_equal = False
         return is_equal
-        
