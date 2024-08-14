@@ -118,9 +118,9 @@ make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centrom
   guides(fill = guide_legend(title = "", ncol = 10),
           colour = guide_legend(title = ""))
   if (add_arrow) {
-    plot <- plot + geom_seq_label(aes(label = relative_orientation, y = .data$y, 
-                                      x = pmax(.data$x, .data$xend)), nudge_y = 0, 
-                                  size = 2.5, hjust = 1, vjust=0.5) 
+    plot <- plot + geom_seq_label(aes(label = relative_orientation, 
+                                      x = pmax(.data$x, .data$xend)), nudge_y = -0.05, 
+                                  size = 2.5, hjust = 1) 
   }
   xmax <- ggplot_build(plot)$layout$panel_params[[1]]$x.range[[2]]
   plot <- plot + xlim(0 - xmax * args$ratio, NA)
