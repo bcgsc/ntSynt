@@ -13,6 +13,10 @@ def rename_synteny_tsv(tsv_in, names_dict):
             line = line.strip().split("\t")
             if line[1] in names_dict:
                 line[1] = names_dict[line[1]]
+            else:
+                raise ValueError(f"Assembly {line[1]} not found in name conversions TSV. "
+                                 f"Please ensure that the name conversion file is a TSV with columns representing old_name and new_name, "
+                                 f"with old_name being identical to assembly names in the synteny blocks TSV file.")
             print("\t".join(line))
 
 
