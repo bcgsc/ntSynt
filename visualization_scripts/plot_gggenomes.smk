@@ -23,6 +23,8 @@ format_img = config["format"] if "format" in config else "png"
 plot_height = config["height"] if "height" in config else 20
 plot_width = config["width"] if "width" in config else 50
 no_arrow = config["no_arrow"] if "no_arrow" in config else False
+target_genome = config["target_genome"] if "target_genome" in config else False
+
 
 def sort_fais(fai_list, name_conversion, orders):
     "Based on the name conversion TSV, sort the FAIs based on orders"
@@ -130,9 +132,10 @@ rule cladogram:
         orders = f"{prefix}_est-distances.order.tsv"
     params:
         prefix = f"{prefix}_est-distances",
-        ratio = cladogram_ratio
+        ratio = cladogram_ratio,
+        target = f"--target {target_genome}" if target_genome else ""
     shell:
-        "distance_cladogram.R --nwk {input} -p {params.prefix} --lim {params.ratio}"
+        "distance_cladogram.R --nwk {input} -p {params.prefix} --lim {params.ratio} {params.target}"
 
 rule sort_blocks:
     input: 

@@ -17,6 +17,7 @@ These features ensure that the output ribbon plots (powered by [gggenomes](https
   * [treeio](https://www.bioconductor.org/packages/release/bioc/html/treeio.html)
   * [ggpubr](https://rpkgs.datanovia.com/ggpubr/)
   * [ggtree](https://github.com/YuLab-SMU/ggtree)
+  * [tidytree](https://cran.rstudio.com/web/packages/tidytree/index.html)
   * [phytools](https://cran.r-project.org/web/packages/phytools/index.html)
   * [dplyr](https://dplyr.tidyverse.org/)
   * [argparse](https://cran.r-project.org/web/packages/argparse/index.html)

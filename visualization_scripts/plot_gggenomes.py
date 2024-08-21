@@ -47,6 +47,9 @@ def main():
                         "If not specified, the synteny blocks will be used to estimate pairwise distances "
                         "for the assembly ordering and associated tree.",
                         required=False, type=str)
+    parser.add_argument("--target-genome", help="Target genome. If specified, this genome will be at the top of the ribbon plot, "
+                        "with ribbons coloured based on its chromosomes and (if applicable) other chromosomes normalized to it. "
+                        "If not specified, the top genome will be arbitrary.", required=False, type=str)
     parser.add_argument("--normalize", help="Normalize strand of chromosomes relative to the "
                         "target (top) genome in the ribbon plots",
                         action="store_true")
@@ -109,6 +112,8 @@ def main():
         cmd += "normalize=True "
     if args.no_arrow:
         cmd += "no_arrow=True "
+    if args.target_genome:
+        cmd += f"target_genome={args.target_genome} "
     if args.tree:
         cmd += f"tree={args.tree} "
         target = "gggenomes_ribbon_plot_tree"
