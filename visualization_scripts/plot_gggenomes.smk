@@ -24,7 +24,7 @@ plot_height = config["height"] if "height" in config else 20
 plot_width = config["width"] if "width" in config else 50
 no_arrow = config["no_arrow"] if "no_arrow" in config else False
 target_genome = config["target_genome"] if "target_genome" in config else False
-
+haplotypes = config["haplotypes"] if "haplotypes" in config else []
 
 def sort_fais(fai_list, name_conversion, orders):
     "Based on the name conversion TSV, sort the FAIs based on orders"
@@ -137,6 +137,15 @@ rule cladogram:
     shell:
         "distance_cladogram.R --nwk {input} -p {params.prefix} --lim {params.ratio} {params.target}"
 
+rule nudges:
+    input: 
+        orders = rules.cladogram.output.orders,
+        haplotypes = haplotypes
+    output:
+        nudges = f"{prefix}_orders-nudges.tsv"
+    shell:
+        "find_plot_nudges.py --haplotypes {input.haplotypes} --orders {input.orders} > {output.nudges}"
+
 rule sort_blocks:
     input: 
         blocks = f"{blocks_no_suffix}.renamed.tsv",
@@ -211,7 +220,8 @@ rule ribbon_plot:
     input: 
         links = rules.gggenomes_files.output.links,
         sequences = rules.chrom_sorting.output.sorted_seqs,
-        colour_feats = rules.chrom_paint.output.colour_feats
+        colour_feats = rules.chrom_paint.output.colour_feats,
+        haplotypes = rules.nudges.output.nudges if haplotypes else []
     output:
         out_img = f"{prefix}_ribbon-plot.png" if format_img == "png" else f"{prefix}_ribbon-plot.pdf"
     params:
@@ -221,18 +231,21 @@ rule ribbon_plot:
         centromeres = f"--centromeres {centromeres}" if centromeres is not None else "",
         out_img_format = "png" if format_img == "png" else "pdf",
         height = plot_height, width = plot_width,
-        arrow = "--no-arrow" if no_arrow else ""
+        arrow = "--no-arrow" if no_arrow else "",
+        haplotypes = f"--haplotypes {rules.nudges.output.nudges}" if haplotypes else ""
     shell:
         "plot_synteny_blocks_ribbon_plot.R -s {input.sequences} -l {input.links} -p {params.prefix} --ratio {params.ratio}" 
         " --scale {params.scale} -c {input.colour_feats} --format {params.out_img_format} --height {params.height} --width {params.width}"
-        " {params.centromeres} {params.arrow}"
+        " {params.centromeres} {params.arrow} {params.haplotypes}"
 
 rule ribbon_plot_tree:
     input: 
         links = rules.gggenomes_files.output.links,
         sequences = rules.chrom_sorting.output.sorted_seqs,
         tree = rules.make_nj_tree.output,
-        colour_feats = rules.chrom_paint.output.colour_feats
+        colour_feats = rules.chrom_paint.output.colour_feats,
+        orders = rules.cladogram.output.orders,
+        haplotypes = rules.nudges.output.nudges if haplotypes else []
     output:
         out_img = f"{prefix}_ribbon-plot_tree.png" if format_img == "png" else f"{prefix}_ribbon-plot_tree.pdf"
     params:
@@ -242,8 +255,9 @@ rule ribbon_plot_tree:
         centromeres = f"--centromeres {centromeres}" if centromeres is not None else "",
         out_img_format = "png" if format_img == "png" else "pdf",
         height = plot_height, width = plot_width,
-        arrow = "--no-arrow" if no_arrow else ""
+        arrow = "--no-arrow" if no_arrow else "",
+        haplotypes = f"--haplotypes {rules.nudges.output.nudges}" if haplotypes else ""
     shell:
         "plot_synteny_blocks_ribbon_plot.R -s {input.sequences} -l {input.links} -p {params.prefix} --tree {input.tree}"
         " --ratio {params.ratio} --scale {params.scale} -c {input.colour_feats} --format {params.out_img_format}  --height {params.height} --width {params.width}"
-        " {params.centromeres} {params.arrow}"
+        " --order {input.orders} {params.centromeres} {params.arrow} {params.haplotypes}"

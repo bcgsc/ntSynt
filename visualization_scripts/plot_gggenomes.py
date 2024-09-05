@@ -43,12 +43,16 @@ def main():
                         required=False, type=str)
     parser.add_argument("--tree", help="User-input tree file in newick format. "
                         "If specified, this tree will be plotted next to the output ribbon plot, "
-                        "and used for ordering the assemblies. The names in the newick file must match the new names if --name_conversion is specified, or the genome file names in the synteny blocks input file otherwise. "
+                        "and used for ordering the assemblies. "
+                        "The names in the newick file must match the new names if --name_conversion is specified, "
+                        "or the genome file names in the synteny blocks input file otherwise. "
                         "If not specified, the synteny blocks will be used to estimate pairwise distances "
                         "for the assembly ordering and associated tree.",
                         required=False, type=str)
-    parser.add_argument("--target-genome", help="Target genome. If specified, this genome will be at the top of the ribbon plot, "
-                        "with ribbons coloured based on its chromosomes and (if applicable) other chromosomes normalized to it. "
+    parser.add_argument("--target-genome", help="Target genome. If specified, "
+                        "this genome will be at the top of the ribbon plot, "
+                        "with ribbons coloured based on its chromosomes and "
+                        "(if applicable) other chromosomes normalized to it. "
                         "If not specified, the top genome will be arbitrary.", required=False, type=str)
     parser.add_argument("--normalize", help="Normalize strand of chromosomes relative to the "
                         "target (top) genome in the ribbon plots",
@@ -60,6 +64,9 @@ def main():
                             "bin_id must match the new names from --name_conversion or "
                             "the assembly names if --name_conversion is not specified. "\
                             "seq_id is the chromosome name.", required=False, type=str)
+    parser.add_argument("--haplotypes", help="File listing haplotype assembly names: TSV, "
+                        "maternal/paternal assemblies separated by tabs.",
+                        required=False, type=str)
     parser.add_argument("--prefix", help="Prefix for output files [ntSynt_distance-est]", required=False, type=str,
                         default="ntSynt_distance-est")
     parser.add_argument("--format", help="Output format of ribbon plot [png]",
@@ -114,6 +121,8 @@ def main():
         cmd += "no_arrow=True "
     if args.target_genome:
         cmd += f"target_genome={args.target_genome} "
+    if args.haplotypes:
+        cmd += f"haplotypes={args.haplotypes} "
     if args.tree:
         cmd += f"tree={args.tree} "
         target = "gggenomes_ribbon_plot_tree"

@@ -8,7 +8,8 @@ suppressPackageStartupMessages({
   library(dplyr)
   library(ggpubr)
   library(stringr)
-  library(gggenomes)})
+  library(gggenomes)
+  library(tidyr)})
 
 # Example script for generating ntSynt synteny ribbon plots using gggenomes
 
@@ -28,6 +29,7 @@ parser$add_argument("--tree", help = "Newick-formatted cladogram", required = FA
 parser$add_argument("--no-arrow", help = paste("Do not plot arrows indicating reverse complementation.",
                                                 "Only use when blocks were normalized."),
                     action = "store_true", default = FALSE)
+parser$add_argument("--haplotypes", help = "TSV with haplotype nudges", required = FALSE)
 parser$add_argument("--ratio",
                     help = paste("Ratio adjustment for labels on left side of the ribbon plot.",
                                  "Increase if the labels are cut-off,",
@@ -38,6 +40,7 @@ parser$add_argument("-p", "--prefix",
                     default = "synteny_gggenomes_plot")
 parser$add_argument("--format", help = "Output format for image (png or pdf)", required = FALSE,
                     default = "png", choices = c("png", "pdf"))
+parser$add_argument("--order", help = "TSV file with desired order of tip labels (only used if --tree specified).", required = FALSE)
 
 args <- parser$parse_args()
 
@@ -92,34 +95,68 @@ if (scale %% 1e9 == 0) {
 painting <- read.csv(args$painting, sep = "\t", header = TRUE) %>%
   mutate(bin_id = str_replace_all(bin_id, "_", " "))
 
+# Get the y coordinates for the features
+get_y_coord <- function(haplotypes, bin_id, y, end=FALSE) {
+  if (typeof(haplotypes) == "logical") {
+    return(y)
+  } else {
+    coordinates <- data.frame(bin_id = bin_id, y = y)
+    if (end == TRUE) {
+      haplotypes <- haplotypes %>% 
+        mutate(bin_id_next = lead(bin_id, 1), nudge_next = lead(nudge, 1)) %>%
+        mutate(nudge_next = replace_na(nudge_next, 0))
+      joined <- inner_join(coordinates, haplotypes, by = "bin_id") %>%
+        mutate(y = y + nudge_next)
+    } else {
+      joined <- inner_join(coordinates, haplotypes, by = "bin_id") %>%
+              mutate(y = y + nudge)
+    }
+
+
+    return(joined$y)
+  }
+}
+
 # Make the ribbon plot - these layers can be fully customized as needed!
-make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centromeres = FALSE, add_arrow = FALSE) {
+make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centromeres = FALSE, add_arrow = FALSE, haplotypes = FALSE) {
   target_genome <- (sequences %>% head(1) %>% select(bin_id))[[1]]
   sequences_filt <- unique((sequences %>% filter(bin_id == target_genome))$seq_id)
   num_colours <- length(sequences_filt)
+  colours <- hue_pal()(num_colours)
+  
   if (is.data.frame(centromeres)) {
     p <-  gggenomes(seqs = sequences, links = links, feats = list(painting, centromeres))
   } else {
     p <-  gggenomes(seqs = sequences, links = links, feats = list(painting))
   }
+
   plot <- p + theme_gggenomes_clean(base_size = 15) +
-  geom_link(aes(fill = colour_block), offset = 0, alpha = 0.5, size = 0.05) +
-  #geom_seq(size = 2.5, colour = "black") + # draw contig/chromosome borders
-  geom_seq(size = 2, colour = "darkgrey") + # draw contig/chromosome lines
-  geom_feat(data = feats(painting), aes(colour = colour_block), position = "identity", linewidth = 2) +
-  geom_bin_label(aes(label = bin_id), size = 6, fontface = "italic") + # label each bin
+  geom_link(aes(fill = colour_block,
+               y = get_y_coord(haplotypes, .data$bin_id, .data$y),
+              yend = get_y_coord(haplotypes, .data$bin_id, .data$yend, end = TRUE)),
+               offset = 0, alpha = 0.5, size = 0.05) +
+  geom_seq(aes(y = get_y_coord(haplotypes, .data$bin_id, .data$y),
+               yend = get_y_coord(haplotypes, bin_id, .data$y)),
+               size = 2, colour = "darkgrey") + # draw contig/chromosome lines
+  geom_feat(data = feats(painting), aes(colour = as.factor(colour_block),
+                y = get_y_coord(haplotypes, bin_id, .data$y),
+               yend = get_y_coord(haplotypes, bin_id, .data$y)), position = "identity", linewidth = 2) +
+  geom_bin_label(aes(label = bin_id,
+                    y = get_y_coord(haplotypes, bin_id, .data$y)),
+                size = 6, fontface = "italic") + # label each bin
   #geom_seq_label(aes(label = seq_id), vjust = 1.1, size = 4) + # Can add seq labels if desired
   theme(axis.text = element_text(size = 25, face = "italic"),
         legend.position = "bottom") +
-  scale_fill_manual(values = hue_pal()(num_colours),
+  scale_fill_manual(values = colours,
                     breaks = sequences_filt) +
-  scale_colour_manual(values = hue_pal()(num_colours),
+  scale_colour_manual(values = colours,
                       breaks = sequences_filt) +
   guides(fill = guide_legend(title = "", ncol = 10),
           colour = guide_legend(title = ""))
   if (add_arrow) {
     plot <- plot + geom_seq_label(aes(label = relative_orientation, 
-                                      x = pmax(.data$x, .data$xend)), nudge_y = -0.05, 
+                                      x = pmax(.data$x, .data$xend),
+                                      y = get_y_coord(haplotypes, bin_id, .data$y)), nudge_y = -0.05, 
                                   size = 2.5, hjust = 1) 
   }
   xmax <- ggplot_build(plot)$layout$panel_params[[1]]$x.range[[2]]
@@ -144,14 +181,23 @@ make_plot <- function(links, sequences, painting, add_scale_bar = FALSE, centrom
 
 }
 
+# Read in haplotypes, or set to FALSE
+if (! is.null(args$haplotypes)) {
+  haplotypes <- read.csv(args$haplotypes, sep = "\t", header = TRUE) %>% mutate(bin_id = str_replace_all(bin_id, "_", " "))
+} else {
+  haplotypes <- FALSE
+}
 
-# Make the ribbon plot
 if (! is.null(args$centromeres)) {
   centromeres <- read.csv(args$centromeres, sep = "\t", header = TRUE)
-  synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE, centromeres = centromeres, add_arrow = !args$no_arrow)
 } else {
-  synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE, centromeres = FALSE, add_arrow = !args$no_arrow)
+  centromeres <- FALSE
 }
+
+# Make the ribbon plot
+synteny_plot <- make_plot(links_ntsynt, sequences, painting, add_scale_bar = TRUE, centromeres = centromeres,
+                          add_arrow = !args$no_arrow, haplotypes = haplotypes)
+
 
 if (is.null(args$tree)) {
   # If no tree is provided, just plot the synteny blocks
@@ -159,9 +205,20 @@ if (is.null(args$tree)) {
 } else {
   # Prepare the tree
   ntsynt_tree <- treeio::read.newick(args$tree)
-  ntsynt_tree <- midpoint_root(ntsynt_tree)
-  ntsynt_tree <- rename_taxa(ntsynt_tree, name_conversions)
-  ntsynt_ggtree <- ggtree(ntsynt_tree, branch.length = "none")
+  ntsynt_tree <- phytools::midpoint_root(ntsynt_tree)
+
+  if (!is.null(args$order)) {
+    ntsynt_ggtree <- ggtree(ntsynt_tree, branch.length = "none") # Initial tree to rotate
+    orders <- read.csv(args$order, sep = "\t", header = F)
+    colnames(orders) <- c("label")
+    named_order_vector <- setNames(1:length(orders$label), rev(orders$label))
+    new_tree <- minRotate(as.phylo(ntsynt_ggtree), named_order_vector)
+    new_tree <- rename_taxa(new_tree, name_conversions)
+    ntsynt_ggtree <- ggtree(new_tree, branch.length = "none", ladderize = FALSE)
+  } else {
+    ntsynt_tree <- rename_taxa(ntsynt_tree, name_conversions)
+    ntsynt_ggtree <- ggtree(ntsynt_tree, branch.length = "none")
+  }
 
   # Align the plots properly
   synteny_y_range <- ggplot_build(synteny_plot)$layout$panel_params[[1]]$y.range
