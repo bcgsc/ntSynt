@@ -101,9 +101,11 @@ jobs:
 
   - script: |
       mkdir -p ~/miniforge3
-      curl https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-x86_64.sh  -o ~/miniforge3/miniforge.sh
+      curl -L https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-x86_64.sh  -o ~/miniforge3/miniforge.sh
+      ls ~/miniforge3/
       bash ~/miniforge3/miniforge.sh -b -u -p ~/miniforge3
       rm -rf  ~/miniforge3/miniforge.sh
+      ~/miniforge3/
       ~/miniforge3/bin/conda init bash
       ~/miniforge3/bin/conda init zsh
       export CONDA=$(realpath ~/miniforge3/bin)
