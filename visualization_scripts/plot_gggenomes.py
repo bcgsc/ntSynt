@@ -32,16 +32,22 @@ def main():
     "Run distance estimation and gggenomes for ntSynt results"
     parser = argparse.ArgumentParser(
         description="Generate a ribbon plot to visualize ntSynt synteny blocks")
-    parser.add_argument("--blocks", help="ntSynt synteny blocks TSV", required=True, type=str)
-    parser.add_argument("--fais",
+    required_group = parser.add_argument_group('required arguments')
+    main_formatting_group = parser.add_argument_group('main plot formatting arguments')
+    block_filter_group = parser.add_argument_group('block filtering arguments')
+    output_group = parser.add_argument_group('output arguments')
+    execution_group = parser.add_argument_group('execution arguments')
+
+    required_group.add_argument("--blocks", help="ntSynt synteny blocks TSV", required=True, type=str)
+    required_group.add_argument("--fais",
                         help="FAI files for all input assemblies. Can be a list or a file with one FAI path per line.",
                         nargs="+", required=True, type=str)
-    parser.add_argument("--name_conversion",
+    main_formatting_group.add_argument("--name_conversion",
                         help="TSV for converting names in the blocks TSV (old -> new). "
                         "IMPORTANT: new names cannot have spaces. If you want to have spaces in the final ribbon plot, "
                         "use the special character '_'. All underscores in the new name will be converted to spaces.",
                         required=False, type=str)
-    parser.add_argument("--tree", help="User-input tree file in newick format. "
+    main_formatting_group.add_argument("--tree", help="User-input tree file in newick format. "
                         "If specified, this tree will be plotted next to the output ribbon plot, "
                         "and used for ordering the assemblies. "
                         "The names in the newick file must match the new names if --name_conversion is specified, "
@@ -49,44 +55,44 @@ def main():
                         "If not specified, the synteny blocks will be used to estimate pairwise distances "
                         "for the assembly ordering and associated tree.",
                         required=False, type=str)
-    parser.add_argument("--target-genome", help="Target genome. If specified, "
+    main_formatting_group.add_argument("--target-genome", help="Target genome. If specified, "
                         "this genome will be at the top of the ribbon plot, "
                         "with ribbons coloured based on its chromosomes and "
                         "(if applicable) other chromosomes normalized to it. "
                         "If not specified, the top genome will be arbitrary.", required=False, type=str)
-    parser.add_argument("--normalize", help="Normalize strand of chromosomes relative to the "
+    main_formatting_group.add_argument("--normalize", help="Normalize strand of chromosomes relative to the "
                         "target (top) genome in the ribbon plots",
                         action="store_true")
-    parser.add_argument("--indel", help="Indel size threshold [50000]", default=50000, type=int)
-    parser.add_argument("--length", help="Minimum synteny block length [50000]", default=50000, type=int)
-    parser.add_argument("--centromeres",
+    block_filter_group.add_argument("--indel", help="Indel size threshold [50000]", default=50000, type=int)
+    block_filter_group.add_argument("--length", help="Minimum synteny block length [50000]", default=50000, type=int)
+    main_formatting_group.add_argument("--centromeres",
                         help="TSV file with centromere positions. Must have the headers: bin_id,seq_id,start,end. "\
                             "bin_id must match the new names from --name_conversion or "
                             "the assembly names if --name_conversion is not specified. "\
                             "seq_id is the chromosome name.", required=False, type=str)
-    parser.add_argument("--haplotypes", help="File listing haplotype assembly names: TSV, "
+    main_formatting_group.add_argument("--haplotypes", help="File listing haplotype assembly names: TSV, "
                         "maternal/paternal assemblies separated by tabs.",
                         required=False, type=str)
-    parser.add_argument("--prefix", help="Prefix for output files [ntSynt_distance-est]", required=False, type=str,
+    output_group.add_argument("--prefix", help="Prefix for output files [ntSynt_distance-est]", required=False, type=str,
                         default="ntSynt_distance-est")
-    parser.add_argument("--format", help="Output format of ribbon plot [png]",
+    output_group.add_argument("--format", help="Output format of ribbon plot [png]",
                         required=False, choices=["png", "pdf"], default="png")
-    parser.add_argument("--scale", help="Length of scale bar in bases [1e9]", required=False, type=float,
+    output_group.add_argument("--scale", help="Length of scale bar in bases [1e9]", required=False, type=float,
                         default=1e9)
-    parser.add_argument("--height", help="Height of plot in cm [20]", required=False, type=int, default=20)
-    parser.add_argument("--width", help="Width of plot in cm [50]", required=False, type=int, default=50)
-    parser.add_argument("--no-arrow", help="Only used with --normalize; "
+    output_group.add_argument("--height", help="Height of plot in cm [20]", required=False, type=int, default=20)
+    output_group.add_argument("--width", help="Width of plot in cm [50]", required=False, type=int, default=50)
+    main_formatting_group.add_argument("--no-arrow", help="Only used with --normalize; "
                         "do not draw arrows indicating reverse-complementation",
                         action="store_true")
-    parser.add_argument(
+    output_group.add_argument(
         "--ribbon_adjust",
         help="Ratio for adjusting spacing beside ribbon plot. "
         "Increase if ribbon plot labels are cut off, and decrease to reduce  "
         "the white space to the left of the ribbon plot [0.1]",
         default=0.1, type=float, required=False
     )
-    parser.add_argument("-f", "--force", help="Force a re-run of the entire pipeline", action="store_true")
-    parser.add_argument("-n", help="Dry-run for snakemake pipeline", action="store_true")
+    execution_group.add_argument("-f", "--force", help="Force a re-run of the entire pipeline", action="store_true")
+    execution_group.add_argument("-n", help="Dry-run for snakemake pipeline", action="store_true")
 
     args = parser.parse_args()
 
