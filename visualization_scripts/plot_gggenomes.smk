@@ -26,6 +26,7 @@ no_arrow = config["no_arrow"] if "no_arrow" in config else False
 target_genome = config["target_genome"] if "target_genome" in config else False
 haplotypes = config["haplotypes"] if "haplotypes" in config else []
 keep = " ".join(config["keep"]) if "keep" in config else []
+min_seq_length = config["min_seq_length"] if "min_seq_length" in config else 500000
 
 def sort_fais(fai_list, name_conversion, orders):
     "Based on the name conversion TSV, sort the FAIs based on orders"
@@ -192,9 +193,9 @@ rule gggenomes_files:
                 first_block = line.strip()
                 break
         if name_conversion:
-            shell(f"format_blocks_gggenomes.py --fai {sort_fais(input.fais, name_conversion, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} --name_conversion {name_conversion} {params.oris} {params.keep_seqs}")
+            shell(f"format_blocks_gggenomes.py --fai {sort_fais(input.fais, name_conversion, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --seq-length {min_seq_length} --colour {first_block} --name_conversion {name_conversion} {params.oris} {params.keep_seqs}")
         else:
-            shell(f"format_blocks_gggenomes.py --fai {sort_fais_no_name_conversion(input.fais, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} {params.oris} {params.keep_seqs}")
+            shell(f"format_blocks_gggenomes.py --fai {sort_fais_no_name_conversion(input.fais, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --seq-length {min_seq_length} --colour {first_block} {params.oris} {params.keep_seqs}")
 
 
 rule chrom_sorting:

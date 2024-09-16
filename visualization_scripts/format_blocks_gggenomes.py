@@ -55,7 +55,23 @@ def valid_print_sequence(genome_name, chrom_name, keep):
         return True
     return False
 
-def make_sequence_file(fai_files, prefix, name_conversion_dict=None, orientations=None, keep=None):
+def read_fais(fai_files, name_conversion_dict=None):
+    "Read in the FAI file"
+    fais = defaultdict(dict) # genome_name -> chrom_name -> length
+    for fai_file in fai_files:
+        with open(fai_file, 'r', encoding="utf-8") as fai_in:
+            for line in fai_in:
+                line = line.strip().split('\t')
+                chrom_name, length = line[:2]
+                file_basename = os.path.basename(fai_file)
+                if name_conversion_dict:
+                    genome_name = name_conversion_dict[re.search(re_fai, file_basename).group(1)]
+                else:
+                    genome_name = re.search(re_fai, file_basename).group(1)
+                fais[genome_name][chrom_name] = int(length)
+    return fais
+
+def make_sequence_file(fais, prefix, orientations=None, keep=None):
     "Generate a sequence length TSV from the input FAI files"
     if orientations:
         orientations_dict = read_orientations_file(orientations) # assembly -> chr -> ori
@@ -64,20 +80,12 @@ def make_sequence_file(fai_files, prefix, name_conversion_dict=None, orientation
 
     with open(f"{prefix}.sequence_lengths.tsv", 'w', encoding="utf-8") as fout:
         fout.write("bin_id\tseq_id\tlength\trelative_orientation\n")
-        for fai_file in fai_files:
-            with open(fai_file, 'r', encoding="utf-8") as fai_in:
-                for line in fai_in:
-                    line = line.strip().split('\t')
-                    chrom_name, length = line[:2]
-                    file_basename = os.path.basename(fai_file)
-                    if name_conversion_dict:
-                        genome_name = name_conversion_dict[re.search(re_fai, file_basename).group(1)]
-                    else:
-                        genome_name = re.search(re_fai, file_basename).group(1)
-                    if valid_print_sequence(genome_name, chrom_name, keep):
-                        relative_ori = f"\t{orientations_dict[genome_name][chrom_name]}" \
-                            if orientations_dict and genome_name in orientations_dict else "\t_"
-                        fout.write(f"{genome_name}\t{chrom_name}\t{length}{relative_ori}\n")
+        for genome_name in fais:
+            for chrom_name, length in fais[genome_name].items():
+                if valid_print_sequence(genome_name, chrom_name, keep):
+                    relative_ori = f"\t{orientations_dict[genome_name][chrom_name]}" \
+                        if orientations_dict and genome_name in orientations_dict else "\t_"
+                    fout.write(f"{genome_name}\t{chrom_name}\t{length}{relative_ori}\n")
 
 def make_links_file(synteny_file, prefix, valid_blocks_set, target_assembly):
     "Generate the links TSV from the input synteny blocks file"
@@ -112,9 +120,13 @@ def make_links_file(synteny_file, prefix, valid_blocks_set, target_assembly):
                 for print_line in lines_to_print:
                     fout.write(f"{print_line}\t{target_assembly_chrom}\n")
 
-def is_over_length_threshold(block, length_threshold):
+def is_over_block_length_threshold(block, length_threshold):
     "Return True if the block is longer than the threshold, else False"
     return int(block.end) - int(block.start) > length_threshold
+
+def is_over_seq_length_threshold(block, seq_length_threshold, fais):
+    "Return True if the block is from a sequence longer than the threshold, else False"
+    return fais[block.genome][block.chrom] > seq_length_threshold
 
 def is_keep_block(synteny_block, keep_dict):
     "Return True if the block coordinates are in the keep dictionary or keep is empty, else False"
@@ -124,7 +136,7 @@ def is_keep_block(synteny_block, keep_dict):
         return False
     return True
 
-def find_valid_blocks(block_filename, length_threshold, keep_dict):
+def find_valid_blocks(block_filename, length_threshold, keep_dict, fais, seq_length_threshold):
     "Return set of valid block IDs, where all extents are longer than the threshold and respect the keep lists"
     omit_blocks = set()
     keep_blocks = set()
@@ -133,7 +145,8 @@ def find_valid_blocks(block_filename, length_threshold, keep_dict):
         for line in fin:
             line = line.strip().split("\t")
             curr_block = SyntenyBlock(*line[:6])
-            if not is_over_length_threshold(curr_block, length_threshold):
+            if not is_over_block_length_threshold(curr_block, length_threshold) or \
+                not is_over_seq_length_threshold(curr_block, seq_length_threshold, fais):
                 omit_blocks.add(curr_block.id)
             if is_keep_block(curr_block, keep_dict):
                 keep_blocks.add(curr_block.id)
@@ -172,21 +185,25 @@ def main():
                         required=False, type=str)
     parser.add_argument("--keep", help="assembly:chromosome pairs to keep for ribbon plot output",
                         nargs="+", required=False, type=str)
+    parser.add_argument("-s", "--seq-length", help="Minimum assembly sequence length [500000]",
+                        required=False, type=float, default=500000)
     args = parser.parse_args()
 
     if args.name_conversion:
         name_conversion_dict = read_name_conversions(args.name_conversion)
 
+    fais = read_fais(args.fai, name_conversion_dict if args.name_conversion else None)
+
     keep_blocks = read_assembly_block_pairs(args.keep)
 
-    valid_block_ids, keep_seqs = find_valid_blocks(args.blocks, args.length, keep_blocks)
+    valid_block_ids, keep_seqs = find_valid_blocks(args.blocks, args.length, keep_blocks, fais, args.seq_length)
 
     colour_assembly = args.colour if args.colour else re.search(r'^(\S+).fai$', args.fai[0]).group(1)
 
     if args.name_conversion:
-        make_sequence_file(args.fai, args.prefix, name_conversion_dict, args.orientations, keep=keep_seqs)
+        make_sequence_file(fais, args.prefix, args.orientations, keep=keep_seqs)
     else:
-        make_sequence_file(args.fai, args.prefix, orientations=args.orientations, keep=keep_seqs)
+        make_sequence_file(fais, args.prefix, orientations=args.orientations, keep=keep_seqs)
 
     make_links_file(args.blocks, args.prefix, valid_block_ids, colour_assembly)
 

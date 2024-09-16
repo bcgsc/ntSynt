@@ -65,6 +65,7 @@ def main():
                         action="store_true")
     block_filter_group.add_argument("--indel", help="Indel size threshold [50000]", default=50000, type=int)
     block_filter_group.add_argument("--length", help="Minimum synteny block length [50000]", default=50000, type=int)
+    block_filter_group.add_argument("--seq_length", help="Minimum sequence length [500000]", default=500000, type=float)
     block_filter_group.add_argument("--keep", help="List of assembly_name:chromosome to show in visualization. "
                                     "All chromosomes with links to the specified chromosomes will also be shown.",
                                     nargs="+", required=False, type=str)
@@ -120,7 +121,8 @@ def main():
             f"min_length={args.length} " \
             f"format={args.format} " \
             f"height={args.height} " \
-            f"width={args.width} "
+            f"width={args.width} " \
+            f"min_seq_length={args.seq_length} "
 
     if args.centromeres:
         cmd += f"centromeres={args.centromeres} "
