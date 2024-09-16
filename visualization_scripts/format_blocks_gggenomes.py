@@ -24,6 +24,20 @@ def read_orientations_file(orientations):
             orientations_dict[genome][chrom] = REVERSE_COMP_CHAR if relative_ori == "-" else PLACEHOLDER_CHAR
     return orientations_dict
 
+def read_assembly_block_pairs(block_list):
+    "Read a list of assembly:chromosome pairs, and load into a dictionary"
+    block_dict = {}
+    if not block_list:
+        return block_dict
+
+    for block in block_list:
+        assembly, block = block.strip().split(":")
+        if assembly not in block_dict:
+            block_dict[assembly] = set()
+        block_dict[assembly].add(block)
+
+    return block_dict
+
 def read_name_conversions(name_conversion_fin):
     "Read in the TSV file with name conversions"
     name_conversion_dict = {}
@@ -33,9 +47,16 @@ def read_name_conversions(name_conversion_fin):
             name_conversion_dict[old_name] = new_name
     return name_conversion_dict
 
-def make_sequence_file(fai_files, prefix, name_conversion_dict=None, orientations=None):
-    "Generate a sequence length TSV from the input FAI files"
+def valid_print_sequence(genome_name, chrom_name, keep):
+    "Check if a sequence should be printed"
+    if not keep:
+        return True
+    if keep and genome_name in keep and chrom_name in keep[genome_name]:
+        return True
+    return False
 
+def make_sequence_file(fai_files, prefix, name_conversion_dict=None, orientations=None, keep=None):
+    "Generate a sequence length TSV from the input FAI files"
     if orientations:
         orientations_dict = read_orientations_file(orientations) # assembly -> chr -> ori
     else:
@@ -51,11 +72,11 @@ def make_sequence_file(fai_files, prefix, name_conversion_dict=None, orientation
                     file_basename = os.path.basename(fai_file)
                     if name_conversion_dict:
                         genome_name = name_conversion_dict[re.search(re_fai, file_basename).group(1)]
-                        relative_ori = f"\t{orientations_dict[genome_name][chrom_name]}" if orientations_dict and genome_name in orientations_dict else "\t_"
-                        fout.write(f"{genome_name}\t{chrom_name}\t{length}{relative_ori}\n")
                     else:
                         genome_name = re.search(re_fai, file_basename).group(1)
-                        relative_ori = f"\t{orientations_dict[genome_name][chrom_name]}" if orientations_dict and genome_name in orientations_dict else "\t_"
+                    if valid_print_sequence(genome_name, chrom_name, keep):
+                        relative_ori = f"\t{orientations_dict[genome_name][chrom_name]}" \
+                            if orientations_dict and genome_name in orientations_dict else "\t_"
                         fout.write(f"{genome_name}\t{chrom_name}\t{length}{relative_ori}\n")
 
 def make_links_file(synteny_file, prefix, valid_blocks_set, target_assembly):
@@ -91,18 +112,46 @@ def make_links_file(synteny_file, prefix, valid_blocks_set, target_assembly):
                 for print_line in lines_to_print:
                     fout.write(f"{print_line}\t{target_assembly_chrom}\n")
 
-def find_valid_block_ids(block_filename, length_threshold):
-    "Return set of valid block IDs, where all extents are longer than the threshold"
+def is_over_length_threshold(block, length_threshold):
+    "Return True if the block is longer than the threshold, else False"
+    return int(block.end) - int(block.start) > length_threshold
+
+def is_keep_block(synteny_block, keep_dict):
+    "Return True if the block coordinates are in the keep dictionary or keep is empty, else False"
+    if keep_dict:
+        if synteny_block.genome in keep_dict and synteny_block.chrom in keep_dict[synteny_block.genome]:
+            return True
+        return False
+    return True
+
+def find_valid_blocks(block_filename, length_threshold, keep_dict):
+    "Return set of valid block IDs, where all extents are longer than the threshold and respect the keep lists"
     omit_blocks = set()
+    keep_blocks = set()
     all_blocks = set()
     with open(block_filename, 'r', encoding="utf-8") as fin:
         for line in fin:
             line = line.strip().split("\t")
             curr_block = SyntenyBlock(*line[:6])
-            if int(curr_block.end) - int(curr_block.start) < length_threshold:
+            if not is_over_length_threshold(curr_block, length_threshold):
                 omit_blocks.add(curr_block.id)
-            all_blocks.add(curr_block.id)
-    return all_blocks - omit_blocks
+            if is_keep_block(curr_block, keep_dict):
+                keep_blocks.add(curr_block.id)
+            all_blocks.add(curr_block)
+    keep_blocks = keep_blocks - omit_blocks
+
+    keep_seqs = {}
+    for block in all_blocks:
+        if block.id not in keep_blocks:
+            continue
+        if block.genome not in keep_seqs:
+            keep_seqs[block.genome] = set()
+        keep_seqs[block.genome].add(block.chrom)
+    if not keep_seqs or not keep_blocks:
+        raise ValueError("No valid sequences or links found - check that you are "
+                         "using the correct assembly and chromosome naming in --keep.")
+
+    return keep_blocks, keep_seqs
 
 
 def main():
@@ -113,28 +162,33 @@ def main():
                         required=True, type=str)
     parser.add_argument("-p", "--prefix", help="Prefix for output files [ntsynt_synteny_visuals]",
                         default="ntsynt_synteny_visuals", required=False, type=str)
-    parser.add_argument("-l", "--length", help="Minimum block length (bp) [10000]", required=False, type=int, default=10000)
+    parser.add_argument("-l", "--length", help="Minimum block length (bp) [10000]",
+                        required=False, type=int, default=10000)
     parser.add_argument("--colour", help="Add chromosome of specified assembly to a final column",
                         required=False, type=str)
     parser.add_argument("--name_conversion", help="Specified file with old -> new names in TSV format",
                         required=False, type=str)
     parser.add_argument("--orientations", help="File with relative orientations to target assembly in TSV format",
                         required=False, type=str)
+    parser.add_argument("--keep", help="assembly:chromosome pairs to keep for ribbon plot output",
+                        nargs="+", required=False, type=str)
     args = parser.parse_args()
 
     if args.name_conversion:
         name_conversion_dict = read_name_conversions(args.name_conversion)
 
-    valid_blocks = find_valid_block_ids(args.blocks, args.length)
+    keep_blocks = read_assembly_block_pairs(args.keep)
+
+    valid_block_ids, keep_seqs = find_valid_blocks(args.blocks, args.length, keep_blocks)
 
     colour_assembly = args.colour if args.colour else re.search(r'^(\S+).fai$', args.fai[0]).group(1)
 
     if args.name_conversion:
-            make_sequence_file(args.fai, args.prefix, name_conversion_dict, args.orientations)
+        make_sequence_file(args.fai, args.prefix, name_conversion_dict, args.orientations, keep=keep_seqs)
     else:
-        make_sequence_file(args.fai, args.prefix, orientations=args.orientations)
+        make_sequence_file(args.fai, args.prefix, orientations=args.orientations, keep=keep_seqs)
 
-    make_links_file(args.blocks, args.prefix, valid_blocks, colour_assembly)
+    make_links_file(args.blocks, args.prefix, valid_block_ids, colour_assembly)
 
 if __name__ == "__main__":
     main()

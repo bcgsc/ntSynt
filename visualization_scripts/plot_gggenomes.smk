@@ -25,6 +25,7 @@ plot_width = config["width"] if "width" in config else 50
 no_arrow = config["no_arrow"] if "no_arrow" in config else False
 target_genome = config["target_genome"] if "target_genome" in config else False
 haplotypes = config["haplotypes"] if "haplotypes" in config else []
+keep = " ".join(config["keep"]) if "keep" in config else []
 
 def sort_fais(fai_list, name_conversion, orders):
     "Based on the name conversion TSV, sort the FAIs based on orders"
@@ -182,7 +183,8 @@ rule gggenomes_files:
         sequences = f"{prefix}.sequence_lengths.tsv"
     params:
         prefix = prefix,
-        oris = f"--orientations {blocks_no_suffix}.renamed.sorted.chrom-orientations.tsv" if normalize else ""
+        oris = f"--orientations {blocks_no_suffix}.renamed.sorted.chrom-orientations.tsv" if normalize else "",
+        keep_seqs = f"--keep {keep}" if keep else ""
     run:
         first_block = None
         with open(input.orders, 'r') as fin:
@@ -190,9 +192,9 @@ rule gggenomes_files:
                 first_block = line.strip()
                 break
         if name_conversion:
-            shell(f"format_blocks_gggenomes.py --fai {sort_fais(input.fais, name_conversion, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} --name_conversion {name_conversion} {params.oris}")
+            shell(f"format_blocks_gggenomes.py --fai {sort_fais(input.fais, name_conversion, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} --name_conversion {name_conversion} {params.oris} {params.keep_seqs}")
         else:
-            shell(f"format_blocks_gggenomes.py --fai {sort_fais_no_name_conversion(input.fais, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} {params.oris}")
+            shell(f"format_blocks_gggenomes.py --fai {sort_fais_no_name_conversion(input.fais, input.orders)} --prefix {params.prefix} --blocks {input.blocks} --length {min_len} --colour {first_block} {params.oris} {params.keep_seqs}")
 
 
 rule chrom_sorting:

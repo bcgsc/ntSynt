@@ -65,6 +65,9 @@ def main():
                         action="store_true")
     block_filter_group.add_argument("--indel", help="Indel size threshold [50000]", default=50000, type=int)
     block_filter_group.add_argument("--length", help="Minimum synteny block length [50000]", default=50000, type=int)
+    block_filter_group.add_argument("--keep", help="List of assembly_name:chromosome to show in visualization. "
+                                    "All chromosomes with links to the specified chromosomes will also be shown.",
+                                    nargs="+", required=False, type=str)
     main_formatting_group.add_argument("--centromeres",
                         help="TSV file with centromere positions. Must have the headers: bin_id,seq_id,start,end. "\
                             "bin_id must match the new names from --name_conversion or "
@@ -73,8 +76,8 @@ def main():
     main_formatting_group.add_argument("--haplotypes", help="File listing haplotype assembly names: TSV, "
                         "maternal/paternal assemblies separated by tabs.",
                         required=False, type=str)
-    output_group.add_argument("--prefix", help="Prefix for output files [ntSynt_distance-est]", required=False, type=str,
-                        default="ntSynt_distance-est")
+    output_group.add_argument("--prefix", help="Prefix for output files [ntSynt_ribbon-plot]", required=False, type=str,
+                        default="ntSynt_ribbon-plot")
     output_group.add_argument("--format", help="Output format of ribbon plot [png]",
                         required=False, choices=["png", "pdf"], default="png")
     output_group.add_argument("--scale", help="Length of scale bar in bases [1e9]", required=False, type=float,
@@ -129,6 +132,8 @@ def main():
         cmd += f"target_genome={args.target_genome} "
     if args.haplotypes:
         cmd += f"haplotypes={args.haplotypes} "
+    if args.keep:
+        cmd += f"keep=\"{args.keep}\" "
     if args.tree:
         cmd += f"tree={args.tree} "
         target = "gggenomes_ribbon_plot_tree"

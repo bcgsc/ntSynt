@@ -6,7 +6,7 @@ The normalization will be based on the first listed assembly
 import argparse
 import os
 from collections import namedtuple
-from format_blocks_gggenomes import find_valid_block_ids, read_name_conversions
+from format_blocks_gggenomes import read_name_conversions
 
 SyntenyBlock = namedtuple("SyntenyBlock", ["id", "genome", "chrom", "start", "end", "strand", "num_mx", "reason"])
 
@@ -23,6 +23,19 @@ def read_fais(fais, name_convert=False):
                 chrom, length = line.strip().split("\t")[:2]
                 fai_dict[base_fa][chrom] = int(length)
     return fai_dict
+
+def find_valid_block_ids(block_filename, length_threshold):
+    "Return set of valid block IDs, where all extents are longer than the threshold"
+    omit_blocks = set()
+    all_blocks = set()
+    with open(block_filename, 'r', encoding="utf-8") as fin:
+        for line in fin:
+            line = line.strip().split("\t")
+            curr_block = SyntenyBlock(*line[:8])
+            if int(curr_block.end) - int(curr_block.start) < length_threshold:
+                omit_blocks.add(curr_block.id)
+            all_blocks.add(curr_block.id)
+    return all_blocks - omit_blocks
 
 
 def tally_orientations(blocks_list, ori_dict):
