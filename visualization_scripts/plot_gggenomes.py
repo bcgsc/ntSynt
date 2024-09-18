@@ -64,7 +64,7 @@ def main():
                         "target (top) genome in the ribbon plots",
                         action="store_true")
     block_filter_group.add_argument("--indel", help="Indel size threshold [50000]", default=50000, type=int)
-    block_filter_group.add_argument("--length", help="Minimum synteny block length [50000]", default=50000, type=int)
+    block_filter_group.add_argument("--length", help="Minimum synteny block length [100000]", default=100000, type=int)
     block_filter_group.add_argument("--seq_length", help="Minimum sequence length [500000]", default=500000, type=float)
     block_filter_group.add_argument("--keep", help="List of assembly_name:chromosome to show in visualization. "
                                     "All chromosomes with links to the specified chromosomes will also be shown.",
