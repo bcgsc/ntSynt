@@ -9,6 +9,7 @@ max-public-methods=50
 max-statements = 70 
 max-module-lines = 1500
 max-bool-expr = 7
+max-positional-arguments = 6
  
 [MISCELLANEOUS]
 
