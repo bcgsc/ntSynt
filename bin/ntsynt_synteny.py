@@ -191,7 +191,8 @@ class NtSyntSynteny(ntjoin.Ntjoin):
                 self.delete_w_iteration_files(indexlr_filename, assembly_masked, f"{assembly_masked}.tmp")
         return list_mxs, new_list_mxs_info
 
-    def update_intervals(self, assembly_name, ctg, mx1, mx2, intervals):
+    @staticmethod
+    def update_intervals(assembly_name, ctg, mx1, mx2, intervals):
         "Update the given dictionary of trees with the new extent"
         start_pos = min(mx1.position, mx2.position)
         end_pos = max(mx1.position, mx2.position)
