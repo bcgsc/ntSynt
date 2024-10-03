@@ -25,12 +25,12 @@ Multi-genome synteny detection using a dynamic minimizer graph approach.
 ntSynt can take multiple genomes as input, and will compute synteny blocks that are in common with each of these input assemblies. ntSynt builds on the ntJoin codebase.
 
 **Main steps in the algorithm:**
-1. Generate ordered minimizer sketches for each of the input assemblies
+1. Generate ordered minimizer sketches for each of the input genome assemblies
     * By default, the minimizer sketches will be generated using a "common" Bloom filter, which contains all the k-mers that are in common between each assembly
     * Only minimizers from k-mers that are found in this common Bloom filter will be included in the output sketch
 2. Filter the minimizers to retain only those that are found in all input assemblies and found in single copy in each assembly
 3. Build an initial minimizer graph, where the nodes are minimizers and there are edges between adjacent minimizers
-4. By default, run graph simplification to remove simple tangles in the graph
+4. Run graph simplification to remove simple tangles in the graph
 5. Find linear paths through the graph, and compute the initial synteny blocks
 6. Compute minimizer sketches for regions not covered by the initial synteny blocks using a lower window size, and augment the minimizer graph
 7. Repeat the graph simplification and filtering steps, and output refined synteny blocks. Repeat steps 6-7 for each desired lower window size.
@@ -152,7 +152,7 @@ The columns of this output synteny blocks TSV:
 8. Reason for discontinuity with previous synteny block
 
 ### Basic assessment of synteny blocks
-For a basic summary of the statistics of the computed synteny blocks, you can run use the script `denovo_synteny_block_stats.py` found in `analysis_scripts`:
+For a basic statistical summary of the computed synteny blocks, you can use the script `denovo_synteny_block_stats.py` found in `analysis_scripts`:
 ```
 python3 denovo_synteny_block_stats.py -h
 usage: denovo_synteny_block_stats.py [-h] --tsv TSV --fai FAI [FAI ...]
