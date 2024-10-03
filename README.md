@@ -22,7 +22,7 @@ Multi-genome synteny detection using a dynamic minimizer graph approach.
 
 ## Description of the algorithm
 
-ntSynt can take multiple genome sequences as input, and will compute synteny blocks that are in common with each of these input assemblies. ntSynt builds on the ntJoin codebase.
+ntSynt can take multiple genomes as input, and will compute synteny blocks that are in common with each of these input assemblies. ntSynt builds on the ntJoin codebase.
 
 **Main steps in the algorithm:**
 1. Generate ordered minimizer sketches for each of the input assemblies
