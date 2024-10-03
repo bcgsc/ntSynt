@@ -6,7 +6,7 @@
 
 # ntSynt
 
-Multi-genome synteny using a dynamic minimizer graph approach.
+Multi-genome synteny detection using a dynamic minimizer graph approach.
 
 ## Contents
 1. [Description of the algorithm](#description-of-the-algorithm)
