@@ -8,10 +8,10 @@ onsuccess:
 
 # Read in parameters
 references = config["references"] if "references" in config else "Must specify 'references'"
-k = config["k"] if "k" in config else 24
-w = config["w"] if "w" in config else 1000
+k = config["kmer"] if "kmer" in config else 24
+w = config["window"] if "window" in config else 1000
 fpr = config["fpr"] if "fpr" in config else 0.025
-max_threads = config["t"] if "t" in config else 4
+max_threads = config["threads"] if "threads" in config else 4
 prefix = config["prefix"] if "prefix" in config else "ntSynt_out"
 common = config["common"] if "common" in config else True
 repeat = config["repeat"] if "repeat" in config else False
