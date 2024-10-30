@@ -53,6 +53,8 @@ def get_difference_between_blocks(blocki, blockj):
 
 def asm_blocks_consistent(block_i1, block_i2, block_j1, block_j2, indel_threshold):
     "Check if the two blocks from the assemblies are consistent"
+    if (block_i1.id != block_j1.id) or (block_i2.id != block_j2.id):
+        return False
     asm1_transition = block_i1.strand == block_j1.strand
     asm2_transition = block_i2.strand == block_j2.strand
     if asm1_transition != asm2_transition:
