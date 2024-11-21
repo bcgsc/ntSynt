@@ -1,42 +1,12 @@
-# Example visualization scripts for ntSynt
-
-Here, we provide basic examples scripts for generating ribbon plots and chromosome sequence painting plots to visualize synteny blocks computed by ntSynt. Each R script script can be seen as a starting point, and can be customized as needed. 
+# Visualizing ntSynt synteny blocks
 
 ## Ribbon plots
-The R package gggenomes (https://thackl.github.io/gggenomes/) is used to generate ribbon plots to visualize multi-genome synteny blocks.
+Check out our companion tool [ntSynt-viz](https://github.com/bcgsc/ntsynt-viz) to generate informative and customizable chromosome painting ribbon plots from the ntSynt synteny blocks output.
 
-### Steps:
-1. Format the ntSynt synteny blocks for the ribbon plots R script using the provided script. Before running `format_blocks_gggenomes.sh`, add the `visualization_scripts` directory to your PATH.
-```
-Usage: format_blocks_gggenomes.sh <synteny blocks TSV> <prefix> <length threshold> <assembly to use for colour> <FAI> <FAI> [FAI..]
-```
-The order of assembly FAI files will dictate the order of the genomes in the ribbon plots.
-This script will generate two TSV files: `{prefix}.links.tsv`  `{prefix}.sequence_lengths.tsv`
-
-2. Run the R script
-* Required R packages: argparse, gggenomes, gtools, scales
-```
-usage: plot_synteny_blocks_gggenomes.R [-h] -s SEQUENCES -l LINKS [--scale SCALE] [-p PREFIX]
-
-Plot the ntSynt synteny blocks using gggenomes
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -s SEQUENCES, --sequences SEQUENCES
-                        Input sequence lengths TSV
-  -l LINKS, --links LINKS
-                        Synteny block links
-  --scale SCALE         Length of scale bar in bases (default 1 Gbp)
-  -p PREFIX, --prefix PREFIX
-                        Output prefix for PNG image (default
-                        synteny_gggenomes_plot)
-```
-Example:
-![Example_gggenomes](https://github.com/bcgsc/ntSynt/blob/main/visualization_scripts/example_gggenomes.png)
-
-* These plots are highly customizable, so edit/adapt the script as needed!
+![Example_ribbon_plot](https://github.com/bcgsc/ntSynt-viz/blob/main/tests/great-apes_ribbon-plots.example1.png)
 
 ## Chromosome sequence painting plots
+We highly recommend using [ntSynt-viz](https://github.com/bcgsc/ntsynt-viz), which integrates chromosome painting with ribbon plots for a comprehensive visualization. These scripts are kept here for posterity, but would require considerable customization by the user, while ntSynt-viz is powered by a simple command-line command.
 ggplot2 is used to generate chromosome painting plots to visualize the multi-genome synteny blocks. Here, the synteny blocks for the other species are compared to a selected 'target' species. The segments based on the coordinate system of the 'target' species are coloured based on the chromosome of the other species. In addition, the relative orientation between the 'target' species and the other species is indicated by nudging the boxes up (forward) or down (reverse).
 
 ### Steps:

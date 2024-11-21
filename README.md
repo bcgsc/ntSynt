@@ -16,7 +16,7 @@ Multi-genome synteny detection using a dynamic minimizer graph approach.
 5. [Installation instructions](#installation)
 6. [Example](#example-command)
 7. [Output files](#output-files)
-8. [Assessment](#basic-assessment-of-synteny-blocks)
+8. [Assessment](#assessment-of-synteny-blocks)
 9. [Tips](#tips)
 10. [License](#license)
 
@@ -151,7 +151,7 @@ The columns of this output synteny blocks TSV:
 7. Number of mapped minimizers in this synteny block
 8. Reason for discontinuity with previous synteny block
 
-### Basic assessment of synteny blocks
+### Assessment of synteny blocks
 For a basic statistical summary of the computed synteny blocks, you can use the script `denovo_synteny_block_stats.py` found in `analysis_scripts`:
 ```
 python3 denovo_synteny_block_stats.py -h
@@ -165,6 +165,9 @@ optional arguments:
   --fai FAI [FAI ...]  FAI files for the compared genomes
 ```
 More information can be found on our [wiki page](https://github.com/bcgsc/ntSynt/wiki/de-novo-statistics-summary)
+
+To generate information-rich and user-friendly visualization of ntSynt synteny blocks, see [ntSynt-viz](https://github.com/bcgsc/ntsynt-viz)
+![Example_ribbon_plot](https://github.com/bcgsc/ntSynt/blob/main/great-apes_ribbon-plots.example1.png)
 
 ### Tips
 - To lower the peak memory usage, increase the false positive rate (--fpr) for the constructed Bloom filter
