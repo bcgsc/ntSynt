@@ -6,7 +6,7 @@ Check out our companion tool [ntSynt-viz](https://github.com/bcgsc/ntsynt-viz) t
 ![Example_ribbon_plot](https://github.com/bcgsc/ntSynt-viz/blob/main/tests/great-apes_ribbon-plots.example1.png)
 
 ## Chromosome sequence painting plots
-We highly recommend using [ntSynt-viz](https://github.com/bcgsc/ntsynt-viz), which integrates chromosome painting with ribbon plots for a comprehensive visualization. These scripts are kept here for posterity, but would require considerable customization by the user, while ntSynt-viz is powered by a simple command-line command.
+We highly recommend using [ntSynt-viz](https://github.com/bcgsc/ntsynt-viz), which integrates chromosome painting with ribbon plots for a comprehensive visualization. The chromosome painting script is kept here for posterity, but would require considerable customization by the user, while ntSynt-viz is powered by a simple command-line command.
 ggplot2 is used to generate chromosome painting plots to visualize the multi-genome synteny blocks. Here, the synteny blocks for the other species are compared to a selected 'target' species. The segments based on the coordinate system of the 'target' species are coloured based on the chromosome of the other species. In addition, the relative orientation between the 'target' species and the other species is indicated by nudging the boxes up (forward) or down (reverse).
 
 ### Steps:
@@ -47,4 +47,4 @@ optional arguments:
 * These plots can also be customized as needed (plot size, scale, comparing additional tools, etc.)
 
 Example:
-![Example_gggenomes](https://github.com/bcgsc/ntSynt/blob/main/visualization_scripts/example_chromosome-painting.png)
+![Example_chromosome_painting](https://github.com/bcgsc/ntSynt/blob/main/visualization_scripts/example_chromosome-painting.png)
