@@ -3,7 +3,7 @@
 ## Ribbon plots
 Check out our companion tool [ntSynt-viz](https://github.com/bcgsc/ntsynt-viz) to generate informative and customizable chromosome painting ribbon plots from the ntSynt synteny blocks output.
 
-![Example_ribbon_plot](https://github.com/bcgsc/ntSynt-viz/blob/main/tests/great-apes_ribbon-plots.example1.png)
+![Example_ribbon_plot](https://github.com/bcgsc/ntSynt/blob/main/visualization_scripts/great-apes_ribbon-plots.example1.png)
 
 ## Chromosome sequence painting plots
 We highly recommend using [ntSynt-viz](https://github.com/bcgsc/ntsynt-viz), which integrates chromosome painting with ribbon plots for a comprehensive visualization. The chromosome painting script is kept here for posterity, but would require considerable customization by the user, while ntSynt-viz is powered by a simple command-line command.
