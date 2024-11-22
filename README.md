@@ -166,7 +166,7 @@ optional arguments:
 ```
 More information can be found on our [wiki page](https://github.com/bcgsc/ntSynt/wiki/de-novo-statistics-summary)
 
-To generate information-rich and user-friendly visualization of ntSynt synteny blocks, see [ntSynt-viz](https://github.com/bcgsc/ntsynt-viz)
+**To generate information-rich and user-friendly visualization of ntSynt synteny blocks, see [ntSynt-viz](https://github.com/bcgsc/ntsynt-viz)**
 ![Example_ribbon_plot](https://github.com/bcgsc/ntSynt/blob/main/visualization_scripts/great-apes_ribbon-plots.example1.png)
 
 ### Tips
