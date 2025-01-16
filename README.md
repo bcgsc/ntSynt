@@ -17,7 +17,7 @@ Multi-genome synteny detection using a dynamic minimizer graph approach.
 6. [Example](#example-command)
 7. [Output files](#output-files)
 8. [Assessment](#basic-assessment-of-synteny-blocks)
-9. [Tips](#tips)
+9. [Tips / Visualization](#tips)
 10. [License](#license)
 
 ## Description of the algorithm
@@ -166,14 +166,15 @@ optional arguments:
 ```
 More information can be found on our [wiki page](https://github.com/bcgsc/ntSynt/wiki/de-novo-statistics-summary)
 
-### Tips
+### Tips / Visualization
 - To lower the peak memory usage, increase the false positive rate (--fpr) for the constructed Bloom filter
 - Customize parameters such as --merge, --indel, --block_size and --w_rounds for your particular input data and research questions
-- For example scripts for visualizing the output synteny blocks, see the sub-directory [visualization_scripts](https://github.com/bcgsc/ntSynt/tree/main/visualization_scripts)
+- For visualizing the multi-genome output synteny blocks, please refer to 1) [ntSynt-viz](https://github.com/bcgsc/ntSynt-viz) and/or 2)the sub-directory [visualization_scripts](https://github.com/bcgsc/ntSynt/tree/main/visualization_scripts)
 - If you do not know the approximate sequence divergence between the input assemblies, we recommend using [Mash](https://github.com/marbl/Mash) to estimate the divergences
 
+
 ## License
-ntSynt Copyright (c) 2023 British Columbia Cancer Agency Branch. All rights reserved.
+ntSynt Copyright (c) 2023-present British Columbia Cancer Agency Branch. All rights reserved.
 
 ntSynt is released under the GNU General Public License v3
 
