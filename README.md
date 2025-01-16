@@ -166,7 +166,7 @@ optional arguments:
 ```
 More information can be found on our [wiki page](https://github.com/bcgsc/ntSynt/wiki/de-novo-statistics-summary)
 
-### Tips / Visualization
+### Tips / Visualization <a name=tips></a>
 - To lower the peak memory usage, increase the false positive rate (--fpr) for the constructed Bloom filter
 - Customize parameters such as --merge, --indel, --block_size and --w_rounds for your particular input data and research questions
 - For visualizing the multi-genome output synteny blocks, please refer to 1) [ntSynt-viz](https://github.com/bcgsc/ntSynt-viz) and/or 2)the sub-directory [visualization_scripts](https://github.com/bcgsc/ntSynt/tree/main/visualization_scripts)
