@@ -25,6 +25,9 @@ jobs:
       echo "##vso[task.prependpath]$CONDA"
     displayName: Install conda
 
+  - script: conda create --yes --quiet --name ntsynt_ci
+    displayName: Create Anaconda environment
+
   - script: |
       source activate ntsynt_ci
       mamba install --yes -c bioconda -c conda-forge python=3.12
