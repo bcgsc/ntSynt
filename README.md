@@ -6,10 +6,10 @@
 
 # ntSynt
 
-Multi-genome synteny detection using a dynamic minimizer graph approach.
+Multi-genome macrosynteny detection using a dynamic minimizer graph approach.
 
 ## Contents
-1. [Description of the algorithm](#description-of-the-algorithm)
+1. [Description of ntSynt](#description-of-ntsynt)
 2. [Credits](#credits)
 3. [Citing ntSynt](#citing-ntsynt)
 4. [Usage](#usage)
@@ -20,22 +20,11 @@ Multi-genome synteny detection using a dynamic minimizer graph approach.
 9. [Tips / Visualization](#tips)
 10. [License](#license)
 
-## Description of the algorithm
+## Description of ntSynt
 
-ntSynt can take multiple genomes as input, and will compute synteny blocks that are in common with each of these input assemblies. ntSynt builds on the [ntJoin](https://github.com/bcgsc/ntJoin) codebase.
+ntSynt takes multiple genomes as input, and will compute synteny blocks that are in common with each of these input assemblies. These macrosyntenic blocks can enable a wide variety of comparative genomics studies between multiple genomes of varying divergences. ntSynt builds on the [ntJoin](https://github.com/bcgsc/ntJoin) codebase.
 
-**Main steps in the algorithm:**
-1. Generate ordered minimizer sketches for each of the input genome assemblies
-    * By default, the minimizer sketches will be generated using a "common" Bloom filter, which contains all the k-mers that are in common between each assembly
-    * Only minimizers from k-mers that are found in this common Bloom filter will be included in the output sketch
-2. Filter the minimizers to retain only those that are found in all input assemblies and found in single copy in each assembly
-3. Build an initial minimizer graph, where the nodes are minimizers and there are edges between adjacent minimizers
-4. Run graph simplification to remove simple tangles in the graph
-5. Find linear paths through the graph, and compute the initial synteny blocks
-6. Compute minimizer sketches for regions not covered by the initial synteny blocks using a lower window size, and augment the minimizer graph
-7. Repeat the graph simplification and filtering steps, and output refined synteny blocks. Repeat steps 6-7 for each desired lower window size.
-8. Merge collinear synteny blocks within the specified range
-9. Output the final synteny blocks
+For more technical information about the various steps in ntSynt, see our [wiki page](https://github.com/bcgsc/ntSynt/wiki/Description-of-the-ntSynt-algorithm).
 
 ## Credits
 
