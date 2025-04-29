@@ -86,7 +86,7 @@ Given the approximate maximum divergence between the supplied genomes, ntSynt wi
 
 Any of these parameters can be overridden by specifying them in your command. While these settings work generally well for the associated divergence range, we highly recommend customizing them for your particular requirements.
 
-If not already known, we suggest using [Mash](https://github.com/marbl/Mash) to approximate the divergence, or mutation rate, among your compared genomes. Here are some example pairwise divergences as determined using Mash and reference genomes:
+If not already known, we suggest using [Mash](https://github.com/marbl/Mash) to approximate the divergences, or mutation rates, between your compared genomes. Here are some example pairwise divergences as determined using Mash and reference genomes:
 |Genomes|Approximate Mash sequence divergence (%)|
 |---|---|
 |human and chimpanzee|1.3|
@@ -151,7 +151,7 @@ The columns of this output synteny blocks TSV:
 
 ### Example benchmarks
 
-|Synteny comparison|Number of genomes|Max. genome size (Gbp)|Wall clock time (min)|Memory usage (GB)|
+|Synteny comparison|Number of genomes|Max. genome size (Gbp)|Wall clock time (min)|Peak memory usage (GB)|
 |-----|-----|-----|-----|-----|
 |Human genomes (0.1% simulated divergence)|2|3|26|34|
 |Great ape genomes|4|3|48|32|
