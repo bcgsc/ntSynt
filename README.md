@@ -16,9 +16,10 @@ Multi-genome macrosynteny detection using a dynamic minimizer graph approach.
 5. [Installation instructions](#installation)
 6. [Example](#example-command)
 7. [Output files](#output-files)
-8. [Assessment](#basic-assessment-of-synteny-blocks)
-9. [Tips / Visualization](#tips)
-10. [License](#license)
+8. [Example benchmarks](#example-benchmarks)
+9. [Assessment](#basic-assessment-of-synteny-blocks)
+10. [Tips / Visualization](#tips)
+11. [License](#license)
 
 ## Description of ntSynt
 
@@ -85,6 +86,14 @@ Given the approximate maximum divergence between the supplied genomes, ntSynt wi
 
 Any of these parameters can be overridden by specifying them in your command. While these settings work generally well for the associated divergence range, we highly recommend customizing them for your particular requirements.
 
+If not already known, we suggest using [Mash](https://github.com/marbl/Mash) to approximate the divergences, or mutation rates, between your compared genomes. Here are some example pairwise divergences as determined using Mash and reference genomes:
+|Genomes|Approximate Mash sequence divergence (%)|
+|---|---|
+|human and chimpanzee|1.3|
+|human and bonobo|1.3|
+|chimapanzee and bonobo|0.5|
+|mouse and rat|12|
+
 ## Installation
 
 ### Installing via conda
@@ -139,6 +148,14 @@ The columns of this output synteny blocks TSV:
 6. Chromosome/contig strand
 7. Number of mapped minimizers in this synteny block
 8. Reason for discontinuity with previous synteny block
+
+### Example benchmarks
+
+|Synteny comparison|Number of genomes|Max. genome size (Gbp)|Wall clock time (min)|Peak memory usage (GB)|
+|-----|-----|-----|-----|-----|
+|Human genomes (0.1% simulated divergence)|2|3|26|34|
+|Great ape genomes|4|3|48|32|
+|Bee genomes|11|0.44|15|4|
 
 ### Basic assessment of synteny blocks
 For a basic statistical summary of the computed synteny blocks, you can use the script `denovo_synteny_block_stats.py` found in `analysis_scripts`:
