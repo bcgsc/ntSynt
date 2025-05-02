@@ -3,8 +3,8 @@ import shutil
 import sys
 import os
 
-onsuccess:
-    shutil.rmtree(".snakemake", ignore_errors=True)
+# onsuccess:
+#     shutil.rmtree(".snakemake", ignore_errors=True)
 
 # Read in parameters
 references = config["references"] if "references" in config else "Must specify 'references'"
