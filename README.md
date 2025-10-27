@@ -57,7 +57,7 @@ optional arguments:
   -d DIVERGENCE, --divergence DIVERGENCE
                         Approx. maximum percent sequence divergence between input genomes (Ex. -d 1 for 1% divergence).
                         This will be used to set --indel, --merge, --w_rounds, --block_size
-                        See below for set values - You can also set any of those parameters yourself, which will override these settings.
+                        See below for default values - You can also set any of those parameters yourself, which will override these settings.
   -p PREFIX, --prefix PREFIX
                         Prefix for ntSynt output files [ntSynt.k<k>.w<w>]
   -k K                  Minimizer k-mer size [24]
