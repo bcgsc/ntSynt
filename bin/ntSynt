@@ -50,7 +50,7 @@ def main():
                         help="Approx. maximum percent sequence divergence between input genomes"\
                             " (Ex. -d 1 for 1%% divergence).\n"\
                             "This will be used to set --indel, --merge, --w_rounds, --block_size\n"\
-                            "See below for set values - You can also set any of those parameters yourself, which will override these settings.",
+                            "See below for default values - You can also set any of those parameters yourself, which will override these settings.",
                         required=True, type=float)
     parser.add_argument("-p", "--prefix", help="Prefix for ntSynt output files [ntSynt.k<k>.w<w>]",
                         required=False)
