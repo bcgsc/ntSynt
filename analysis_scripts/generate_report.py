@@ -39,9 +39,9 @@ def format_genome_size(bp):
     """Format the genome size, and return the most appropriate units"""
     if bp >= 1_000_000_000:
         return f"{bp / 1_000_000_000:.1f}", "Gbp", 1_000_000_000
-    elif bp >= 1_000_000:
+    if bp >= 1_000_000:
         return f"{bp / 1_000_000:.1f}", "Mbp", 1_000_000
-    elif bp >= 1_000:
+    if bp >= 1_000:
         return f"{bp / 1_000:.1f}", "kbp", 1_000
     return str(bp), "bp", 1
 
@@ -56,7 +56,7 @@ def tsv_to_html_table(path: str, table_id: str = "", rename: dict = None) -> str
     """
     rename = rename or {}
     rows = []
-    with open(path, newline="") as fh:
+    with open(path, newline="", encoding="utf-8") as fh:
         reader = csv.reader(fh, delimiter="\t", encoding="utf-8")
         for row in reader:
             rows.append(row)
