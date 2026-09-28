@@ -94,7 +94,8 @@ def parse_args() -> argparse.Namespace:
     opt.add_argument("--keep-incomplete", required=False, action="store_true",
                      help=(
                         "When --accessions is specified, by default the pipeline will skip analyzing any accessions "
-                        "which appear incomplete (ie. there are unlocalized-scaffold entries with no assembled-molecule counterpart). "
+                        "which appear incomplete (ie. there are unlocalized-scaffold entries with no "
+                        "assembled-molecule counterpart). "
                         "Use this option to still use these assemblies in the downstream analysis."
                     ))
 
@@ -135,9 +136,11 @@ def parse_args() -> argparse.Namespace:
                     "Only use with strictly bifurcating trees.")
     opt.add_argument("--haplotypes", type=str, default=None, metavar="haplotypes.tsv",
                     help="Optional TSV file listing haplotype information for each genome. If --genomes "
-                    "is used, each row should be the two NEW assembly names (based on name conversion), separated by a tab. If --accessions is used, "
-                    "each row should be the two accessions, separated by a tab. This will be used to nudge genomes that are haplotypes together")
-    
+                    "is used, each row should be the two NEW assembly names (based on name conversion), "
+                    "separated by a tab. If --accessions is used, "
+                    "each row should be the two accessions, separated by a tab. "
+                    "This will be used to nudge genomes that are haplotypes together")
+
     # ------------------------------------------------------------------
     # Snakemake execution options
     # ------------------------------------------------------------------
@@ -267,7 +270,7 @@ def build_snakemake_cmd(args: argparse.Namespace, config: dict) -> list[str]:
         cmd += ["--until", rule]
 
     cmd += args.snakemake_args
-    
+
     return cmd
 
 def validate_options(args, parser):

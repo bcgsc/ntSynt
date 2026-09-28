@@ -18,6 +18,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+try:
+    from weasyprint import CSS, HTML
+    from weasyprint.text.fonts import FontConfiguration
+except ImportError:
+    CSS = HTML = FontConfiguration = None
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -37,8 +43,7 @@ def format_genome_size(bp):
         return f"{bp / 1_000_000:.1f}", "Mbp", 1_000_000
     elif bp >= 1_000:
         return f"{bp / 1_000:.1f}", "kbp", 1_000
-    else:
-        return str(bp), "bp", 1
+    return str(bp), "bp", 1
 
 
 def tsv_to_html_table(path: str, table_id: str = "", rename: dict = None) -> str:
@@ -52,7 +57,7 @@ def tsv_to_html_table(path: str, table_id: str = "", rename: dict = None) -> str
     rename = rename or {}
     rows = []
     with open(path, newline="") as fh:
-        reader = csv.reader(fh, delimiter="\t")
+        reader = csv.reader(fh, delimiter="\t", encoding="utf-8")
         for row in reader:
             rows.append(row)
 
@@ -82,6 +87,7 @@ def tsv_to_html_table(path: str, table_id: str = "", rename: dict = None) -> str
 
 
 def section(title: str, content: str, section_id: str = "") -> str:
+    """Prepare an HTML section"""
     id_attr = f' id="{section_id}"' if section_id else ""
     return f"""
     <section{id_attr} class="report-section">
@@ -420,6 +426,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 # ---------------------------------------------------------------------------
 
 def build_report(args: argparse.Namespace) -> str:
+    """Build ntSynt report"""
     group_display = args.group.replace("_", " ").capitalize()
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -427,7 +434,7 @@ def build_report(args: argparse.Namespace) -> str:
 
     # 1. Assembly stats (abyss-fac)
     if args.abyss_fac and os.path.exists(args.abyss_fac):
-        with open(args.abyss_fac, newline="") as fh:
+        with open(args.abyss_fac, newline="", encoding="utf-8") as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             row = next(reader)  # single summary row
 
@@ -463,14 +470,14 @@ def build_report(args: argparse.Namespace) -> str:
 
     # 2. Synteny block stats
     if args.block_stats and os.path.exists(args.block_stats):
-        BLOCK_STATS_COLUMNS = {
+        block_stats_column = {
             "Number_blocks":            "Number of blocks",
             "Average_coverage":         "Average synteny coverage (%)",
             "Coverage_min_genome_size": "Synteny coverage of smallest genome (%)",
             "N50_length":               "N50 length of synteny blocks (bp)",
         }
 
-        with open(args.block_stats, newline="") as fh:
+        with open(args.block_stats, newline="", encoding="utf-8") as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             row = next(reader)  # single summary row
 
@@ -479,7 +486,7 @@ def build_report(args: argparse.Namespace) -> str:
             "<thead><tr><th>Statistic</th><th>Value</th></tr></thead>",
             "<tbody>",
         ]
-        for col, label in BLOCK_STATS_COLUMNS.items():
+        for col, label in block_stats_column.items():
             raw = row.get(col, "N/A")
             try:
                 value = f"{float(raw):,.2f}" if "." in raw else f"{int(raw):,}"
@@ -500,7 +507,7 @@ def build_report(args: argparse.Namespace) -> str:
 
     # 3. Discontinuity reasons
     if args.discontinuity and os.path.exists(args.discontinuity):
-        with open(args.discontinuity, newline="") as fh:
+        with open(args.discontinuity, newline="", encoding="utf-8") as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             rows = list(reader)
 
@@ -597,7 +604,7 @@ def build_report(args: argparse.Namespace) -> str:
             {widget_html}
           </div>
           <figcaption>
-            ntSynt-viz ribbon plot showing synteny blocks across all assemblies. {tree_str} 
+            ntSynt-viz ribbon plot showing synteny blocks across all assemblies. {tree_str}
             Interactive — hover to highlight, click to pin tooltips.
             Source: {html.escape(args.ribbon_plot)}
           </figcaption>
@@ -693,19 +700,18 @@ img {
 
 def save_pdf(html_content: str, pdf_path: str) -> None:
     """Render the HTML report to PDF using WeasyPrint."""
-    try:
-        from weasyprint import HTML, CSS
-        from weasyprint.text.fonts import FontConfiguration
-        font_config = FontConfiguration()
-        html_obj = HTML(string=html_content)
-        css = CSS(string=PDF_CSS, font_config=font_config)
-        html_obj.write_pdf(pdf_path, stylesheets=[css], font_config=font_config)
-    except ImportError:
+    if HTML is None:
         print(
             "WARNING: WeasyPrint not installed — skipping PDF output.\n"
             "Install with: mamba install -c conda-forge weasyprint",
             file=sys.stderr,
         )
+        return
+
+    font_config = FontConfiguration()
+    html_obj = HTML(string=html_content)
+    css = CSS(string=PDF_CSS, font_config=font_config)
+    html_obj.write_pdf(pdf_path, stylesheets=[css], font_config=font_config)
 
 
 # ---------------------------------------------------------------------------
@@ -713,6 +719,7 @@ def save_pdf(html_content: str, pdf_path: str) -> None:
 # ---------------------------------------------------------------------------
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments"""
     p = argparse.ArgumentParser(description="Generate a self-contained HTML report for an ntSynt run.")
     p.add_argument("--abyss-fac",       metavar="TSV",  help="abyss-fac summary TSV")
     p.add_argument("--block-stats",     metavar="TSV",  help="ntSynt synteny block stats TSV")
@@ -723,11 +730,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--mash-plot-img",   metavar="PNG",  help="Mash divergence plot image (for PDF)")
     p.add_argument("--group",           required=True,  help="Prefix name (used in title)")
     p.add_argument("--output",          required=True,  metavar="HTML", help="Output file path")
-    p.add_argument("--tree", choices=["Nuclear", "mt", "Provided", "none"], default="none", help="Phylogenetic tree type to include in report (default: none)")
+    p.add_argument("--tree", choices=["Nuclear", "mt", "Provided", "none"],
+        default="none", help="Phylogenetic tree type to include in report (default: none)")
     return p.parse_args()
 
 
 def main() -> None:
+    """Build the summary report"""
     args = parse_args()
     report, report_pdf = build_report(args)
     html_path = Path(args.output).with_suffix(".html")

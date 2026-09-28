@@ -66,6 +66,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def build_config(args: argparse.Namespace) -> dict:
+    """Build snakemake configurations"""
     assembly_dir = f"{args.prefix}_assemblies"
 
     # Paths produced by the master pipeline
@@ -82,11 +83,12 @@ def build_config(args: argparse.Namespace) -> dict:
         "mt_fasta":             args.mt_fasta,
         "prefix":               args.prefix,
         "scripts_dir":     str(SCRIPTS_DIR.resolve()),
-        "greedy_download": True if args.greedy_download else False
+        "greedy_download": bool(args.greedy_download)
     }
 
 
 def validate_paths(args: argparse.Namespace) -> None:
+    """Validate paths of input files"""
     error = None
     if args.mt_source == "user-fasta":
         if not args.mt_fasta:
@@ -101,6 +103,7 @@ def validate_paths(args: argparse.Namespace) -> None:
 
 
 def build_snakemake_cmd(args: argparse.Namespace, config: dict) -> list[str]:
+    """Build snakemake command"""
     cmd = [
         "snakemake",
         "--snakefile", str(SNAKEFILE),
@@ -129,6 +132,7 @@ def build_snakemake_cmd(args: argparse.Namespace, config: dict) -> list[str]:
 
 
 def main() -> None:
+    """Launch phylogeny snakemake"""
     args = parse_args()
     validate_paths(args)
     config = build_config(args)
@@ -148,7 +152,7 @@ def main() -> None:
 
     cmd = build_snakemake_cmd(args, config)
     print("Running:", " ".join(cmd), flush=True)
-    result = subprocess.run(cmd)
+    result = subprocess.run(cmd, check=False)
     sys.exit(result.returncode)
 
 
